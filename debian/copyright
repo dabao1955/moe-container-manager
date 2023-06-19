@@ -1,0 +1,24 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: NetworkManager-ssh
+Source: https://github.com/danfruehauf/NetworkManager-sshttps://github.com/danfruehauf/NetworkManager-ssh
+
+Files: *
+Copyright: 2023 dabao1955 <dabao1955@163.com>
+License: Apache-2.0
+
+Files: src/riru
+Copyright: 2023 Moe-hacker <moe-hacker@outlook.com>
+
+License Apache-2.0
+
+Files: src/container-console
+Copyright: 2023 Moe-hacker <moe-hacker@outlook.com>
+
+License Apache-2.0
+
+License: Apache-2.0
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ http://www.apache.org/licenses/LICENSE-2.0
+

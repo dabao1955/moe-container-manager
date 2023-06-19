@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+ps -ef | grep chroot | cut -c 9-15 | xargs kill -9
+test -d /etc/container | rm -rf -v
