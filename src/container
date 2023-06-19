@@ -259,9 +259,9 @@ PULL_ROOTFS(){
     [[ -e /var/container ]]||mkdir -p /var/container
     cd /tmp/container
     axel -n16 ${URL}
-    proot -0 -l tar -xvf ${ROOTFS}
+    proot -0  tar -xvf ${ROOTFS}
     cd parrot-${ARCH}
-    proot -l -0 tar -cvJf ../rootfs.tar.xz .
+    proot -0 tar -cvJf ../rootfs.tar.xz .
     cd ..
     rm ${ROOTFS}
     rm -rf parrot-${ARCH}
@@ -273,7 +273,7 @@ PULL_ROOTFS(){
     cd /tmp/container
     wget https://osdn.net/projects/manjaro-arm/storage/.rootfs/Manjaro-ARM-aarch64-latest.tar.gz
     mkdir manjaro
-    proot -0 -l tar -xvf Manjaro-ARM-aarch64-latest.tar.gz -C manjaro
+    proot -0  tar -xvf Manjaro-ARM-aarch64-latest.tar.gz -C manjaro
     echo "Server = https://mirrors.bfsu.edu.cn/manjaro/arm-stable/\$repo/\$arch" > manjaro/etc/pacman.d/mirrorlist
     pacmanconf="
 [options]
@@ -361,7 +361,7 @@ Include = /etc/pacman.d/mirrorlist
     unset LD_PRELOAD
     ${COMMAND}
     cd manjaro
-    proot -0 -l tar -cvJf ../rootfs.tar.xz .
+    proot -0 tar -cvJf ../rootfs.tar.xz .
     mv ../rootfs.tar.xz /var/container/manjaro-current-arm64.tar.xz
     cd ~
     proot -0 rm -rf /tmp/container
@@ -402,7 +402,7 @@ CREATE_CHROOT_CONTAINER(){
   [[ -e ${CONTAINER_DIR}/dev ]]||mkdir ${CONTAINER_DIR}/dev
   [[ -e ${CONTAINER_DIR}/proc ]]||mkdir ${CONTAINER_DIR}/proc
   [[ -e ${CONTAINER_DIR}/sys ]]||mkdir ${CONTAINER_DIR}/sys
-  [[ -e ${CONTAINER_DIR}/sdcard ]]||mkdir ${CONTAINER_DIR}/sdcard
+
   #自动修复dns
   rm -f ${CONTAINER_DIR}/etc/resolv.conf >> /dev/null 2>&1
   echo nameserver 8.8.8.8 >> ${CONTAINER_DIR}/etc/resolv.conf
@@ -445,11 +445,11 @@ CREATE_PROOT_CONTAINER(){
     echo -e "\033[31m$(${GETTEXT} "Failed to create container directory !")${COLOR}"
     return 1
   fi
-  pv /var/container/$ROOTFS|proot -0 -l tar -xJf - -C ${CONTAINER_DIR}
+  pv /var/container/$ROOTFS|proot -0 tar -xJf - -C ${CONTAINER_DIR}
   [[ -e ${CONTAINER_DIR}/dev ]]||mkdir ${CONTAINER_DIR}/dev
   [[ -e ${CONTAINER_DIR}/proc ]]||mkdir ${CONTAINER_DIR}/proc
   [[ -e ${CONTAINER_DIR}/sys ]]||mkdir ${CONTAINER_DIR}/sys
-  [[ -e ${CONTAINER_DIR}/sdcard ]]||mkdir ${CONTAINER_DIR}/sdcard
+
   rm -f ${CONTAINER_DIR}/etc/resolv.conf >> /dev/null 2>&1
   echo nameserver 8.8.8.8 >> ${CONTAINER_DIR}/etc/resolv.conf
   echo nameserver 114.114.114.114 >> ${CONTAINER_DIR}/etc/resolv.conf
@@ -530,14 +530,10 @@ RUN_CHROOT_CONTAINER(){
     echo -e "\033[31m$(${GETTEXT} "Error: Container directory does not exist !")${COLOR}"
     return 1
   fi
-  [[ -e ${CONTAINER_DIR}/sdcard ]]||mkdir -p ${CONTAINER_DIR}/sdcard
-  if [[ ${MOUNT_SDCARD} == "true" ]];then
-    mount --bind -o ro /sdcard ${CONTAINER_DIR}/sdcard
-  fi
+
+  
   #直接挂载termux的tmp
-  mount --bind ${PREFIX}/tmp ${CONTAINER_DIR}/tmp
-  #解决sudo提示nosuid挂载无法使用
-  mount -o remount,suid /data  >> /dev/null 2>&1
+  mount --bind /tmp ${CONTAINER_DIR}/tmp
   CONTAINER_PARAMETER="-w"
   if [[ ${ENABLE_UNSHARE} == "true" ]];then
     CONTAINER_PARAMETER+=" -u"
@@ -610,9 +606,7 @@ RUN_PROOT_CONTAINER(){
   COMMAND+=" -b /sys"
   COMMAND+=" -b /proc"
   COMMAND+=" -w /root"
-  if [[ ${MOUNT_SDCARD} = "true" ]];then
-    COMMAND+=" -b /sdcard"
-  fi
+
   if [[ ${CROSS_ARCH} != "null" ]];then
     COMMAND+=" -q qemu-${CROSS_ARCH}"
   fi
@@ -805,18 +799,7 @@ CONTAINER_NEW(){
       esac
     done
   fi
-  echo -e "\n$(${GETTEXT} "You can mount /sdcard to the container to share files in your phone.However,it's not a secure way.It's recommended to use \`container cp\` instead.")\n"
-  while :
-  do
-    read -p "[] $(${GETTEXT} "Mount sdcard [true/false]") > " MOUNT_SDCARD
-    if [[ $? != 0 ]];then
-      echo
-      return 1
-    fi
-    if [[ ${MOUNT_SDCARD} == "true" ]]||[[ ${MOUNT_SDCARD} == "false" ]];then
-      break
-    fi
-  done
+
   echo -e "\n$(${GETTEXT} "You can create a new common user in the container.If you don't want it,just press Enter here.")\n"
   while :
   do
@@ -998,7 +981,7 @@ EXPORT_CONTAINER(){
   if [[ ${TYPE} == "chroot" ]];then
     tar -JPpcvf ${FILE} .
   else
-    proot -l tar -JPpcvf ${FILE} .
+    proot tar -JPpcvf ${FILE} .
   fi
   echo -e "$(${GETTEXT} "Export done, file:") ${FILE}"
 }
