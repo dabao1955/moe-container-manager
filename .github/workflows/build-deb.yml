@@ -26,7 +26,7 @@ jobs:
 
           sudo apt update
 
-          sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config 
+          sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev lintian pkg-config 
 
       - name: Pull source code
 
@@ -39,26 +39,7 @@ jobs:
         run: |
 
           cd code && sudo dpkg-buildpackage -b -us -uc && sudo cp ../moe*.deb /root/
-
-  lintian-check:
-
-    runs-on: ubuntu-latest
-
-    needs: build-deb
-
-    steps:
-
-      - uses: actions/checkout@v3
-
-      
-
-      - name: Setup Enviroment
-      
-        run: |
-          sudo apt install -y lintian
       - name: Lintian check
-
         run: |
-          sudo chmod 777 -R -v /root/moe-container-manager_0.0.1alpha_amd64.deb 
-          sudo lintian /root/moe-container-manager_0.0.1alpha_amd64.deb
-          
+          sudo lintian ../moe-container-manager_0.0.1alpha_amd64.deb
+  
