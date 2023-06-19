@@ -8,6 +8,6 @@ Homepage: http://github.com/dabao1955/moe-container-manager
 
 Package: moe-container-manager
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends} , p7zip-full, unzip, zip, git, wget, curl, nano, whiptail, proot, axel, pv, gawk, gettext
+Depends: p7zip-full, unzip, zip, git, wget, curl, nano, whiptail, proot, axel, pv, gawk, gettext
 Description: container manager for proot and chroot.
  This is a container manager based on moe-hacker/termux-container
