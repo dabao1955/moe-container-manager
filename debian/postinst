@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 #TODO:测试
+set -e
+
 if [[ -e $PREFIX/etc/container/global.conf ]];then
   echo -e "\033[1;38;2;254;228;208mUpgrade script for moe-container-manager v8 to v9."
   echo -e "This script will automatically detecte the old config file and try to convert them to the new version."
