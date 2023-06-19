@@ -1,0 +1,58 @@
+name: build deb
+
+on:
+
+  push:
+
+    branches: [ "main" ]
+
+  pull_request:
+
+    branches: [ "main" ]
+
+jobs:
+
+  build-gcc:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: Setup environment
+
+        run: |
+
+          sudo apt update
+
+          sudo apt install -y debhelper build-essential clang dpkg-dev pkg-config 
+
+      - name: Pull source code
+
+        run: |
+
+          git clone https://github.com/dabao1955/moe-container-manager/ code
+          
+      - name: Build deb
+
+        run: |
+
+          cd code && dpkg-buildpackage -b -us -uc && sudo cp ../moe*.deb /root/
+
+  lintian-check:
+
+    runs-on: ubuntu-latest
+
+    needs: build-gcc
+
+    steps:
+
+      - uses: actions/checkout@v3
+
+      
+
+      - name: Lintian check
+      
+        run: |
+          sudo apt install -y lintian && lintian /root/moe*.deb
