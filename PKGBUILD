@@ -1,12 +1,12 @@
 # Maintainer: dabao1955 <dabao1955@163.com>
 
-pkgname=moe-container-mamager
+pkgname=moe-container-manager
 
 pkgver=0.0.1
 
 pkgrel=1
 
-pkgdesc=""
+pkgdesc="container manager for proot and chroot"
 
 arch=(any)
 
@@ -14,39 +14,19 @@ url="https://github.com/dabao1955/moe-container-manager"
 
 license=('Apache-2.0')
 
-groups=()
+depends=(p7zip unzip zip git wget curl nano proot axel pv gawk gettext)
 
-depends=()
+makedepends=(git clang make libcap)
 
-makedepends=()
-
-optdepends=()
-
-provides=()
-
-conflicts=()
-
-replaces=()
-
-backup=()
-
-options=()
-
-install=
-
-changelog=
-
-source=($pkgname-$pkgver.tar.gz)
+source=(git+https://github.com/dabao1955/moe-container-manager/)
 
 noextract=()
 
-md5sums=() #autofill using updpkgsums
+md5sums=('SKIP')
 
 build() {
 
-  cd "$pkgname-$pkgver"
-
-  ./configure --prefix=/usr
+  cd "$pkgname"
 
   make
 
@@ -54,7 +34,7 @@ build() {
 
 package() {
 
-  cd "$pkgname-$pkgver"
+  cd "$pkgname"
 
   make DESTDIR="$pkgdir/" install
 

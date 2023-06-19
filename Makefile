@@ -55,7 +55,6 @@ ifneq ($(shell test -f $(CONTAINER_CONSOLE)||echo x),)
 endif
 src/ruri/ruri.c:
 	@printf "\033[1;38;2;254;228;208m[+] Update source code.\033[0m\n"&&sleep 1s
-	@git pull
 	@printf "\033[1;38;2;254;228;208m[+] Update submodule.\033[0m\n"&&sleep 1s
 	@git submodule update --init
 RURI = $(O)/bin/ruri
