@@ -8,7 +8,9 @@
 <img src="https://stars.medv.io/dabao1954/moe-container-manager.svg", title="commits" width="50%"/>
 
 </p>
-![img](https://img.shields.io/github/license/dabao1955/moe-container-manager?style=for-the-badge&color=fee4d0&logo=apache&logoColor=fee4d0)
+
+
+![](https://img.shields.io/github/license/dabao1955/moe-container-manager?style=for-the-badge&color=fee4d0&logo=apache&logoColor=fee4d0)
 
 ![](https://img.shields.io/github/repo-size/dabao1955/moe-container-manager?style=for-the-badge&color=fee4d0&logo=files&logoColor=fee4d0)
 
