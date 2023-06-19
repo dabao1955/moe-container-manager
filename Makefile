@@ -1,3 +1,9 @@
+CCCOLOR     = \033[1;38;2;254;228;208m
+STRIPCOLOR  = \033[1;38;2;254;228;208m
+BINCOLOR    = \033[34;1m
+ENDCOLOR    = \033[0m
+CC_LOG = @printf '    $(CCCOLOR)CC$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
+STRIP_LOG = @printf ' $(STRIPCOLOR)STRIP$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 O = out
 .PHONY: all
 all: show-greetings build
@@ -43,7 +49,9 @@ CONTAINER_CONSOLE = $(O)/bin/container-console
 $(CONTAINER_CONSOLE):$(BIN)
 ifneq ($(shell test -f $(CONTAINER_CONSOLE)||echo x),)
 	@printf "\033[1;38;2;254;228;208m[+] Compile container-console.\033[0m\n"&&sleep 1s
-	@cd src/container-console&&clang -static -ffunction-sections -fdata-sections -Wl,--gc-sections -O3 -z noexecstack -z now -fstack-protector-all -fPIE -flto container-console.c -o container-console&&strip container-console
+	@cd src/container-console
+	@clang -static -ffunction-sections -fdata-sections -Wl,--gc-sections -O3 -z noexecstack -z now -fstack-protector-all -fPIE -flto container-console.c -o container-console&&strip container-console 
+	@cc pkc.c -o pkc
 	@mv -v src/container-console/container-console $(O)/bin/container-console
 endif
 src/ruri/ruri.c:
