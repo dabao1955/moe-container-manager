@@ -1,4 +1,11 @@
 #!/bin/bash
 set -e
+
+if ps -ef | grep chroot
+then
 ps -ef | grep chroot | cut -c 9-15 | xargs kill -9
+else
+echo no chroot container running！
+fi
+
 test -d /etc/container | rm -rf -v
