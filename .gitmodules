@@ -1,0 +1,3 @@
+[submodule "src/ruri"]
+	path = src/ruri
+	url = https://github.com/Moe-hacker/ruri
