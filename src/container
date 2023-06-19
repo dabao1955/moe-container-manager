@@ -318,7 +318,6 @@ Include = /etc/pacman.d/mirrorlist
     echo "yes \"\"|pacman -Syy base base-devel" >> manjaro/tmp/pacman-init.sh
     chmod 777 manjaro/tmp/pacman-init.sh
     COMMAND="proot"
-    COMMAND+=" --link2symlink"
     COMMAND+=" --kill-on-exit"
     COMMAND+=" --sysvipc"
     COMMAND+=" -0"
@@ -459,7 +458,7 @@ CREATE_PROOT_CONTAINER(){
     sed -i "s/PASSWORD=\"\"/PASSWORD=${PASSWORD}/" ${CONTAINER_DIR}/tmp/group_add.sh
   fi
   unset LD_PRELOAD
-  COMMAND="proot --link2symlink --sysvipc -0 -r ${CONTAINER_DIR} -b /dev -b /sys -b /proc -w /root"
+  COMMAND="proot --sysvipc -0 -r ${CONTAINER_DIR} -b /dev -b /sys -b /proc -w /root"
   if [[ ${CROSS_ARCH} != "null" ]];then
     COMMAND+=" -q qemu-${CROSS_ARCH}"
   fi
@@ -596,7 +595,6 @@ RUN_PROOT_CONTAINER(){
   fi
   unset LD_PRELOAD
   COMMAND="proot"
-  COMMAND+=" --link2symlink"
   COMMAND+=" --kill-on-exit"
   COMMAND+=" --sysvipc"
   COMMAND+=" -0"
