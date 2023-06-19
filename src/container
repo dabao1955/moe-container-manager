@@ -1,6 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: Apache-2.0
-# This file is part of termux-container.
+# This file is part of moe-container-manager.
 #
 # Copyright (c) 2023 Moe-hacker
 #
@@ -30,7 +30,13 @@
 #加入表情
 ##################################
 #用于国际化
-export GETTEXT='gettext termux-container'
+set -e
+
+test -d /var/container || mkdir -p -v /var/container 
+test -d /etc/container || mkdir -p -v /etc/container
+test -d /tmp/container || mkdir -p -v /tmp/container
+
+export GETTEXT='gettext moe-container-manager'
 #版本号定义，建议直接改成114514(雾)
 TERMUX_CONTAINER_VERSION="9.0-dev"
 #此处定义输出rgb色彩值，据说是鹿乃的应援色呢！
@@ -62,7 +68,7 @@ HOPPOU="\033[1;38;2;88;88;88m\033[${LINE}C                   ▅▅▀▀▀▀�
 "
 printf "${HOPPOU}"
 #无聊的开场白
-echo -e "\033[${LINE}C            ${COLOR}$(${GETTEXT} "Console of Termux-container")"
+echo -e "\033[${LINE}C            ${COLOR}$(${GETTEXT} "Console of moe-container-manager")"
 echo -e "\033[${LINE}C         $(date)"
 #学习自docker的check-config.sh
 kernelVersion="$(uname -r)"
@@ -180,15 +186,15 @@ CONTAINER_CP(){
     HOST_PATH=$1
     CP_MODE=2
   fi
-  if [[ -e $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf ]];then
-    source $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf
+  if [[ -e /etc/container/proot/container-${CONTAINER_NAME}.conf ]];then
+    source /etc/container/proot/container-${CONTAINER_NAME}.conf
     if [[ $CP_MODE == 1 ]];then
       cp ${CONTAINER_DIR}${CONTAINER_PATH} ${HOST_PATH}
     else
       cp ${HOST_PATH} ${CONTAINER_DIR}${CONTAINER_PATH}
     fi
-  elif [[ -e $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
-    source $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf
+  elif [[ -e /etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
+    source /etc/container/chroot/container-${CONTAINER_NAME}.conf
     if [[ $CP_MODE == 1 ]];then
       sudo cp ${CONTAINER_DIR}${CONTAINER_PATH} ${HOST_PATH}
     else
@@ -213,7 +219,7 @@ PULL_ROOTFS(){
   else
     ARCH=$3
   fi
-  if [[ -e $PREFIX/var/container/${OS}-${VERSION}-${ARCH}.tar.xz ]];then
+  if [[ -e /var/container/${OS}-${VERSION}-${ARCH}.tar.xz ]];then
     echo -e "\033[31m$(${GETTEXT} "Error: Rootfs already exists !")${COLOR}"
     return 1
   fi
@@ -231,16 +237,16 @@ PULL_ROOTFS(){
       return 1
     fi
     URL=${MIRROR}/${OS}/${VERSION}/${ARCH}/${VERSION2}/${TIME}/rootfs.tar.xz
-    rm -rf $PREFIX/tmp/container
-    mkdir -p $PREFIX/tmp/container
-    [[ -e $PREFIX/var/container ]]||mkdir -p $PREFIX/var/container
-    cd $PREFIX/tmp/container
+    rm -rf /tmp/container
+    mkdir -p /tmp/container
+    [[ -e /var/container ]]||mkdir -p /var/container
+    cd /tmp/container
     axel -n16 ${URL}
     if [[ $? != 0 ]];then
       echo -e "\033[31m$(${GETTEXT} "Error: Failed to download rootfs !")${COLOR}"
       return 1
     fi
-    mv rootfs.tar.xz $PREFIX/var/container/${OS}-${VERSION}-${ARCH}.tar.xz
+    mv rootfs.tar.xz /var/container/${OS}-${VERSION}-${ARCH}.tar.xz
   elif [[ $OS == "parrot" ]];then
     ROOTFS=$(curl -sL https://mirrors.bfsu.edu.cn/parrot/iso/testing/|grep title|sed -E 's@<a (href)@\n\1@g'| awk -F 'href=' '{print $2}' | cut -d '"' -f 2|tail -n +5|grep ".tar.xz"|grep ${ARCH}|head -n 1)
     if [[ ${ROOTFS} = "" ]];then
@@ -248,10 +254,10 @@ PULL_ROOTFS(){
       return 1
     fi
     URL="https://mirrors.bfsu.edu.cn/parrot/iso/testing/${ROOTFS}"
-    proot -0 rm -rf $PREFIX/tmp/container
-    mkdir -p $PREFIX/tmp/container
-    [[ -e $PREFIX/var/container ]]||mkdir -p $PREFIX/var/container
-    cd $PREFIX/tmp/container
+    proot -0 rm -rf /tmp/container
+    mkdir -p /tmp/container
+    [[ -e /var/container ]]||mkdir -p /var/container
+    cd /tmp/container
     axel -n16 ${URL}
     proot -0 -l tar -xvf ${ROOTFS}
     cd parrot-${ARCH}
@@ -259,12 +265,12 @@ PULL_ROOTFS(){
     cd ..
     rm ${ROOTFS}
     rm -rf parrot-${ARCH}
-    mv rootfs.tar.xz $PREFIX/var/container/parrot-current-${ARCH}.tar.xz
+    mv rootfs.tar.xz /var/container/parrot-current-${ARCH}.tar.xz
   else
-    proot -0 rm -rf $PREFIX/tmp/container
-    mkdir -p $PREFIX/tmp/container
-    [[ -e $PREFIX/var/container ]]||mkdir -p $PREFIX/var/container
-    cd $PREFIX/tmp/container
+    proot -0 rm -rf /tmp/container
+    mkdir -p /tmp/container
+    [[ -e /var/container ]]||mkdir -p /var/container
+    cd /tmp/container
     wget https://osdn.net/projects/manjaro-arm/storage/.rootfs/Manjaro-ARM-aarch64-latest.tar.gz
     mkdir manjaro
     proot -0 -l tar -xvf Manjaro-ARM-aarch64-latest.tar.gz -C manjaro
@@ -314,51 +320,51 @@ Include = /etc/pacman.d/mirrorlist
     COMMAND+=" --kill-on-exit"
     COMMAND+=" --sysvipc"
     COMMAND+=" -0"
-    COMMAND+=" -r $PREFIX/tmp/container/manjaro"
+    COMMAND+=" -r /tmp/container/manjaro"
     COMMAND+=" -b /dev"
     COMMAND+=" -b /sys"
     COMMAND+=" -b /proc"
     COMMAND+=" -w /root"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/buddyinfo:/proc/buddyinfo"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/cgroups:/proc/cgroups"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/consoles:/proc/consoles"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/crypto:/proc/crypto"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/devices:/proc/devices"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/diskstats:/proc/diskstats"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/execdomains:/proc/execdomains"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/fb:/proc/fb"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/filesystems:/proc/filesystems"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/interrupts:/proc/interrupts"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/iomem:/proc/iomem"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/ioports:/proc/ioports"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/kallsyms:/proc/kallsyms"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/key-users:/proc/key-users"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/keys:/proc/keys"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/kpageflags:/proc/kpageflags"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/loadavg:/proc/loadavg"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/locks:/proc/locks"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/misc:/proc/misc"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/modules:/proc/modules"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/pagetypeinfo:/proc/pagetypeinfo"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/partitions:/proc/partitions"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/sched_debug:/proc/sched_debug"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/softirqs:/proc/softirqs"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/stat:/proc/stat"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/timer_list:/proc/timer_list"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/uptime:/proc/uptime"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/version:/proc/version"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/vmallocinfo:/proc/vmallocinfo"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/vmstat:/proc/vmstat"
-    COMMAND+=" --mount=$PREFIX/share/termux-container/proc/zoneinfo:/proc/zoneinfo"
-    COMMAND+=" --mount=$PREFIX/tmp:/tmp"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/buddyinfo:/proc/buddyinfo"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/cgroups:/proc/cgroups"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/consoles:/proc/consoles"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/crypto:/proc/crypto"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/devices:/proc/devices"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/diskstats:/proc/diskstats"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/execdomains:/proc/execdomains"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/fb:/proc/fb"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/filesystems:/proc/filesystems"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/interrupts:/proc/interrupts"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/iomem:/proc/iomem"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/ioports:/proc/ioports"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/kallsyms:/proc/kallsyms"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/key-users:/proc/key-users"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/keys:/proc/keys"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/kpageflags:/proc/kpageflags"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/loadavg:/proc/loadavg"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/locks:/proc/locks"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/misc:/proc/misc"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/modules:/proc/modules"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/pagetypeinfo:/proc/pagetypeinfo"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/partitions:/proc/partitions"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/sched_debug:/proc/sched_debug"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/softirqs:/proc/softirqs"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/stat:/proc/stat"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/timer_list:/proc/timer_list"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/uptime:/proc/uptime"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/version:/proc/version"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/vmallocinfo:/proc/vmallocinfo"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/vmstat:/proc/vmstat"
+    COMMAND+=" --mount=/usr/share/moe-container-manager/proc/zoneinfo:/proc/zoneinfo"
+    COMMAND+=" --mount=/tmp:/tmp"
     COMMAND+="/bin/sh /tmp/pacman-init.sh"
     unset LD_PRELOAD
     ${COMMAND}
     cd manjaro
     proot -0 -l tar -cvJf ../rootfs.tar.xz .
-    mv ../rootfs.tar.xz $PREFIX/var/container/manjaro-current-arm64.tar.xz
+    mv ../rootfs.tar.xz /var/container/manjaro-current-arm64.tar.xz
     cd ~
-    proot -0 rm -rf $PREFIX/tmp/container
+    proot -0 rm -rf /tmp/container
   fi
   return 0
 }
@@ -370,8 +376,8 @@ REMOVE_IMAGE(){
   if [[ ${ARCH} == "" ]];then
     GET_CPU_ARCH
   fi
-  if [[ -e $PREFIX/var/container/${OS}-${VERSION}-${ARCH}.tar.xz ]];then
-    rm -fv $PREFIX/var/container/${OS}-${VERSION}-${ARCH}.tar.xz
+  if [[ -e /var/container/${OS}-${VERSION}-${ARCH}.tar.xz ]];then
+    rm -fv /var/container/${OS}-${VERSION}-${ARCH}.tar.xz
   else
     echo -e "\033[31m$(${GETTEXT} "Error: Rootfs does not exist !")${COLOR}"
   fi
@@ -388,7 +394,7 @@ CREATE_CHROOT_CONTAINER(){
     echo -e "\033[31m$(${GETTEXT} "Error: Failed to create container directory !")${COLOR}"
     return 1
   fi
-  pv $PREFIX/var/container/$ROOTFS|tar -xJf - -C ${CONTAINER_DIR}
+  pv /var/container/$ROOTFS|tar -xJf - -C ${CONTAINER_DIR}
   #修复su二进制的文件权限
   chown root:root ${CONTAINER_DIR}/bin/su
   chmod 777 ${CONTAINER_DIR}/bin/su
@@ -402,7 +408,7 @@ CREATE_CHROOT_CONTAINER(){
   echo nameserver 8.8.8.8 >> ${CONTAINER_DIR}/etc/resolv.conf
   echo nameserver 114.114.114.114 >> ${CONTAINER_DIR}/etc/resolv.conf
   #解决联网问题
-  cp $PREFIX/share/termux-container/group_add.sh ${CONTAINER_DIR}/tmp
+  cp /usr/share/moe-container-manager/group_add.sh ${CONTAINER_DIR}/tmp
   chmod 777 ${CONTAINER_DIR}/tmp/group_add.sh
   if [[ ${NEW_USER} != "" && ${PASSWORD} != "" ]];then
     sed -i "s/NEW_USER=\"\"/NEW_USER=${NEW_USER}/" ${CONTAINER_DIR}/tmp/group_add.sh
@@ -439,7 +445,7 @@ CREATE_PROOT_CONTAINER(){
     echo -e "\033[31m$(${GETTEXT} "Failed to create container directory !")${COLOR}"
     return 1
   fi
-  pv $PREFIX/var/container/$ROOTFS|proot -0 -l tar -xJf - -C ${CONTAINER_DIR}
+  pv /var/container/$ROOTFS|proot -0 -l tar -xJf - -C ${CONTAINER_DIR}
   [[ -e ${CONTAINER_DIR}/dev ]]||mkdir ${CONTAINER_DIR}/dev
   [[ -e ${CONTAINER_DIR}/proc ]]||mkdir ${CONTAINER_DIR}/proc
   [[ -e ${CONTAINER_DIR}/sys ]]||mkdir ${CONTAINER_DIR}/sys
@@ -447,7 +453,7 @@ CREATE_PROOT_CONTAINER(){
   rm -f ${CONTAINER_DIR}/etc/resolv.conf >> /dev/null 2>&1
   echo nameserver 8.8.8.8 >> ${CONTAINER_DIR}/etc/resolv.conf
   echo nameserver 114.114.114.114 >> ${CONTAINER_DIR}/etc/resolv.conf
-  cp $PREFIX/share/termux-container/group_add.sh ${CONTAINER_DIR}/tmp/
+  cp /usr/share/moe-container-manager/group_add.sh ${CONTAINER_DIR}/tmp/
   chmod 777 ${CONTAINER_DIR}/tmp/group_add.sh
   if [[ ${NEW_USER} != "" && ${PASSWORD} != "" ]];then
     sed -i "s/NEW_USER=\"\"/NEW_USER=${NEW_USER}/" ${CONTAINER_DIR}/tmp/group_add.sh
@@ -477,11 +483,11 @@ RUN_CHROOT_CONTAINER(){
     return 1
   fi
   CONTAINER_NAME=$1
-  if [[ ! -e $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
+  if [[ ! -e /etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
     echo -e "\033[31m$(${GETTEXT} "Error: Container does not exist !")${COLOR}"
     return 1
   fi
-  source $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf
+  source /etc/container/chroot/container-${CONTAINER_NAME}.conf
   if [[ ${BE_SILENT} != 'true' ]];then
   kernelVersion="$(uname -r)"
   kernelMajor="${kernelVersion%%.*}"
@@ -500,7 +506,7 @@ RUN_CHROOT_CONTAINER(){
   echo -e ""
   LINE=$(($(stty size|awk '{print $2}')))
   LINE=$(($LINE-16))
-  echo -e "\e[30;1;48;2;254;228;208;38;2;0;0;0mTERMUX-CONTAINER$(yes " "|sed ${LINE}'q'|tr -d '\n')\033[0m"
+  echo -e "\e[30;1;48;2;254;228;208;38;2;0;0;0mmoe-container-manager$(yes " "|sed ${LINE}'q'|tr -d '\n')\033[0m"
   echo -e "${COLOR}"
   echo -e "//"
   echo -e ""
@@ -514,7 +520,7 @@ RUN_CHROOT_CONTAINER(){
   echo -e "  \\        \\  /    [] CONTAINER DIR: $(echo ${CONTAINER_DIR}|sed 's#/data/data/com.termux/files/home#$HOME#'|sed 's#/data/data/com.termux/files/usr#$PREFIX#')"
   echo -e "   \\________\\/     [] PRIVAGE LEVEL: ${PRIVAGE_LEVEL}"
   echo -e ""
-  echo -e "〉TERMUX-CONTAINER"
+  echo -e "〉moe-container-manager"
   LINE=$(($(stty size|awk '{print $2}')))
   echo -e "$(yes "─"|sed ${LINE}'q'|tr -d '\n')"
   echo -e "//////"
@@ -550,11 +556,11 @@ RUN_CHROOT_CONTAINER(){
 #proot容器运行
 RUN_PROOT_CONTAINER(){
   CONTAINER_NAME=$1
-  if [[ ! -e $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf ]];then
+  if [[ ! -e /etc/container/proot/container-${CONTAINER_NAME}.conf ]];then
     echo -e "\033[31m$(${GETTEXT} "Error: Container does not exist !")${COLOR}"
     return 1
   fi
-  source $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf
+  source /etc/container/proot/container-${CONTAINER_NAME}.conf
   if [[ ${BE_SILENT} != 'true' ]];then
   kernelVersion="$(uname -r)"
   kernelMajor="${kernelVersion%%.*}"
@@ -569,7 +575,7 @@ RUN_PROOT_CONTAINER(){
   echo -e ""
   LINE=$(($(stty size|awk '{print $2}')))
   LINE=$(($LINE-16))
-  echo -e "\e[30;1;48;2;254;228;208;38;2;0;0;0mTERMUX-CONTAINER$(yes " "|sed ${LINE}'q'|tr -d '\n')\033[0m"
+  echo -e "\e[30;1;48;2;254;228;208;38;2;0;0;0mmoe-container-manager$(yes " "|sed ${LINE}'q'|tr -d '\n')\033[0m"
   echo -e "${COLOR}"
   echo -e "//"
   echo -e ""
@@ -583,7 +589,7 @@ RUN_PROOT_CONTAINER(){
   echo -e "  \\        \\  /    [] CONTAINER_DIR: $(echo ${CONTAINER_DIR}|sed 's#/data/data/com.termux/files/home#$HOME#'|sed 's#/data/data/com.termux/files/usr#$PREFIX#')"
   echo -e "   \\________\\/     [] VERSION: 9.0-dev"
   echo -e ""
-  echo -e "〉TERMUX-CONTAINER"
+  echo -e "〉moe-container-manager"
   LINE=$(($(stty size|awk '{print $2}')))
   echo -e "$(yes "─"|sed ${LINE}'q'|tr -d '\n')"
   echo -e "//////"
@@ -611,39 +617,39 @@ RUN_PROOT_CONTAINER(){
     COMMAND+=" -q qemu-${CROSS_ARCH}"
   fi
   #挂载伪文件，提取自Redmi 10X 5G，老古董了
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/buddyinfo:/proc/buddyinfo"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/cgroups:/proc/cgroups"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/consoles:/proc/consoles"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/crypto:/proc/crypto"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/devices:/proc/devices"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/diskstats:/proc/diskstats"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/execdomains:/proc/execdomains"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/fb:/proc/fb"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/filesystems:/proc/filesystems"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/interrupts:/proc/interrupts"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/iomem:/proc/iomem"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/ioports:/proc/ioports"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/kallsyms:/proc/kallsyms"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/key-users:/proc/key-users"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/keys:/proc/keys"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/kpageflags:/proc/kpageflags"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/loadavg:/proc/loadavg"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/locks:/proc/locks"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/misc:/proc/misc"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/modules:/proc/modules"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/pagetypeinfo:/proc/pagetypeinfo"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/partitions:/proc/partitions"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/sched_debug:/proc/sched_debug"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/softirqs:/proc/softirqs"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/stat:/proc/stat"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/timer_list:/proc/timer_list"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/uptime:/proc/uptime"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/version:/proc/version"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/vmallocinfo:/proc/vmallocinfo"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/vmstat:/proc/vmstat"
-  COMMAND+=" --mount=$PREFIX/share/termux-container/proc/zoneinfo:/proc/zoneinfo"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/buddyinfo:/proc/buddyinfo"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/cgroups:/proc/cgroups"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/consoles:/proc/consoles"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/crypto:/proc/crypto"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/devices:/proc/devices"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/diskstats:/proc/diskstats"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/execdomains:/proc/execdomains"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/fb:/proc/fb"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/filesystems:/proc/filesystems"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/interrupts:/proc/interrupts"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/iomem:/proc/iomem"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/ioports:/proc/ioports"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/kallsyms:/proc/kallsyms"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/key-users:/proc/key-users"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/keys:/proc/keys"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/kpageflags:/proc/kpageflags"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/loadavg:/proc/loadavg"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/locks:/proc/locks"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/misc:/proc/misc"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/modules:/proc/modules"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/pagetypeinfo:/proc/pagetypeinfo"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/partitions:/proc/partitions"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/sched_debug:/proc/sched_debug"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/softirqs:/proc/softirqs"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/stat:/proc/stat"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/timer_list:/proc/timer_list"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/uptime:/proc/uptime"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/version:/proc/version"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/vmallocinfo:/proc/vmallocinfo"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/vmstat:/proc/vmstat"
+  COMMAND+=" --mount=/usr/share/moe-container-manager/proc/zoneinfo:/proc/zoneinfo"
   #挂载termux的tmp目录
-  COMMAND+=" --mount=$PREFIX/tmp:/tmp"
+  COMMAND+=" --mount=/tmp:/tmp"
   COMMAND+=" /bin/su - root"
   printf "\033[0m"
   ${COMMAND}
@@ -652,9 +658,9 @@ RUN_PROOT_CONTAINER(){
 #自动判断容器类型并调用相关函数运行
 RUN_CONTAINER(){
   CONTAINER_NAME=$1
-  if [[ -e $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf ]];then
+  if [[ -e /etc/container/proot/container-${CONTAINER_NAME}.conf ]];then
     RUN_PROOT_CONTAINER ${CONTAINER_NAME}
-  elif [[ -e $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
+  elif [[ -e /etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
     if [[ $(whoami) != "root" ]];then
       sudo container -e RUN_CHROOT_CONTAINER ${CONTAINER_NAME}
       return
@@ -730,7 +736,7 @@ CONTAINER_NEW(){
       return 1
     fi
     if [[ ${CONTAINER_NAME} != "" ]];then
-      if [[ ! -e $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf ]]&&[[ ! -e $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
+      if [[ ! -e /etc/container/proot/container-${CONTAINER_NAME}.conf ]]&&[[ ! -e /etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
         echo
         break
       else
@@ -886,7 +892,7 @@ CONTAINER_NEW(){
           return 1
         fi
         if [[ ${VERSION} != "" ]];then
-          if [[ ! -e $PREFIX/var/container/${OS}-${VERSION}-${ARCH}.tar.xz ]];then
+          if [[ ! -e /var/container/${OS}-${VERSION}-${ARCH}.tar.xz ]];then
             PULL_ROOTFS ${OS} ${VERSION} ${ARCH}&&break
           else
             break
@@ -918,15 +924,15 @@ CONTAINER_NEW(){
   fi
   if [[ ${CONTAINER_TYPE} == "chroot" ]];then
     sudo container -e CREATE_CHROOT_CONTAINER ${OS}-${VERSION}-${ARCH}.tar.xz ${CONTAINER_DIR} ${NEW_USER} ${PASSWORD}
-    [[ -e $PREFIX/etc/container/chroot ]]||mkdir -p $PREFIX/etc/container/chroot
-    echo -e "#This file was automatically created by termux-container.\n#Do not edit this file if you don't know what you are doing !" >> $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf
-    echo -e "OS=${OS}\nCONTAINER_DIR=${CONTAINER_DIR}\nENABLE_UNSHARE=${ENABLE_UNSHARE}\nPRIVAGE_LEVEL=${PRIVAGE_LEVEL}\nCROSS_ARCH=null\nMOUNT_SDCARD=${MOUNT_SDCARD}" >> $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf
+    [[ -e /etc/container/chroot ]]||mkdir -p /etc/container/chroot
+    echo -e "#This file was automatically created by moe-container-manager.\n#Do not edit this file if you don't know what you are doing !" >> /etc/container/chroot/container-${CONTAINER_NAME}.conf
+    echo -e "OS=${OS}\nCONTAINER_DIR=${CONTAINER_DIR}\nENABLE_UNSHARE=${ENABLE_UNSHARE}\nPRIVAGE_LEVEL=${PRIVAGE_LEVEL}\nCROSS_ARCH=null\nMOUNT_SDCARD=${MOUNT_SDCARD}" >> /etc/container/chroot/container-${CONTAINER_NAME}.conf
   else
     export CROSSARCH=${CROSS_ARCH}
     CREATE_PROOT_CONTAINER ${OS}-${VERSION}-${ARCH}.tar.xz ${CONTAINER_DIR} ${CROSS_ARCH} ${NEW_USER} ${PASSWORD}
-    [[ -e $PREFIX/etc/container/proot ]]||mkdir -p $PREFIX/etc/container/proot
-    echo -e "#This file was automatically created by termux-container.\n#Do not edit this file if you don't know what you are doing !" >> $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf
-    echo -e "OS=${OS}\nCONTAINER_DIR=${CONTAINER_DIR}\nCROSS_ARCH=${CROSSARCH}\nMOUNT_SDCARD=${MOUNT_SDCARD}" >> $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf
+    [[ -e /etc/container/proot ]]||mkdir -p /etc/container/proot
+    echo -e "#This file was automatically created by moe-container-manager.\n#Do not edit this file if you don't know what you are doing !" >> /etc/container/proot/container-${CONTAINER_NAME}.conf
+    echo -e "OS=${OS}\nCONTAINER_DIR=${CONTAINER_DIR}\nCROSS_ARCH=${CROSSARCH}\nMOUNT_SDCARD=${MOUNT_SDCARD}" >> /etc/container/proot/container-${CONTAINER_NAME}.conf
   fi
 }
 #本地镜像与容器列表
@@ -935,8 +941,8 @@ LIST(){
   echo -e "${COLOR}$(${GETTEXT} "Images:")"
   echo -e "$(${GETTEXT} "OS:Version:Arch")"
   echo -e "================"
-  if [[ -e $PREFIX/var/container ]];then
-    for IMAGE in $(ls $PREFIX/var/container);do
+  if [[ -e /var/container ]];then
+    for IMAGE in $(ls /var/container);do
       OS=${IMAGE%%-*}
       VERSION=${IMAGE#$OS-}
       VERSION=${VERSION%-*}
@@ -950,15 +956,15 @@ LIST(){
   echo -e "$(${GETTEXT} "Containers:")"
   echo -e "$(${GETTEXT} "Type:Name")"
   echo -e "================"
-  if [[ -e $PREFIX/etc/container/proot ]];then
-    for CONTAINER in $(ls $PREFIX/etc/container/proot);do
+  if [[ -e /etc/container/proot ]];then
+    for CONTAINER in $(ls /etc/container/proot);do
       NAME=${CONTAINER#container-}
       NAME=${NAME%%.conf}
       echo "proot:$NAME"
     done
   fi
-  if [[ -e $PREFIX/etc/container/chroot ]];then
-    for CONTAINER in $(ls $PREFIX/etc/container/chroot);do
+  if [[ -e /etc/container/chroot ]];then
+    for CONTAINER in $(ls /etc/container/chroot);do
       NAME=${CONTAINER#container-}
       NAME=${NAME%%.conf}
       echo "chroot:$NAME"
@@ -970,10 +976,10 @@ LIST(){
 #备份
 EXPORT_CONTAINER(){
   CONTAINER_NAME=$1
-  if [[ -e $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf ]];then
+  if [[ -e /etc/container/proot/container-${CONTAINER_NAME}.conf ]];then
     export TYPE=proot
-    source $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf
-  elif [[ -e $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
+    source /etc/container/proot/container-${CONTAINER_NAME}.conf
+  elif [[ -e /etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
     export TYPE=chroot
     if [[ $(whoami) != "root" ]];then
       sudo container -e EXPORT_CONTAINER ${CONTAINER_NAME}
@@ -1020,13 +1026,13 @@ IMPORT_ROOTFS(){
   while :
   do
     read -p "[] Version > " VERSION
-    if [[ ${VERSION} != "" ]]&&[[ ! -e $PREFIX/var/container/${OS}-${VERSION}-${ARCH}.tar.xz ]];then
+    if [[ ${VERSION} != "" ]]&&[[ ! -e /var/container/${OS}-${VERSION}-${ARCH}.tar.xz ]];then
       break
     else
       echo -e "\033[31m$(${GETTEXT} "Error: OS version already in use !")${COLOR}"
     fi
   done
-  cp ${FILE} $PREFIX/var/container/${OS}-${VERSION}-${ARCH}.tar.xz
+  cp ${FILE} /var/container/${OS}-${VERSION}-${ARCH}.tar.xz
   return 0
 }
 #提权接口，chroot容器相关函数在这里被sudo调用
@@ -1110,8 +1116,8 @@ x="${COLOR}  .^.   .^.
 #容器删除
 REMOVE_CONTAINER(){
   CONTAINER_NAME=$1
-  if [[ -e $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf ]];then
-    source $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf
+  if [[ -e /etc/container/proot/container-${CONTAINER_NAME}.conf ]];then
+    source /etc/container/proot/container-${CONTAINER_NAME}.conf
     echo -e "${COLOR}======================================="
     echo -e "$(${GETTEXT} "Name")                : ${CONTAINER_NAME}"
     echo -e "$(${GETTEXT} "OS")                  : ${OS}"
@@ -1121,14 +1127,14 @@ REMOVE_CONTAINER(){
     read -p "$(${GETTEXT} "Press Enter to remove this container or CTRL-C to exit.")"
     chmod -Rv 777 ${CONTAINER_DIR}
     rm -rfv ${CONTAINER_DIR}
-    rm -v $PREFIX/etc/container/proot/container-${CONTAINER_NAME}.conf
-  elif [[ -e $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
-    source $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf
+    rm -v /etc/container/proot/container-${CONTAINER_NAME}.conf
+  elif [[ -e /etc/container/chroot/container-${CONTAINER_NAME}.conf ]];then
+    source /etc/container/chroot/container-${CONTAINER_NAME}.conf
     if [[ $(whoami) != "root" ]];then
       sudo container -e REMOVE_CONTAINER $1
       return
     fi
-    source $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf
+    source /etc/container/chroot/container-${CONTAINER_NAME}.conf
     echo -e "======================================="
     echo -e "$(${GETTEXT} "Name")                : ${CONTAINER_NAME}"
     echo -e "$(${GETTEXT} "OS")                  : ${OS}"
@@ -1165,7 +1171,7 @@ REMOVE_CONTAINER(){
       return 1
     fi
     rm -rvf ${CONTAINER_DIR}
-    rm -v $PREFIX/etc/container/chroot/container-${CONTAINER_NAME}.conf
+    rm -v /etc/container/chroot/container-${CONTAINER_NAME}.conf
   else
     echo -e "\033[31m$(${GETTEXT} "Error: container does not exist !")${COLOR}"
     return
@@ -1204,7 +1210,7 @@ SHOW_USAGE(){
   let SIZE=$(($SIZE-16))
   echo "//"
   echo
-  echo -e "\e[30;1;48;2;254;228;208;38;2;0;0;0mTERMUX-CONTAINER$(yes " "|sed $SIZE'q'|tr -d '\n')\033[0m"
+  echo -e "\e[30;1;48;2;254;228;208;38;2;0;0;0mmoe-container-manager$(yes " "|sed $SIZE'q'|tr -d '\n')\033[0m"
   echo
   echo -e "${COLOR}//"
   echo
@@ -1238,7 +1244,7 @@ EASY_INSTALL(){
     VERSION=$(echo $LIST2|awk "{print \$$NUMBER}")
   fi
   GET_CPU_ARCH
-  if [[ ! -e $PREFIX/var/container/${OS}-${VERSION}-${ARCH}.tar.xz ]];then
+  if [[ ! -e /var/container/${OS}-${VERSION}-${ARCH}.tar.xz ]];then
     PULL_ROOTFS ${OS} ${VERSION} ${ARCH}
   fi
   if [[ -e /data/data/com.termux/files/home/${TYPE}-${OS}-${VERSION}_${ARCH} ]];then
@@ -1246,24 +1252,24 @@ EASY_INSTALL(){
     return 1
   fi
   if [[ ${TYPE} == "chroot" ]];then
-    [[ -e $PREFIX/etc/container/chroot ]]||mkdir -p $PREFIX/etc/container/chroot
-    echo -e "#This file was automatically created by termux-container.\n#Do not edit this file if you don't know what you are doing !" >> $PREFIX/etc/container/chroot/container-${TYPE}-${OS}-${VERSION}_${ARCH}.conf
-    echo -e "OS=${OS}\nCONTAINER_DIR=/data/data/com.termux/files/home/${TYPE}-${OS}-${VERSION}_${ARCH}\nENABLE_UNSHARE=${ENABLE_UNSHARE}\nPRIVAGE_LEVEL=1\nCROSS_ARCH=null\nMOUNT_SDCARD=${MOUNT_SDCARD}" >> $PREFIX/etc/container/chroot/container-${TYPE}-${OS}-${VERSION}_${ARCH}.conf
+    [[ -e /etc/container/chroot ]]||mkdir -p /etc/container/chroot
+    echo -e "#This file was automatically created by moe-container-manager.\n#Do not edit this file if you don't know what you are doing !" >> /etc/container/chroot/container-${TYPE}-${OS}-${VERSION}_${ARCH}.conf
+    echo -e "OS=${OS}\nCONTAINER_DIR=/data/data/com.termux/files/home/${TYPE}-${OS}-${VERSION}_${ARCH}\nENABLE_UNSHARE=${ENABLE_UNSHARE}\nPRIVAGE_LEVEL=1\nCROSS_ARCH=null\nMOUNT_SDCARD=${MOUNT_SDCARD}" >> /etc/container/chroot/container-${TYPE}-${OS}-${VERSION}_${ARCH}.conf
     sudo container -e CREATE_CHROOT_CONTAINER ${OS}-${VERSION}-${ARCH}.tar.xz /data/data/com.termux/files/home/${TYPE}-${OS}-${VERSION}_${ARCH}
   else
     export CROSSARCH=null
     CREATE_PROOT_CONTAINER ${OS}-${VERSION}-${ARCH}.tar.xz /data/data/com.termux/files/home/${TYPE}-${OS}-${VERSION}_${ARCH} ${CROSS_ARCH}
-    [[ -e $PREFIX/etc/container/proot ]]||mkdir -p $PREFIX/etc/container/proot
-    echo -e "#This file was automatically created by termux-container.\n#Do not edit this file if you don't know what you are doing !" >> $PREFIX/etc/container/proot/container-${TYPE}-${OS}-${VERSION}_${ARCH}.conf
-    echo -e "OS=${OS}\nCONTAINER_DIR=/data/data/com.termux/files/home/${TYPE}-${OS}-${VERSION}_${ARCH}\nCROSS_ARCH=${CROSSARCH}\nMOUNT_SDCARD=${MOUNT_SDCARD}" >> $PREFIX/etc/container/proot/container-${TYPE}-${OS}-${VERSION}_${ARCH}.conf
+    [[ -e /etc/container/proot ]]||mkdir -p /etc/container/proot
+    echo -e "#This file was automatically created by moe-container-manager.\n#Do not edit this file if you don't know what you are doing !" >> /etc/container/proot/container-${TYPE}-${OS}-${VERSION}_${ARCH}.conf
+    echo -e "OS=${OS}\nCONTAINER_DIR=/data/data/com.termux/files/home/${TYPE}-${OS}-${VERSION}_${ARCH}\nCROSS_ARCH=${CROSSARCH}\nMOUNT_SDCARD=${MOUNT_SDCARD}" >> /etc/container/proot/container-${TYPE}-${OS}-${VERSION}_${ARCH}.conf
   fi
 }
 EASY_REMOVE(){
   trap "exit" SIGINT
   WIDTH=$(($(stty size|awk '{print $2}')-8))
   NUMBER=0
-  if [[ -e $PREFIX/etc/container/proot ]];then
-    for CONTAINER in $(ls $PREFIX/etc/container/proot);do
+  if [[ -e /etc/container/proot ]];then
+    for CONTAINER in $(ls /etc/container/proot);do
       NAME=${CONTAINER#container-}
       NAME=${NAME%%.conf}
       NUMBER=$(($NUMBER+1))
@@ -1271,8 +1277,8 @@ EASY_REMOVE(){
       LIST2+="$NAME "
     done
   fi
-  if [[ -e $PREFIX/etc/container/chroot ]];then
-    for CONTAINER in $(ls $PREFIX/etc/container/chroot);do
+  if [[ -e /etc/container/chroot ]];then
+    for CONTAINER in $(ls /etc/container/chroot);do
       NAME=${CONTAINER#container-}
       NAME=${NAME%%.conf}
       NUMBER=$(($NUMBER+1))
@@ -1293,8 +1299,8 @@ EASY_RUN(){
   trap "exit" SIGINT
   WIDTH=$(($(stty size|awk '{print $2}')-8))
   NUMBER=0
-  if [[ -e $PREFIX/etc/container/proot ]];then
-    for CONTAINER in $(ls $PREFIX/etc/container/proot);do
+  if [[ -e /etc/container/proot ]];then
+    for CONTAINER in $(ls /etc/container/proot);do
       NAME=${CONTAINER#container-}
       NAME=${NAME%%.conf}
       NUMBER=$(($NUMBER+1))
@@ -1302,8 +1308,8 @@ EASY_RUN(){
       LIST2+="$NAME "
     done
   fi
-  if [[ -e $PREFIX/etc/container/chroot ]];then
-    for CONTAINER in $(ls $PREFIX/etc/container/chroot);do
+  if [[ -e /etc/container/chroot ]];then
+    for CONTAINER in $(ls /etc/container/chroot);do
       NAME=${CONTAINER#container-}
       NAME=${NAME%%.conf}
       NUMBER=$(($NUMBER+1))
@@ -1325,8 +1331,8 @@ EASY_BACKUP(){
   trap "exit" SIGINT
   WIDTH=$(($(stty size|awk '{print $2}')-8))
   NUMBER=0
-  if [[ -e $PREFIX/etc/container/proot ]];then
-    for CONTAINER in $(ls $PREFIX/etc/container/proot);do
+  if [[ -e /etc/container/proot ]];then
+    for CONTAINER in $(ls /etc/container/proot);do
       NAME=${CONTAINER#container-}
       NAME=${NAME%%.conf}
       NUMBER=$(($NUMBER+1))
@@ -1334,8 +1340,8 @@ EASY_BACKUP(){
       LIST2+="$NAME "
     done
   fi
-  if [[ -e $PREFIX/etc/container/chroot ]];then
-    for CONTAINER in $(ls $PREFIX/etc/container/chroot);do
+  if [[ -e /etc/container/chroot ]];then
+    for CONTAINER in $(ls /etc/container/chroot);do
       NAME=${CONTAINER#container-}
       NAME=${NAME%%.conf}
       NUMBER=$(($NUMBER+1))
@@ -1361,7 +1367,7 @@ EASY_RESTORE(){
 EASY_MODE(){
   trap "exit" SIGINT
   WIDTH=$(($(stty size|awk '{print $2}')-8))
-  OPTION=$(whiptail --title "[] TERMUX-CONTAINER" --menu "$(${GETTEXT} "Choose an operation:")" 15 $WIDTH 6 1 "$(${GETTEXT} "install")" 2 "$(${GETTEXT} "remove")" 3 "$(${GETTEXT} "run")" 3>&1 1>&2 2>&3)
+  OPTION=$(whiptail --title "[] moe-container-manager" --menu "$(${GETTEXT} "Choose an operation:")" 15 $WIDTH 6 1 "$(${GETTEXT} "install")" 2 "$(${GETTEXT} "remove")" 3 "$(${GETTEXT} "run")" 3>&1 1>&2 2>&3)
   case $OPTION in
     1) EASY_INSTALL;;
     2) EASY_REMOVE;;
