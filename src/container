@@ -38,7 +38,7 @@ test -d /tmp/container || mkdir -p -v /tmp/container
 
 export GETTEXT='gettext moe-container-manager'
 #版本号定义，建议直接改成114514(雾)
-TERMUX_CONTAINER_VERSION="9.0-dev"
+TERMUX_CONTAINER_VERSION="0.0.1alpha"
 #此处定义输出rgb色彩值，据说是鹿乃的应援色呢！
 RGB_COLOR="254;228;208"
 COLOR="\033[1;38;2;${RGB_COLOR}m"
