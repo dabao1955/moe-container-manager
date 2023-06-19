@@ -83,5 +83,4 @@ if [[ ! -e /usr/share/moe-container-manager/licenses.allowed ]];then
   pkc
   printf "\033[?25h\033[0m"
   touch /usr/share/moe-container-manager/licenses.allowed
-  clear
 fi
