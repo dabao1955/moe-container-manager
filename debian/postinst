@@ -1,84 +1,6 @@
 #!/bin/bash
-# SPDX-License-Identifier: Apache-2.0
-# This file is part of moe-container-manager.
-#
-# Copyright (c) 2023 Moe-hacker
-# Copyright (c) 2023 dabao1955
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-#TODO:测试
 set -e
 
-if [[ -e /etc/container/global.conf ]];then
-  echo -e "\033[1;38;2;254;228;208mUpgrade script for moe-container-manager v8 to v9."
-  echo -e "This script will automatically detecte the old config file and try to convert them to the new version."
-  read -s -n1 -p "Press any key to continue ... "
-  cp -rf /etc/container/ /etc/container.bk
-  source /etc/container/global.conf
-  for i in $(ls /etc/container/container-*.conf)
-  do
-    source $i
-    if [[ $RUN_MODE == "chroot-unshare" ]];then
-      [[ -e /etc/container/chroot ]]||mkdir -p /etc/container/chroot
-      if [[ ! -e /etc/container/chroot/container-${NAME}.conf ]]&&[[ ! -e /etc/container/proot/container-${NAME}.conf ]];then
-        echo "CONTAINER_NAME=${NAME}" >> /etc/container/chroot/container-${NAME}.conf
-        echo "CONTAINER_DIR=${CONTAINER_DIR}" >> /etc/container/chroot/container-${NAME}.conf
-        echo "MOUNT_SDCARD=${MOUNT_SDCARD}" >> /etc/container/chroot/container-${NAME}.conf
-        echo "PRIVAGE_LEVEL=2" >> /etc/container/chroot/container-${NAME}.conf
-        echo "ENABLE_UNSHARE=true" >> /etc/container/chroot/container-${NAME}.conf
-      else
-        echo -e "Cntainer name ${NAME} already in use,so you need to rename it now."
-        while :
-        do
-          read -p "Name: " NAME
-          [[ ! -e /etc/container/chroot/container-${NAME}.conf ]]&&[[ ! -e /etc/container/proot/container-${NAME}.conf ]]&&break
-        done
-        echo "CONTAINER_NAME=${NAME}" >> /etc/container/chroot/container-${NAME}.conf
-        echo "CONTAINER_DIR=${CONTAINER_DIR}" >> /etc/container/chroot/container-${NAME}.conf
-        echo "MOUNT_SDCARD=${MOUNT_SDCARD}" >> /etc/container/chroot/container-${NAME}.conf
-        echo "PRIVAGE_LEVEL=2" >> /etc/container/chroot/container-${NAME}.conf
-        echo "ENABLE_UNSHARE=true" >> /etc/container/chroot/container-${NAME}.conf
-      fi
-    else
-      [[ -e /etc/container/proot ]]||mkdir -p /etc/container/proot
-      if [[ ! -e /etc/container/proot/container-${NAME}.conf ]]&&[[ ! -e /etc/container/chroot/container-${NAME}.conf ]];then
-        echo "CONTAINER_NAME=${NAME}" >> /etc/container/proot/container-${NAME}.conf
-        echo "CONTAINER_DIR=${CONTAINER_DIR}" >> /etc/container/proot/container-${NAME}.conf
-        echo "MOUNT_SDCARD=${MOUNT_SDCARD}" >> /etc/container/proot/container-${NAME}.conf
-        echo "CROSS_ARCH=${CROSS_ARCH}" >> /etc/container/proot/container-${NAME}.conf
-      else
-        echo -e "Cntainer name ${NAME} already in use,so you need to rename it now."
-        while :
-        do
-          read -p "Name: " NAME
-          [[ ! -e /etc/container/proot/container-${NAME}.conf ]]&&[[ ! -e /etc/container/chroot/container-${NAME}.conf ]]&&break
-        done
-        echo "CONTAINER_NAME=${NAME}" >> /etc/container/proot/container-${NAME}.conf
-        echo "CONTAINER_DIR=${CONTAINER_DIR}" >> /etc/container/proot/container-${NAME}.conf
-        echo "MOUNT_SDCARD=${MOUNT_SDCARD}" >> /etc/container/proot/container-${NAME}.conf
-        echo "CROSS_ARCH=${CROSS_ARCH}" >> /etc/container/proot/container-${NAME}.conf
-      fi
-    fi
-  done
-  rm /etc/container/global.conf
-  rm /etc/container/container-*.conf
-fi
-echo -e "\033[33mWarning:"
-echo -e "[] If this is not a ubuntu logo,please run:"
-echo "mkdir -p ~/.termux"
-echo "cp /usr/share/moe-container-manager/font.ttf ~/.termux"
-echo "termux-reload-settings"
 RGB_COLOR="254;228;208"
 COLOR="\033[1;38;2;${RGB_COLOR}m"
 x="${COLOR}  .^.   .^.
@@ -89,4 +11,3 @@ x="${COLOR}  .^.   .^.
       ⠁⠁
 Enjoy, nya~"
 printf "$x\n"
-
