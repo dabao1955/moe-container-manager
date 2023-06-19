@@ -80,7 +80,7 @@ if [[ ! -e /usr/share/moe-container-manager/licenses.allowed ]];then
   echo -e "\033[${HEIGHT};7H \033[1;32m[✓]\033[0m${COLOR} 我已阅读并接受许可条款， 按回车键同意"
   HEIGHT=$(($HEIGHT+2))
   printf "\033[${HEIGHT};1H"
-  /usr/share/moe-contaoner-manager/pkc
+  pkc
   printf "\033[?25h\033[0m"
   touch /usr/share/moe-container-manager/licenses.allowed
   clear

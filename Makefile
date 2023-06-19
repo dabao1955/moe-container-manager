@@ -49,10 +49,9 @@ CONTAINER_CONSOLE = $(O)/bin/container-console
 $(CONTAINER_CONSOLE):$(BIN)
 ifneq ($(shell test -f $(CONTAINER_CONSOLE)||echo x),)
 	@printf "\033[1;38;2;254;228;208m[+] Compile container-console.\033[0m\n"&&sleep 1s
-	@cd src/container-console
-	@clang -static -ffunction-sections -fdata-sections -Wl,--gc-sections -O3 -z noexecstack -z now -fstack-protector-all -fPIE -flto container-console.c -o container-console&&strip container-console 
-	@cc pkc.c -o pkc
+	@cd src/container-console && clang -static -ffunction-sections -fdata-sections -Wl,--gc-sections -O3 -z noexecstack -z now -fstack-protector-all -fPIE -flto container-console.c -o container-console&&strip container-console && clang -static  pkc.c -o pkc
 	@mv -v src/container-console/container-console $(O)/bin/container-console
+	@mv -v src/container-console/pkc $(O)/bin/pkc
 endif
 src/ruri/ruri.c:
 	@printf "\033[1;38;2;254;228;208m[+] Update source code.\033[0m\n"&&sleep 1s
