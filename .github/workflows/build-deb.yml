@@ -38,7 +38,7 @@ jobs:
 
         run: |
 
-          cd code && dpkg-buildpackage -b -us -uc && sudo cp ../moe*.deb /root/
+          cd code && sudo dpkg-buildpackage -b -us -uc && sudo cp ../moe*.deb /root/
 
   lintian-check:
 
