@@ -19,7 +19,7 @@ show-greetings:
 	@printf "               \\        \\    /\n"
 	@printf "                \\        \\  /\n"
 	@printf "                 \\________\\/\n"
-	sleep 10s
+	sleep 4s
 $(O):
 ifneq ($(shell test -d $(O)||echo x),)
 	@mkdir -v $(O)
