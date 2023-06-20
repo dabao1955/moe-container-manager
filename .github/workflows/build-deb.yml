@@ -38,8 +38,14 @@ jobs:
 
         run: |
 
-          cd code && sudo dpkg-buildpackage -b -us -uc && sudo cp ../moe*.deb /root/
-      - name: Lintian check
-        run: |
-          sudo lintian ../moe-container-manager_0.0.1alpha_amd64.deb
-  
+          cd code && sudo dpkg-buildpackage -b -us -uc 
+      - name: Upload builded to artifact
+
+        uses: actions/upload-artifact@v3
+
+        with:
+
+          name: aosp-gcc-powerpc64el-4.9
+
+          path: ../moe-container-manager_0.0.1alpha_amd64.deb
+

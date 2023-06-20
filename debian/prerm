@@ -3,7 +3,7 @@ set -e
 
 if ps -ef | grep chroot
 then
-ps -ef | grep chroot | cut -c 9-15 | xargs kill -9
+echo please kill all chroot containers to continue. && exit 127
 else
 echo no chroot container running！
 fi
