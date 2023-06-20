@@ -8,8 +8,6 @@
 <img src="https://stars.medv.io/dabao1954/moe-container-manager.svg", title="commits" width="50%"/>
 
 </p>
-
-
 ![](https://img.shields.io/github/license/dabao1955/moe-container-manager?style=for-the-badge&color=fee4d0&logo=apache&logoColor=fee4d0)
 
 ![](https://img.shields.io/github/repo-size/dabao1955/moe-container-manager?style=for-the-badge&color=fee4d0&logo=files&logoColor=fee4d0)
@@ -38,6 +36,15 @@ cd moe-container-manager
 make
 make install
 ```
+
+### for Arch Linux
+```
+sudo pacman -Syy p7zip unzip zip git wget curl nano proot axel pv gawk gettext git clang make libcap
+cd moe-container-manager
+make
+make install
+```
+
 ### for Other Linux
 install libcap,clang and make。
 ```
@@ -47,10 +54,16 @@ make install
 ```
 ### build deb package
 ```
-
 sudo apt install libcap-dev build-essential clang -y
 cd moe-container-manager
 dpkg-buildpackage -b -us -uc
+```
+
+### build archlinux pkgs(Experimental features)
+```
+sudo pacman -Syy p7zip unzip zip git wget curl nano proot axel pv gawk gettext git clang make libcap
+cd moe-container-manager
+makepkg
 ```
 # Usage:     
 See `container -h` and `help` in container console.
