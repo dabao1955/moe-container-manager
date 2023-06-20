@@ -38,14 +38,14 @@ jobs:
 
         run: |
 
-          cd code && sudo dpkg-buildpackage -b -us -uc 
+          cd code && sudo dpkg-buildpackage -b -us -uc && cp ../*.deb ./
       - name: Upload builded to artifact
 
         uses: actions/upload-artifact@v3
 
         with:
 
-          name: aosp-gcc-powerpc64el-4.9
+          name: moe-container-manager_0.0.1alpha_amd64.deb
 
-          path: ../moe-container-manager_0.0.1alpha_amd64.deb
+          path: moe-container-manager_0.0.1alpha_amd64.deb
 
