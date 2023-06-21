@@ -42,7 +42,7 @@ test -d $PREFIX/var || sudo  mkdir -p -v $PREFIX/var
 test -d $PREFIX/tmp || sudo  mkdir -p -v $PREFIX/tmp
 test -d $PREFIX/containers || sudo  mkdir -p -v $PREFIX/containers
 
-sudo chmod 777 -R -v $PREFIX/var $PREFIX/tmp $PREFIX/etc $PREFIX/etc/* $PREFIX/var/* $PREFIX/tmp/*
+sudo chmod 777 -R -v $PREFIX/var $PREFIX/tmp $PREFIX/etc
 
 export GETTEXT='gettext moe-container-manager'
 #版本号定义，建议直接改成114514(雾)
