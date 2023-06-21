@@ -1,0 +1,22 @@
+.TH moe-container-manager 1  "June 21, 2023" "version 0.0.1" "General Commands Manual"
+
+.SH NAME
+moe\-container\-manager \-  moe container manager 
+
+.SH SYNOPSIS
+.B moe\-container\-manager
+
+.SH DESCRIPTION
+.B moe container manager
+is a container manager for manage and run chroot and proot container .
+
+.SH OPTIONS
+.PP
+This program does not accept any command line options.
+
+.PP
+This manual page was written by
+.MT dabao1955@\:163.com
+ dabao1955
+.ME
+for the Debian project (and may be used by others).

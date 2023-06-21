@@ -19,7 +19,13 @@
 ############################
 set -e
 
+test -f /usr/bin/container-console || ln -sf /usr/share/moe-container-manager/bin/container-console /usr/bin/container-console
+test -f /usr/bin/pkc || ln -sf /usr/share/moe-container-manager/bin/pkc /usr/bin/pkc
+test -f /usr/bin/container || ln -sf /usr/share/moe-container-manager/bin/container /usr/bin/container
+test -f /usr/bin/ruri || ln -sf /usr/share/moe-container-manager/bin/ruri /usr/bin/ruri
+
 export PREFIX=/usr
+
 if [[ ! -e $PREFIX/share/moe-container-manager/licenses.allowed ]];then
   while :
   do
