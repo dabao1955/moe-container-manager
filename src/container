@@ -399,9 +399,7 @@ CREATE_CHROOT_CONTAINER(){
     return 1
   fi
   pv $PREFIX/var/container/$ROOTFS|tar -xJf - -C ${CONTAINER_DIR}
-  #修复su二进制的文件权限
-  chown root:root ${CONTAINER_DIR}/bin/su
-  chmod 777 ${CONTAINER_DIR}/bin/su
+
   #创建不存在的系统目录
   [[ -e ${CONTAINER_DIR}/dev ]]||mkdir ${CONTAINER_DIR}/dev
   [[ -e ${CONTAINER_DIR}/proc ]]||mkdir ${CONTAINER_DIR}/proc
