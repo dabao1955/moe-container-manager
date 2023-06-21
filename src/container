@@ -328,7 +328,7 @@ Include = /etc/pacman.d/mirrorlist
     COMMAND+=" -b /dev"
     COMMAND+=" -b /sys"
     COMMAND+=" -b /proc"
-    COMMAND+=" -w /root"
+    COMMAND+=" -w n/root"
     COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/buddyinfo:/proc/buddyinfo"
     COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/cgroups:/proc/cgroups"
     COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/consoles:/proc/consoles"
@@ -839,7 +839,7 @@ CONTAINER_NEW(){
       echo -e "\033[31m$(${GETTEXT} "Error: container directory already exist !")${COLOR}"
       continue
     fi
-    for BLACKLIST in {/bin/,/dev/,/root/,/usr/,/var/,/sys/,/proc/,/etc/};do
+    for BLACKLIST in {/bin/,/dev/,/usr/,/var/,/sys/,/proc/,/etc/};do
       if [[ ${CONTAINER_DIR} = $BLACKLIST* ]];then
         echo -e "\033[31m$(${GETTEXT} "Error: refuse to use system directory !")${COLOR}"
         CONTINUE=true
