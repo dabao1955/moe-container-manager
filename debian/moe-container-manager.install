@@ -1,5 +1,6 @@
-out/doc/moe-container-manager/LICENSE /usr/share/doc/moe-container/
+out/doc/moe-container-manager/LICENSE /usr/share/doc/moe-container-manager/
 out/bin/container  /usr/bin
 out/bin/container-console  /usr/bin
 out/bin/pkc  /usr/bin
 out/bin/ruri /usr/bin
+out/moe-container-manager/ /usr/share/moe-container-manager/
