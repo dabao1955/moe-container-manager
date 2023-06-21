@@ -68,13 +68,9 @@ build:$(DOC) $(SHARE) $(CONTAINER) $(CONTAINER_CONSOLE) $(RURI)
 update-code:src/ruri/ruri.c
 install:build
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
-	@cp -rv $(O)/bin /usr/share/moe-container/
+	@cp -rv $(O)/bin /usr/share/moe-container-manager/
 	@cp -rv $(O)/moe-container-manager /usr/share/
 	@cp -rv $(O)/doc/* /usr/share/doc
-	@test -f /usr/bin/container-console || ln -sf /usr/share/moe-container-manager/bin/container-console /usr/bin/containe>
-	@test -f /usr/bin/pkc || ln -sf /usr/share/moe-container-manager/bin/pkc /usr/bin/pkc
-	@test -f /usr/bin/container || ln -sf /usr/share/moe-container-manager/bin/container /usr/bin/container
-	@test -f /usr/bin/ruri || ln -sf /usr/share/moe-container-manager/bin/ruri /usr/bin/ruri
 DEB=$(O)/deb
 $(DEB):build
 ifneq ($(shell test -d $(DEB)||echo x),)
