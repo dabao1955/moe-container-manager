@@ -68,7 +68,8 @@ build:$(DOC) $(SHARE) $(CONTAINER) $(CONTAINER_CONSOLE) $(RURI)
 update-code:src/ruri/ruri.c
 install:build
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
-	@cp -rv $(O)/bin /usr/share/moe-container-manager/
+	@mkdir /usr/lib/moe-container-manager
+	@cp -rv $(O)/bin /usr/lib/moe-container-manager/
 	@cp -rv $(O)/moe-container-manager /usr/share/
 	@cp -rv $(O)/doc/* /usr/share/doc
 DEB=$(O)/deb
