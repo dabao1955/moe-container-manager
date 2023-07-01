@@ -35,6 +35,9 @@ body:
     validations:
       required: true
     attributes:
+      - type: markdown
+    id: details
+    attributes:
       value: "## Detail Infomation"
   - type: textarea
     id: what-happened
