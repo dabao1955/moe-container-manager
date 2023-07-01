@@ -26,7 +26,7 @@ body:
     validations:
       required: true
     attributes:
-      label: "Kernel Version"
+      label: "AndroidKernel Version"
       description: "Open the phone settings, click on the phone option, find the kernel version."
       - type: markdown
     id: details
