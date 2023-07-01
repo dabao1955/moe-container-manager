@@ -27,7 +27,7 @@ body:
       required: true
     attributes:
       label: "Kernel Version"
-      description:"Open the phone settings, click on the phone option, find the kernel version."
+      description: "Open the phone settings, click on the phone option, find the kernel version."
       - type: markdown
     id: details
     attributes:
