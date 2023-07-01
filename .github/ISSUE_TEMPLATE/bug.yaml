@@ -39,7 +39,8 @@ body:
       required: true
     attributes:
       label: "Kernel Version"
-       value: "## Detail Infomation"
+  - type: markdown
+      value: "## Detail Infomation"
   - type: textarea
     id: what-happened
     attributes:
