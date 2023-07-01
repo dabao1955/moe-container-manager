@@ -40,6 +40,8 @@ body:
     attributes:
       label: "Kernel Version"
   - type: markdown
+    id: detail-info
+    attributes:
       value: "## Detail Infomation"
   - type: textarea
     id: what-happened
