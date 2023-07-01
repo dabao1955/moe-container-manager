@@ -50,3 +50,5 @@ body:
     attributes:
       label: "附加信息"
       description: "如果您还有其他需要提供的信息，可以在这里填写（可以提供截图、视频等）。"
+    validations:
+      required: true
