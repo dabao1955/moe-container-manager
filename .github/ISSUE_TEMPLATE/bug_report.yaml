@@ -37,7 +37,7 @@ body:
       label: "Kernel version"
       description: "Open the phone settings, click on the phone option, find the kernel version.(E.G.: 5.10.xxx)"
   - type: input
-    id: device
+    id: android-version
     validations:
       required: true
     attributes:
