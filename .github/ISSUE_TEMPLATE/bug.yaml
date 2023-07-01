@@ -4,7 +4,7 @@ labels: "bug"
 assignees: dabao1955
 body:
   - type: markdown
-    id: environment
+    id: enviroment-info
     attributes:
       value: "## Enviroment Infomation"
   - type: input
@@ -29,7 +29,7 @@ body:
       label: "AndroidKernel Version"
       description: "Open the phone settings, click on the phone option, find the kernel version."
   - type: markdown
-    id: details
+    id: detail-info
     attributes:
       value: "## Detail Infomation"
   - type: textarea
@@ -56,7 +56,7 @@ body:
       label: "Related log output"
       render: shell
   - type: textarea
-    id: additional-information
+    id: additional-info
     attributes:
       label: "Additional Information"
       description: "If you have other information to provide, you can fill it in here (you can provide screenshots, videos, etc.)."
