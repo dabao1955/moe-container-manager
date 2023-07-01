@@ -14,9 +14,6 @@ body:
     attributes:
       label: "KernelSU Version"
       description: "Open KernelSU App,Check out the KernelSU version in the middle.(E.G:10582)"
-  - type: markdown
-    id: details
-    attributes:
   - type: input
     id: ksu-version
     validations:
