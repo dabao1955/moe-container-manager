@@ -8,7 +8,7 @@ body:
     attributes:
       value: "## Enviroment Infomation"
   - type: input
-    id: ksu-version
+    id: enviroment
     validations:
       required: true
     attributes:
@@ -18,23 +18,22 @@ body:
     id: details
     attributes:
   - type: input
-    id: ksuapp-version
+    id: ksu-version
     validations:
       required: true
     attributes:
       label: "KernelSU App Version"
       description: "Press and hold the KernelSU app to view the version of the manager in the application version.(E.G:0.5.7)"
   - type: input
-    id: kernel-version
+    id: ksuapp-version
     validations:
       required: true
     attributes:
       label: "Kernel Version"
-  - type: markdown
-    id: details
-    attributes:
   - type: input
-    id: detail-info
+    id: kernel-version
+    validations:
+      required: true
     attributes:
       value: "## Detail Infomation"
   - type: textarea
