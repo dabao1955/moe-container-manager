@@ -20,22 +20,29 @@ body:
     validations:
       required: true
     attributes:
-      label: "KernelSU Version"
+      label: "KernelSU version"
       description: "Open KernelSU App,Check out the KernelSU version in the middle.(E.G: 10582)"
   - type: input
     id: app-version
     validations:
       required: true
     attributes:
-      label: "KernelSU App Version"
+      label: "KernelSU App version"
       description: "Press and hold the KernelSU app to view the version of the manager in the application version.(E.G: 0.5.7)"
   - type: input
     id: kernel-version
     validations:
       required: true
     attributes:
-      label: "Kernel Version"
+      label: "Kernel version"
       description: "Open the phone settings, click on the phone option, find the kernel version.(E.G.: 5.10.xxx)"
+  - type: input
+    id: device
+    validations:
+      required: true
+    attributes:
+      label: "Android version"
+      description: "E.G.: Android12"
   - type: markdown
     id: detail-info
     attributes:
@@ -44,7 +51,7 @@ body:
     id: what-happened
     attributes:
       label: "Description of the problem."
-      description: "Briefly describe the problem you are experiencing."
+      description: "Briefly describe the problem you are experiencing,Describe the bug A clear and concise description of what the bug is."
     validations:
       required: true
   - type: textarea
