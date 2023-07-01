@@ -1,5 +1,5 @@
 name: Bug Report
-description: "To help developers troubleshoot problems quickly, you need to fill in some content."
+description: "Create a report to help us improve."
 title: "[BUG]"
 labels: "bug"
 assignees: tiann
@@ -43,7 +43,7 @@ body:
   - type: textarea
     id: what-happened
     attributes:
-      label: "Description of the problem"
+      label: "Description of the problem."
       description: "Briefly describe the problem you are experiencing."
     validations:
       required: true
