@@ -27,7 +27,7 @@ body:
     validations:
       required: true
     attributes:
-      label: "AndroidKernel Version"
+      label: "Kernel Version"
       description: "Open the phone settings, click on the phone option, find the kernel version."
   - type: markdown
     id: detail-info
@@ -48,7 +48,7 @@ body:
     validations:
       required: true
   - type: textarea
-    id: expect
+    id: expected
     attributes:
       label: "Expected correct result"
   - type: textarea
