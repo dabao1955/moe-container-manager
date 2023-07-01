@@ -1,6 +1,6 @@
 name: Bug submissions
 title: "[BUG]"
-labels: "type:bug"
+labels: "Bug"
 assignees: dabao1955
 body:
   - type: markdown
