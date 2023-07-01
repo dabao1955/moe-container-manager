@@ -1,0 +1,70 @@
+name: Bug submissions
+title: "[BUG]"
+labels: "bug"
+assignees: dabao1955
+body:
+  - type: markdown
+    id: environment
+    attributes:
+      value: "## Enviroment Infomation"
+  - type: input
+    id: ksu-version
+    validations:
+      required: true
+    attributes:
+      label: "KernelSU Version"
+      description: "Open KernelSU App,Check out the KernelSU version in the middle.(E.G:10582)"
+  - type: markdown
+    id: details
+    attributes:
+  - type: input
+    id: ksuapp-version
+    validations:
+      required: true
+    attributes:
+      label: "KernelSU App Version"
+      description: "Press and hold the KernelSU app to view the version of the manager in the application version.(E.G:0.5.7)"
+  - type: input
+    id: android-version
+    validations:
+      required: true
+    attributes:
+      label: "Android Version"
+  - type: markdown
+    id: details
+    attributes:
+  - type: input
+    id: kernel-version
+    validations:
+      required: true
+    attributes:
+      label: "Kernel Version"
+      value: "## Detail Infomation"
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: "Description of the problem"
+      description: "Briefly describe the problem you are experiencing."
+    validations:
+      required: true
+  - type: textarea
+    id: how-happened
+    attributes:
+      label: "Steps to reproduce"
+      description: "If the action can reproduce the problem."
+    validations:
+      required: true
+  - type: textarea
+    id: expect
+    attributes:
+      label: "Expected correct result"
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Related log output"
+      render: shell
+  - type: textarea
+    id: additional-information
+    attributes:
+      label: "Additional Information"
+      description: "If you have other information to provide, you can fill it in here (you can provide screenshots, videos, etc.)."
