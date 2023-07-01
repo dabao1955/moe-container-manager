@@ -35,8 +35,6 @@ body:
     attributes:
   - type: input
     id: detail-info
-    validations:
-      required: true
     attributes:
       value: "## Detail Infomation"
   - type: textarea
