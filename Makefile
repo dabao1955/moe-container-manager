@@ -45,6 +45,11 @@ $(CONTAINER):$(BIN)
 ifneq ($(shell test -f $(CONTAINER)||echo x),)
 	@cp -v src/container $(O)/bin/container
 endif
+ROOTFSTOOL = $(O)/bin/rootfstool
+$(ROOTFSTOOL):$(BIN)
+ifneq ($(shell test -f $(ROOTFSTOOL)||echo x),)
+	@cp -v src/rootfstool/rootfstool $(O)/bin/rootfstool
+endif
 CONTAINER_CONSOLE = $(O)/bin/container-console
 $(CONTAINER_CONSOLE):$(BIN)
 ifneq ($(shell test -f $(CONTAINER_CONSOLE)||echo x),)
@@ -61,10 +66,10 @@ RURI = $(O)/bin/ruri
 $(RURI):src/ruri/ruri.c $(BIN)
 ifneq ($(shell test -f $(RURI)||echo x),)
 	@printf "\033[1;38;2;254;228;208m[+] Compile ruri.\033[0m\n"&&sleep 1s
-	@cd src/ruri&&make static
+	@cd src/ruri&&touch .license_accepted&&make static
 	@mv -v src/ruri/ruri $(O)/bin/ruri
 endif
-build:$(DOC) $(SHARE) $(CONTAINER) $(CONTAINER_CONSOLE) $(RURI)
+build:$(DOC) $(SHARE) $(CONTAINER) $(CONTAINER_CONSOLE) $(RURI) $(ROOTFSTOOL)
 update-code:src/ruri/ruri.c
 install:build
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
