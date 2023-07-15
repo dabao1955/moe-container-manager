@@ -26,7 +26,7 @@ jobs:
 
           sudo apt update
 
-          sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev lintian pkg-config 
+          sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config 
 
       - name: Pull source code
 
@@ -48,4 +48,44 @@ jobs:
           name: moe-container-manager_0.0.1alpha_amd64.deb
 
           path: moe-container-manager_0.0.1alpha_amd64.deb
+  Build-Kernel:
 
+    name: deb-check
+
+    runs-on: ubuntu-latest
+    
+    needs:
+
+      - build-deb
+
+    steps:
+    
+      - uses: actions/checkout@v3
+      
+      - name: Install dependces
+
+        run: |
+          sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config
+          
+      - name: Clone source code
+        run: |
+          git clone https://github.com/dabao1955/moe-container-manager/ codes
+          
+      - name: Build and install
+        run: |
+          cd codes && make && make install
+          
+      - name: Rootstool check
+        run: |
+          rootfstool list -a arm64 -m nju
+          rootfstool search -a arm64 -d ubuntu -m nju
+          rootfstool url -a arm64 -d ubuntu -v bionic -m nju
+          
+      - name: Ruri check
+        run: |
+          ruri -h
+          ruri -v
+    
+      - name: Container check
+        run: |
+          container -h
