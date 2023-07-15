@@ -23,6 +23,7 @@ test -f /usr/bin/container-console || ln -sf /usr/lib/moe-container-manager/bin/
 test -f /usr/bin/pkc || ln -sf /usr/lib/moe-container-manager/bin/pkc /usr/bin/pkc
 test -f /usr/bin/container || ln -sf /usr/lib/moe-container-manager/bin/container /usr/bin/container
 test -f /usr/bin/ruri || ln -sf /usr/lib/moe-container-manager/bin/ruri /usr/bin/ruri
+test -f /usr/bin/rootfstool || ln -sf /usr/lib/moe-container-manager/bin/rootfstool /usr/bin/rootfstool
 
 export PREFIX=/usr
 
