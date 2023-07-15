@@ -73,7 +73,7 @@ jobs:
           
       - name: Build and install
         run: |
-          cd codes && make && make install
+          cd codes && make && sudo make install
           
       - name: Rootstool check
         run: |
