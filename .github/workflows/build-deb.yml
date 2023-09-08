@@ -18,7 +18,9 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v3
+      - name: Checkout repo
+
+      - uses: actions/checkout@v4
 
       - name: Setup environment
 
@@ -28,17 +30,12 @@ jobs:
 
           sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config 
 
-      - name: Pull source code
-
-        run: |
-
-          git clone https://github.com/dabao1955/moe-container-manager/ code
           
       - name: Build deb
 
         run: |
 
-          cd code && sudo dpkg-buildpackage -b -us -uc && cp ../*.deb ./
+          sudo dpkg-buildpackage -b -us -uc && cp ../*.deb ./
       - name: Upload builded to artifact
 
         uses: actions/upload-artifact@v3
