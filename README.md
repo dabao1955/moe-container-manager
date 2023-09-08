@@ -64,7 +64,7 @@ dpkg-buildpackage -b -us -uc
 ### build archlinux pkgs(Experimental features)
 ```
 sudo pacman -Syy p7zip unzip zip git wget curl nano proot axel pv gawk gettext git clang make libcap
-cd moe-container-manager
+wget https://github.com/dabao1955/moe-container-manager/raw/main/PKGBUILD
 makepkg
 ```
 # Usage:     
