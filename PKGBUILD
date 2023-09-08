@@ -36,6 +36,8 @@ package() {
 
   cd "$pkgname"
 
+  make DESTDIR="$pkgdir/" 
+
   make DESTDIR="$pkgdir/" install
 
 }
