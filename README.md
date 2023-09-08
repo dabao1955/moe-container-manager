@@ -20,11 +20,12 @@
 
 # What is this？
 container manager for chroot and proot, based on moe-hacker/termux-container
+
 # Quick start
 
 ### WARNING:      
 
-- It is not finished and something is broken.(such as proot)
+- It is not finished and it doesn't work right now.
 - Your warranty is now void.
 - I am not responsible for anything that may happen to your device by using this script.
 - You do it at your own risk and take the responsibility upon yourself.
