@@ -91,6 +91,10 @@ help:
 	@echo "Makefile is not for common user, please use the released .deb files instead."
 	@echo "(>_) "
 
+c-format:
+	python3 tools/c-format.py
+shell-format:
+	python3 tools/shell-format.py
 
 .PHONY: distclean
 distclean:
