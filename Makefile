@@ -45,7 +45,7 @@ build: src/Makefile
 	make -C src
 	cp -R src/out/* out/bin
 update-code:
-	git pull && git submodule init && git submodule update --remote
+	git submodule init && git submodule update --remote
 install:build
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
 	@cp -rv $(O)/bin/* /usr/bin/
