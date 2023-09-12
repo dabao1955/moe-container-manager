@@ -36,12 +36,12 @@ $(SHARE):$(O)
 ifneq ($(shell test -d $(SHARE)||echo x),)
 	@cp -rv share $(O)/moe-container-manager
 endif
-BIN = $(O)/bin
+BIN = $(O)/bin/
 
 
 $(BIN):$(O)
 ifneq ($(shell test -d $(BIN)||echo x),)
-	@mkdir -v $(BIN)
+	@mkdir -p -v $(BIN)
 endif
 
 build: src/Makefile
