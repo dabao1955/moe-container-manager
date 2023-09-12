@@ -1,8 +1,7 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
- * This file is part of termux-container.
- *
- * Copyright (c) 2023 Moe-hacker
+ * 
+ * Copyright (c) 2023 dabao1955
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +16,7 @@
  * limitations under the License.
  *
  */
-// 从moe-container抄的，懒得改了能用就行。。。
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
@@ -37,4 +36,4 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <stdbool.h>
-void restart(int);
+
