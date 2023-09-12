@@ -15,7 +15,9 @@
 
 ![](https://img.shields.io/github/last-commit/dabao1955/moe-container-manager?style=for-the-badge&color=fee4d0&logo=codeigniter&logoColor=fee4d0)
 
-![](https://img.shields.io/badge/main-language-shell\&go-green?style=for-the-badge&color=fee4d0&logo=sharp&logoColor=fee4d0)
+![](https://img.shields.io/github/languages/dabao1955/moe-container-manager?style=for-the-badge&color=fee4d0&logo=codeigniter&logoColor=fee4d0)
+
+![](https://img.shields.io/badge/language-shell\&go-green?style=for-the-badge&color=fee4d0&logo=sharp&logoColor=fee4d0)
 
 
 # What is this？
