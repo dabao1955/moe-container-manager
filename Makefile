@@ -71,7 +71,7 @@ ifneq ($(shell test -d $(DEB)||echo x),)
 endif
 
 .PHONY: clean
-clean: out
+clean:
 	@printf "\033[1;38;2;254;228;208m[+] Clean.\033[0m\n"&&sleep 1s
 	@rm -rfv $(O)
 	@printf "\033[1;38;2;254;228;208m    .^.   .^.\n"
@@ -88,5 +88,5 @@ help:
 
 
 .PHONY: distclean
-distclean: out src/out
+distclean:
 	rm -rf $(O) src/out src/pkc/pkc src/ruri/ruri
