@@ -26,7 +26,7 @@ all:
 	[ -e yoshinon/yoshinon ]||(cd yoshinon&&make)
 	[ -e container-console/container-console ]||(cd container-console&&make)
 	[ -e pkc/pkc ]||(cd pkc&&gcc -c pkc.c -o pkc)
-	sed -i "s/TERMUX_CONTAINER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container
+	sed -i "s/TERMUX_CONTAINER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
 	cp rootfstool/rootfstool out
 	cp ruri/ruri out
 	cp yoshinon/yoshinon out
