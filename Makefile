@@ -23,10 +23,7 @@ show-greetings:
 $(O):
 ifneq ($(shell test -d $(O)||echo x),)
 	@mkdir -v $(O)
-endif
-ifeq ("$(wildcard out/bin)","")
-$(shell mkdir out/bin)
-endif
+
 
 DOC = doc
 $(DOC): /usr/bin/w3m
@@ -49,7 +46,7 @@ endif
 
 build: src/Makefile
 	make -C src
-	cp -R src/out/* out/bin
+	cp -R src/out/* out/bin/
 update-code:
 	git submodule init && git submodule update --remote
 install:build
