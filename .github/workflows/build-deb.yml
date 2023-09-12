@@ -40,6 +40,6 @@ jobs:
 
         with:
 
-          name: moe-container-manager_0.0.1alpha_amd64.deb
+          name: moe-container-manager_0.0.1beta_amd64.deb
 
           path: moe-container-manager_0.0.1beta_amd64.deb
