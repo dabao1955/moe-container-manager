@@ -24,6 +24,10 @@ $(O):
 ifneq ($(shell test -d $(O)||echo x),)
 	@mkdir -v $(O)
 endif
+ifeq ("$(wildcard out/bin)","")
+$(shell mkdir out/bin)
+endif
+
 DOC = doc
 $(DOC): /usr/bin/w3m
 ifneq ($(shell test -d $(DOC)||echo x),)
@@ -37,9 +41,6 @@ ifneq ($(shell test -d $(SHARE)||echo x),)
 endif
 BIN = $(O)/bin
 
-ifeq ("$(wildcard out/bin)","")
-$(shell mkdir -p -v out/bin)
-endif
 
 $(BIN):$(O)
 ifneq ($(shell test -d $(BIN)||echo x),)
