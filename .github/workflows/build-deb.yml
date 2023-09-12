@@ -8,7 +8,6 @@ on:
 
   pull_request:
 
-
 jobs:
 
   build-deb:
@@ -27,7 +26,7 @@ jobs:
 
           sudo apt update
 
-          sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config 
+          sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config libseccomp-dev golang
 
           
       - name: Build deb
@@ -43,4 +42,4 @@ jobs:
 
           name: moe-container-manager_0.0.1alpha_amd64.deb
 
-          path: moe-container-manager_0.0.1alpha_amd64.deb
+          path: moe-container-manager_0.0.1beta_amd64.deb

@@ -14,7 +14,7 @@ url="https://github.com/dabao1955/moe-container-manager"
 
 license=('Apache-2.0')
 
-depends=(p7zip unzip zip git wget curl nano proot axel pv gawk gettext)
+depends=(golang p7zip unzip zip git wget curl nano proot axel pv gawk gettext)
 
 makedepends=(git clang make libcap)
 

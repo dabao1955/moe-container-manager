@@ -6,7 +6,7 @@ CC_LOG = @printf '    $(CCCOLOR)CC$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 STRIP_LOG = @printf ' $(STRIPCOLOR)STRIP$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 O = out
 .PHONY: all
-all: show-greetings build
+all: show-greetings update-code $(BIN) $(SHARE) build
 show-greetings:
 	echo Starting Build ...
 	@printf "\033[1;38;2;254;228;208m"
@@ -20,62 +20,47 @@ show-greetings:
 	@printf "                \\        \\  /\n"
 	@printf "                 \\________\\/\n"
 	sleep 4s
-$(O):
-ifneq ($(shell test -d $(O)||echo x),)
-	@mkdir -v $(O)
+ifeq ("$(wildcard out/)","")
+$(shell mkdir out/)
 endif
-DOC = $(O)/doc
-$(DOC):$(O)
+
+DOC = doc
+$(DOC): /usr/bin/w3m
 ifneq ($(shell test -d $(DOC)||echo x),)
-	@mkdir -pv $(DOC)/moe-container-manager
-	@cp -rv doc/* $(O)/doc/moe-container-manager/
+	make -C doc
+	echo you can run <cd doc && make preview> to read docs.
 endif
+
+	
+BIN = $(O)/bin/
+
 SHARE = $(O)/moe-container-manager
 $(SHARE):$(O)
-ifneq ($(shell test -d $(SHARE)||echo x),)
-	@cp -rv share $(O)/moe-container-manager
+
+ifeq ("$(wildcard out/moe-container-manager)","")
+$(shell cp share out/moe-container-manager -R)
 endif
-BIN = $(O)/bin
+
 $(BIN):$(O)
-ifneq ($(shell test -d $(BIN)||echo x),)
-	@mkdir -v $(BIN)
+
+ifeq ("$(wildcard out/bin)","")
+$(shell mkdir out/bin)
 endif
-CONTAINER = $(O)/bin/container
-$(CONTAINER):$(BIN)
-ifneq ($(shell test -f $(CONTAINER)||echo x),)
-	@cp -v src/container $(O)/bin/container
+ifeq ("$(wildcard out/doc)","")
+$(shell mkdir out/doc out/doc/moe-container-manager)
 endif
-ROOTFSTOOL = $(O)/bin/rootfstool
-$(ROOTFSTOOL):$(BIN)
-ifneq ($(shell test -f $(ROOTFSTOOL)||echo x),)
-	@cp -v src/rootfstool/rootfstool $(O)/bin/rootfstool
-endif
-CONTAINER_CONSOLE = $(O)/bin/container-console
-$(CONTAINER_CONSOLE):$(BIN)
-ifneq ($(shell test -f $(CONTAINER_CONSOLE)||echo x),)
-	@printf "\033[1;38;2;254;228;208m[+] Compile container-console.\033[0m\n"&&sleep 1s
-	@cd src/container-console && clang -static -ffunction-sections -fdata-sections -Wl,--gc-sections -O3 -z noexecstack -z now -fstack-protector-all -fPIE -flto container-console.c -o container-console&&strip container-console && clang -static  pkc.c -o pkc
-	@mv -v src/container-console/container-console $(O)/bin/container-console
-	@mv -v src/container-console/pkc $(O)/bin/pkc
-endif
-src/ruri/ruri.c:
-	@printf "\033[1;38;2;254;228;208m[+] Update source code.\033[0m\n"&&sleep 1s
-	@printf "\033[1;38;2;254;228;208m[+] Update submodule.\033[0m\n"&&sleep 1s
-	@git submodule update --init
-RURI = $(O)/bin/ruri
-$(RURI):src/ruri/ruri.c $(BIN)
-ifneq ($(shell test -f $(RURI)||echo x),)
-	@printf "\033[1;38;2;254;228;208m[+] Compile ruri.\033[0m\n"&&sleep 1s
-	@cd src/ruri&&touch .license_accepted&&make static
-	@mv -v src/ruri/ruri $(O)/bin/ruri
-endif
-build:$(DOC) $(SHARE) $(CONTAINER) $(CONTAINER_CONSOLE) $(RURI) $(ROOTFSTOOL)
-update-code:src/ruri/ruri.c
+
+build: src/Makefile
+	make -C src
+	cp -R src/out/* out/bin/
+	cp LICENSE out/doc/moe-container-manager/
+update-code:
+	git submodule init && git submodule update --remote
 install:build
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
 	@cp -rv $(O)/bin/* /usr/bin/
+	@cp -rv $(O)/doc/* /usr/share/doc/
 	@cp -rv $(O)/moe-container-manager /usr/share/
-	@cp -rv $(O)/doc/* /usr/share/doc
 DEB=$(O)/deb
 $(DEB):build
 ifneq ($(shell test -d $(DEB)||echo x),)
@@ -90,6 +75,7 @@ ifneq ($(shell test -d $(DEB)||echo x),)
 
 endif
 
+.PHONY: clean
 clean:
 	@printf "\033[1;38;2;254;228;208m[+] Clean.\033[0m\n"&&sleep 1s
 	@rm -rfv $(O)
@@ -100,6 +86,12 @@ clean:
 	@printf "  ﾉノ㇏ Ｖ ﾉ|ﾉ\n"
 	@printf "        ⠁⠁\n"
 	@printf "\033[1;38;2;254;228;208m[*] Cleaned Up.\033[0m\n"
-help :
+
+help:
 	@echo "Makefile is not for common user, please use the released .deb files instead."
-	@echo "(>_) Moe-hacker"
+	@echo "(>_) "
+
+
+.PHONY: distclean
+distclean:
+	rm -rf $(O) src/out src/pkc/pkc src/ruri/ruri

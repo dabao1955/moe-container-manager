@@ -5,7 +5,7 @@
 -----------  
 
 <p align="center">
-<img src="https://stars.medv.io/dabao1954/moe-container-manager.svg", title="commits" width="50%"/>
+<img src="https://stars.medv.io/dabao1955/moe-container-manager.svg", title="commits" width="50%"/>
 
 </p>
 
@@ -33,7 +33,7 @@ container manager for chroot and proot, based on moe-hacker/termux-container
 
 ### for Debian/Ubuntu
 ```
-sudo apt install libcap-dev build-essential clang -y
+sudo apt install golang libcap-dev build-essential clang -y
 cd moe-container-manager
 make
 make install
@@ -41,14 +41,14 @@ make install
 
 ### for Arch Linux
 ```
-sudo pacman -Syy p7zip unzip zip git wget curl nano proot axel pv gawk gettext git clang make libcap
+sudo pacman -Syy p7zip golang unzip zip git wget curl nano proot axel pv gawk gettext git clang make libcap
 cd moe-container-manager
 make
 make install
 ```
 
 ### for Other Linux
-install libcap,clang and make。
+install libcap,clang,golang and make。
 ```
 cd moe-container-manager
 make
@@ -56,14 +56,14 @@ make install
 ```
 ### build deb package
 ```
-sudo apt install libcap-dev build-essential clang -y
+sudo apt install libcap-dev golang build-essential clang -y
 cd moe-container-manager
 dpkg-buildpackage -b -us -uc
 ```
 
 ### build archlinux pkgs(Experimental features)
 ```
-sudo pacman -Syy p7zip unzip zip git wget curl nano proot axel pv gawk gettext git clang make libcap
+sudo pacman -Syy p7zip unzip zip git golang wget curl nano proot axel pv gawk gettext git clang make libcap
 wget https://github.com/dabao1955/moe-container-manager/raw/main/PKGBUILD
 makepkg
 ```
