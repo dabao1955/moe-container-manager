@@ -36,6 +36,11 @@ ifneq ($(shell test -d $(SHARE)||echo x),)
 	@cp -rv share $(O)/moe-container-manager
 endif
 BIN = $(O)/bin
+
+ifeq ("$(wildcard out/bin)","")
+$(shell mkdir -p -v out/bin)
+endif
+
 $(BIN):$(O)
 ifneq ($(shell test -d $(BIN)||echo x),)
 	@mkdir -v $(BIN)
