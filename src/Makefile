@@ -31,10 +31,10 @@ all:
 	cp ruri/ruri out
 	cp yoshinon/yoshinon out
 	cp pkc/pkc out
-format:
-	shfmt -i 2 -w container
+	cp container/container out
+
 gettext:
-	xgettext -o container.pot -L Shell --keyword=po_getmsg --no-wrap container
+	xgettext -o container.pot -L Shell --keyword=po_getmsg --no-wrap container/container
 	msginit -i container.pot -l zh_CN.UTF-8 --no-wrap -o container.po
 	rm container.pot
 	mv container.po ../lang/container-newlang.po
