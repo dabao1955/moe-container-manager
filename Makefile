@@ -23,7 +23,7 @@ show-greetings:
 $(O):
 ifneq ($(shell test -d $(O)||echo x),)
 	@mkdir -v $(O)
-
+endif
 
 DOC = doc
 $(DOC): /usr/bin/w3m
