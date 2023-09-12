@@ -21,7 +21,7 @@
 #include "pkc.h"
 int main()
 {
-    printf("按任意键继续\n");
+    printf("PRESS ENTER TO CONTINUE.\n");
     getchar(); 
     return 0;
 }
