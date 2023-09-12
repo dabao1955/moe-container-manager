@@ -6,7 +6,7 @@ CC_LOG = @printf '    $(CCCOLOR)CC$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 STRIP_LOG = @printf ' $(STRIPCOLOR)STRIP$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 O = out
 .PHONY: all
-all: show-greetings update-code build
+all: show-greetings update-code $(BIN) $(SHARE) build
 show-greetings:
 	echo Starting Build ...
 	@printf "\033[1;38;2;254;228;208m"
@@ -20,9 +20,8 @@ show-greetings:
 	@printf "                \\        \\  /\n"
 	@printf "                 \\________\\/\n"
 	sleep 4s
-$(O):
-ifneq ($(shell test -d $(O)||echo x),)
-	@mkdir -v $(O)
+ifeq ("$(wildcard out/)","")
+$(shell mkdir out/)
 endif
 
 DOC = doc
@@ -31,29 +30,36 @@ ifneq ($(shell test -d $(DOC)||echo x),)
 	make -C doc
 	echo you can run <cd doc && make preview> to read docs.
 endif
-SHARE = $(O)/moe-container-manager
-$(SHARE):$(O)
-ifneq ($(shell test -d $(SHARE)||echo x),)
-	@cp -rv share $(O)/moe-container-manager
-endif
+
+	
 BIN = $(O)/bin/
 
+SHARE = $(O)/moe-container-manager
+$(SHARE):$(O)
+
+ifeq ("$(wildcard out/moe-container-manager)","")
+$(shell cp share out/moe-container-manager -R)
+endif
 
 $(BIN):$(O)
-ifneq ($(shell test -d $(BIN)||echo x),)
-	@mkdir -p -v $(BIN)
+
+ifeq ("$(wildcard out/bin)","")
+$(shell mkdir out/bin)
+endif
+ifeq ("$(wildcard out/doc)","")
+$(shell mkdir out/doc out/doc/moe-container-manager)
 endif
 
 build: src/Makefile
 	make -C src
 	cp -R src/out/* out/bin/
+	cp LICENSE out/doc/moe-container-manager/
 update-code:
 	git submodule init && git submodule update --remote
 install:build
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
 	@cp -rv $(O)/bin/* /usr/bin/
 	@cp -rv $(O)/moe-container-manager /usr/share/
-	@cp -rv $(O)/doc/* /usr/share/doc
 DEB=$(O)/deb
 $(DEB):build
 ifneq ($(shell test -d $(DEB)||echo x),)
