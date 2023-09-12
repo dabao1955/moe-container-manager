@@ -5,7 +5,7 @@
 -----------  
 
 <p align="center">
-<img src="https://stars.medv.io/dabao1954/moe-container-manager.svg", title="commits" width="50%"/>
+<img src="https://stars.medv.io/dabao1955/moe-container-manager.svg", title="commits" width="50%"/>
 
 </p>
 
