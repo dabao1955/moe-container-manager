@@ -71,7 +71,7 @@ ifneq ($(shell test -d $(DEB)||echo x),)
 endif
 
 .PHONY: clean
-clean:
+clean: out
 	@printf "\033[1;38;2;254;228;208m[+] Clean.\033[0m\n"&&sleep 1s
 	@rm -rfv $(O)
 	@printf "\033[1;38;2;254;228;208m    .^.   .^.\n"
@@ -85,3 +85,8 @@ clean:
 help:
 	@echo "Makefile is not for common user, please use the released .deb files instead."
 	@echo "(>_) "
+
+
+.PHONY: distclean
+distclean: out src/out
+	rm -rf $(O) src/out src/pkc/pkc src/ruri/ruri
