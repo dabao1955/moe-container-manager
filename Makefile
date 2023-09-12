@@ -6,7 +6,7 @@ CC_LOG = @printf '    $(CCCOLOR)CC$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 STRIP_LOG = @printf ' $(STRIPCOLOR)STRIP$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 O = out
 .PHONY: all
-all: show-greetings build
+all: show-greetings update-code build
 show-greetings:
 	echo Starting Build ...
 	@printf "\033[1;38;2;254;228;208m"
@@ -44,7 +44,8 @@ endif
 build: src/Makefile
 	make -C src
 	cp -R src/out/* out/bin
-update-code:src/ruri/ruri.c
+update-code:
+	git pull && git submodule init && git submodule update --remote
 install:build
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
 	@cp -rv $(O)/bin/* /usr/bin/
