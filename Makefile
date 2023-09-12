@@ -59,6 +59,7 @@ update-code:
 install:build
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
 	@cp -rv $(O)/bin/* /usr/bin/
+	@cp -rv $(O)/doc/* /usr/share/doc/
 	@cp -rv $(O)/moe-container-manager /usr/share/
 DEB=$(O)/deb
 $(DEB):build
