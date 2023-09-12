@@ -22,7 +22,7 @@ endif
 
 
 all:
-	[ -e ruri/ruri ]||(cd ruri&&make static-bionic)
+	[ -e ruri/ruri ]||(cd ruri&&make static)
 	[ -e yoshinon/yoshinon ]||(cd yoshinon&&make)
 	[ -e container-console/container-console ]||(cd container-console&&make)
 	[ -e pkc/pkc ]||(cd pkc&&gcc -c pkc.c -o pkc)
