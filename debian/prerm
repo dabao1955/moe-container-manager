@@ -12,6 +12,4 @@ test -d /usr/etc/container | rm -rf -v
 test -d /usr/tmp | rm -rf -v
 test -d /usr/etc/var | rm -rf -v
 test -f /usr/bin/container-console | rm -rf -v
-test -f /usr/bin/pkc | rm -rf -v
-test -f /usr/bin/ruri | rm -rf -v
-test -f /usr/bin/container | rm -rf -v
+
