@@ -26,12 +26,12 @@ all:
 	[ -e yoshinon/yoshinon ]||(make -C yoshinon)
 	[ -e container-console/container-console ]||(cd container-console&&make)
 	[ -e pkc/pkc ]||(cd pkc&&clang -c pkc.c -o pkc)
-	sed -i "s/TERMUX_CONTAINER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
+	sed -i "s/MOE_CONTAINER_MANAGER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
 	@mv rootfstool/rootfstool out
 	@mv ruri/ruri out
 	@mv yoshinon/yoshinon out
 	@mv pkc/pkc out
-	@mv container/container out
+	@cp container/container out
 
 gettext:
 	xgettext -o container.pot -L Shell --keyword=po_getmsg --no-wrap container/container
