@@ -2,7 +2,7 @@
 include /usr/share/dpkg/default.mk
 
 export CC = clang
-expirt LD=ld.lld
+export LD = ld.lld
 
 %:
 	dh $@ --parallel
