@@ -21,6 +21,16 @@ Copyright: 2023 Moe-hacker <moe-hacker@outlook.com>
 
 License: Apache-2.0
 
+Files: src/pkc
+Copyright: 2023 dabao1955 <dabao1955@163.com>
+
+License: Apache-2.0
+
+Files: src/yoshinon
+Copyright: 2023 Moe-hacker <moe-hacker@outlook.com>
+
+License: MIT 
+
 License: Apache-2.0
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
