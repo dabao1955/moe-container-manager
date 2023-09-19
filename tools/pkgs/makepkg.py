@@ -1,7 +1,7 @@
 import os
 
 def install_missing_dependencies():
-    dependencies = ['libseccomp', 'p7zip', 'unzip', 'zip', 'git', 'golang', 'wget', 'curl', 'nano', 'proot', 'axel', 'pv', 'gawk', 'gettext', 'git', 'clang', 'make', 'libcap']
+    dependencies = ['libseccomp', 'p7zip', 'unzip', 'zip', 'git', 'golang', 'wget', 'curl', 'nano', 'proot', 'axel', 'pv', 'gawk', 'gettext', 'git', 'clang', 'make', 'libcap', "lld"]
     missing_dependencies = []
     for dependency in dependencies:
         if os.system(f"pacman -Qs {dependency} > /dev/null") != 0:

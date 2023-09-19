@@ -1,6 +1,9 @@
 #!/usr/bin/make -f
 include /usr/share/dpkg/default.mk
 
+export CC = clang
+expirt LD=ld.lld
+
 %:
 	dh $@ --parallel
 
