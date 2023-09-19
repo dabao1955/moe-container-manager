@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: dabao1955 <dabao1955@163.com>
 Build-Depends: debhelper (>= 9),pkg-config, dpkg-dev, build-essential, clang(>= 11), libcap-dev, libseccomp-dev, lld
-Standards-Version: 0.0.1alpha
+Standards-Version: 0.0.1beta
 Homepage: http://github.com/dabao1955/moe-container-manager
 
 Package: moe-container-manager
