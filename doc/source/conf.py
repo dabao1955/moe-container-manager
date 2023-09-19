@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'moe-container-manager-docs'
+project = 'moe-container-manager-doc'
 copyright = '2023, dabao1955'
 author = 'dabao1955'
 release = '0.0.1'
