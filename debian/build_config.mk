@@ -11,7 +11,7 @@ DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 all:
 indef CC_BIN
-        @echo
+	@echo
 else
-        echo  Clang not Found ! && exit 127
+	echo  Clang not Found ! && exit 127
 endif
