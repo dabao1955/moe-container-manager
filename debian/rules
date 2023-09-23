@@ -1,6 +1,12 @@
 #!/usr/bin/make -f
 include /usr/share/dpkg/default.mk
-include ./build_config.mk
+
+export CC = /bin/clang
+export LD = /bin/ld.lld
+export DH_VERBOSE = 1
+
+DEB_BUILD_ARCH ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH)
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 %:
 	dh $@ --parallel
