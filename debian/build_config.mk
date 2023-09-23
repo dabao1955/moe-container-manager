@@ -10,7 +10,7 @@ DEB_BUILD_ARCH ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH)
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 all:
-indef CC_BIN
+ifdef CC_BIN
 	@echo
 else
 	echo  Clang not Found ! && exit 127
