@@ -17,7 +17,7 @@ def main():
         print("This script is only intended to run on Arch Linux.")
         return
     install_missing_dependencies()
-    os.system("makepkg")
+    os.system("makepkg -s --skipinteg")
 
 if __name__ == "__main__":
     main()
