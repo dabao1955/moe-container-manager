@@ -1,4 +1,5 @@
 import os
+import sys
 
 def install_missing_dependencies():
     dependencies = ['libseccomp', 'p7zip', 'unzip', 'zip', 'git', 'golang', 'wget', 'curl', 'nano', 'proot', 'axel', 'pv', 'gawk', 'gettext', 'git', 'clang', 'make', 'libcap', "lld"]
