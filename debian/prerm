@@ -8,8 +8,7 @@ else
 echo no chroot container running！
 fi
 
-test -d /usr/etc/container | rm -rf -v
-test -d /usr/tmp | rm -rf -v
-test -d /usr/etc/var | rm -rf -v
-test -f /usr/bin/container-console | rm -rf -v
+test -d /usr/etc/ && rm -rf -v /usr/etc
+test -d /usr/tmp && rm -rf -v /usr/tmp
+test -d /usr/var && rm -rf -v /usr/var
 
