@@ -44,7 +44,7 @@ jobs:
 
           path: moe-container-manager_0.0.1rc0_amd64.deb
 
-jobs:
+
 
   build-deb-arm64:
 
