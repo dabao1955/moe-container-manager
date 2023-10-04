@@ -1,8 +1,14 @@
 #!/bin/bash
+#  ██╗ ██╗  ██╗ ██████╗  █████╗   ███████╗ ██╗  ██╗
+# ████████╗ ██║ ██╔══██╗ ██╔══██╗ ██╔════╝ ██║  ██║
+# ╚██╔═██╔╝ ██║ ██████╔╝ ███████║ ███████╗ ███████║
+# ████████╗ ╚═╝ ██╔══██╗ ██╔══██║ ╚════██║ ██╔══██║
+# ╚██╔═██╔╝ ██╗ ██████╔╝ ██║  ██║ ███████║ ██║  ██║
+#  ╚═╝ ╚═╝  ╚═╝ ╚═════╝  ╚═╝  ╚═╝ ╚══════╝ ╚═╝  ╚═╝
 # SPDX-License-Identifier: Apache-2.0
-# This file is part of termux-container.
+# This file is part of moe-container-manager.
 #
-# Copyright (c) 2021-2023 Moe-hacker
+# Copyright (c) 2021-2023 dabao1955
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,11 +21,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+#
+# •.,¸,.•*¯`•.,¸,.•....╭━━━━━━━━━╮
+# `•.,¸,.•*¯`•.,¸,.•*¯.|::::::::::/\__/\
+# `•.,¸,.•*¯`•.,¸,.•* <|:::::::::(｡ ●ω●｡)
+# `•.,¸,.•*¯`•.,¸,.•*  ╰し--し--Ｊ･ﾟ
+# Github@Moe-hacker
+# E-mail: moe-hacker@outlook.com
+# Blog: https://blog.crack.moe
+################################
+################################
+################################
+################################
+# Load functions && Load configs && check the environment.
+set -eu
 
-# 定义prefix路径
 export PREFIX=/usr
 
-#检测文件夹
 test -d $PREFIX/etc || sudo mkdir -p -v $PREFIX/etc
 test -d $PREFIX/etc/container || sudo mkdir -p -v $PREFIX/etc/container
 test -d $PREFIX/var || sudo mkdir -p -v $PREFIX/var
@@ -28,87 +47,11 @@ test -d $PREFIX/containers || sudo mkdir -p -v $PREFIX/containers
 
 sudo chmod 777 -R -v $PREFIX/var $PREFIX/tmp $PREFIX/etc
 
-# Version info.
-export MOE_CONTAINER_MANAGER_VERSION="0.0.1-beta"
-export MOE_CONTAINER_MANAGER_LICENSE="Apache-2.0"
-# Will be automatically set by Makefile.
-export MOE_CONTAINER_MANAGER_COMMIT_ID=""
-# Output main color.
-RGB_COLOR="254;228;208"
-export COLOR="\033[1;38;2;${RGB_COLOR}m"
-# A very cute catgirl nya~~~
-export CAT1="\n${COLOR}  .^.   .^.
-  /⋀\_ﾉ_/⋀\\
- /ﾉｿﾉ\ﾉｿ丶)|
-|ﾙﾘﾘ >   )ﾘ
-ﾉノ㇏ Ｖ ﾉ|ﾉ
-      ⠁⠁
-"
-export CAT2="${COLOR}  .^.   .^.
-  /⋀\_ﾉ_/⋀\\
- /ﾉｿﾉ\ﾉｿ丶)|
-|ﾙﾘﾘ >   )ﾘ
-ﾉノ㇏  ^ ﾉ|ﾉ
-      ⠁⠁
-"
-export CAT3="${COLOR}  .^.   .^.
-  /⋀\_ﾉ_/⋀\\
- /ﾉｿﾉ\ﾉｿ丶)|
-|ﾙﾘﾘ >   )ﾘ
-ﾉノ㇏ ぁ ﾉ|ﾉ
-      ⠁⠁
-"
-export CAT4="${COLOR}  .^.   .^.
-  /⋀\_ﾉ_/⋀\\
- /ﾉｿﾉ\ﾉｿ丶)|
-|ﾙﾘﾘ >   )ﾘ
-ﾉノ㇏ の ﾉ|ﾉ
-      ⠁⠁
-"
-export CAT5="${COLOR}  .^.   .^.
-  /⋀\_ﾉ_/⋀\\
- /ﾉｿﾉ\ﾉｿ丶)|
-|ﾙﾘﾘ >   )ﾘ
-ﾉノ㇏ ヮ ﾉ|ﾉ
-      ⠁⠁
-"
-export CAT6="${COLOR}  .^.   .^.
-  /⋀\_ﾉ_/⋀\\
- /ﾉｿﾉ\ﾉｿ丶)|
-|ﾙﾘﾘ >   )ﾘ
-ﾉノ㇏ ++ ﾉ|ﾉ
-      ⠁⠁
-"
-export CAT7="${COLOR}  .^.   .^.
-  /⋀\_ﾉ_/⋀\\
- /ﾉｿﾉ\ﾉｿ丶)|
-|ﾙﾘﾘ >   )ﾘ
-ﾉノ㇏ xx ﾉ|ﾉ
-      ⠁⠁
-"
-export CAT8="${COLOR}  .^.   .^.
-  /⋀\_ﾉ_/⋀\\
- /ﾉｿﾉ\ﾉｿ丶)|
-|ﾙﾘﾘ >   )ﾘ
-ﾉノ㇏ ひ ﾉ|ﾉ
-      ⠁⠁
-"
-
-# Show error message and exit.
-function error() {
-  # Usage:
-  # error "Error message"
-  echo -e "\033[31m$@\033[0m" >&2
-  printf "${COLOR}${CAT2}\033[0m" >&2
-  echo -e "${COLOR}If you think something is wrong, please report at:\n\033[4mhttps://github.com/Moe-hacker/termux-container/discussions\033[0m" >&2
-  exit 1
-}
-# Load functions && Load configs && check the environment.
 function _init() {
   # Usage:
   # _init
-  for i in $(ls /usr/share/termux-container/functions); do
-    source /usr/share/termux-container/functions/$i
+  for i in $(ls /usr/share/moe-container-manager/functions); do
+    source /usr/share/moe-container-manager/functions/$i
   done
   if [[ ! -e /usr/etc/container/global.conf ]]; then
     error "Could not find global config file!"
@@ -128,7 +71,7 @@ function _init() {
   kernelVersion="$(uname -r)"
   kernelMajor="${kernelVersion%%.*}"
   if ((kernelMajor < 4)); then
-    echo -e "\033[33mWarning: termux-container has not been tested under linux 3.x or lower.\033[0m" >&2
+    echo -e "\033[33mWarning: moe-container-manager has not been tested under linux 3.x or lower.\033[0m" >&2
   fi
 }
 
@@ -178,7 +121,7 @@ function container_console_main() {
       ;;
     esac
     printf "$x\n"
-    echo -e "\033[31m$(po_getmsg "Error: Unknow command \`$@\`,type \`help\` to show helps.")\033[0m${COLOR}"
+    echo -e "\033[31mError: Unknow command \`$@\`,type \`help\` to show helps.\033[0m${COLOR}"
     ;;
   esac
 }
@@ -201,6 +144,19 @@ function main() {
 }
 _init
 main "$@"
+#         ●●●●● ●●●●● ●●●●  ●   ● ●   ● ●   ●
+#           ●   ●     ●   ● ●● ●● ●   ●  ● ●
+#           ●   ●●●●  ●●●●  ● ● ● ●   ●   ●
+#           ●   ●     ●  ●  ●   ● ●   ●  ● ●
+#           ●   ●●●●● ●   ● ●   ●  ●●●  ●   ●
+#
+#
+#  ●●●   ●●●  ●   ● ●●●●●   ●    ●●●  ●   ● ●●●●● ●●●●
+# ●   ● ●   ● ●●  ●   ●    ● ●    ●   ●●  ● ●     ●   ●
+# ●     ●   ● ● ● ●   ●   ●   ●   ●   ● ● ● ●●●●  ●●●●
+# ●   ● ●   ● ●  ●●   ●   ●●●●●   ●   ●  ●● ●     ●  ●
+#  ●●●   ●●●  ●   ●   ●   ●   ●  ●●●  ●   ● ●●●●● ●   ●
+#
 #  ██╗ ██╗  ███████╗   ████╗   ███████╗
 # ████████╗ ██╔════╝ ██╔═══██╗ ██╔════╝
 # ╚██╔═██╔╝ █████╗   ██║   ██║ █████╗

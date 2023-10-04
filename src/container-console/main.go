@@ -206,7 +206,7 @@ func execCommand(cmd string) tea.Cmd {
 	f, _ := os.OpenFile(historyfile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	f.WriteString(cmd + "\n")
 	// Command to execute.
-	c := exec.Command("/bin/bash", "-c", "container -e container_console_main "+cmd)
+	c := exec.Command("/usr/bin/bash", "-c", "container -e container_console_main "+cmd)
 	out, _ := c.CombinedOutput()
 	fmt.Printf("%s", string(out))
 	fmt.Printf("%s", "\n")
