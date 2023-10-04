@@ -1,4 +1,4 @@
-moe-container-manager (0.0.1brc0) unstable; urgency=low
+moe-container-manager (0.0.1rc0) unstable; urgency=low
 
   * Rebase Chroot Tools.
 
