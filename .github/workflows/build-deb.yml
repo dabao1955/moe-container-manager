@@ -55,6 +55,8 @@ jobs:
       - name: Checkout repo
 
         uses: actions/checkout@v4
+      - name: Free Disk Space
+        uses: rokibhasansagar/slimhub_actions@main
 
       - name: Build pkg ARM64 
         uses: pguyot/arm-runner-action@v2 
