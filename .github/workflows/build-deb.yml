@@ -69,7 +69,7 @@ jobs:
 
         run: |
 
-          sudo dpkg-buildpackage -b -us -uc -a arm64 && cp ../*.deb ./
+          sudo dpkg-buildpackage -b -us -uc -a arm64 -d && cp ../*.deb ./
       - name: Upload builded to artifact
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
