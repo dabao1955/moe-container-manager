@@ -68,6 +68,7 @@ jobs:
       - name: Build deb
 
         run: |
+          export GOOS=linux && export GOARCH=arm64 && export GOARM=7
 
           sudo dpkg-buildpackage -b -us -uc -a arm64 -d && cp ../*.deb ./
       - name: Upload builded to artifact
