@@ -1,4 +1,4 @@
-name: build deb
+name: CI
 
 on:
 
@@ -10,7 +10,7 @@ on:
 
 jobs:
 
-  build-deb:
+  build-deb-amd64:
 
     runs-on: ubuntu-latest
 
@@ -40,6 +40,43 @@ jobs:
 
         with:
 
-          name: moe-container-manager_0.0.1beta_amd64.deb.zip
+          name: moe-container-manager_0.0.1rc0_amd64.deb.zip
 
-          path: moe-container-manager_0.0.1beta_amd64.deb
+          path: moe-container-manager_0.0.1rc0_amd64.deb
+
+jobs:
+
+  build-deb-arm64:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repo
+
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+
+        run: |
+
+          sudo apt update
+
+          sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config libseccomp-dev golang lld 
+
+          
+      - name: Build deb
+
+        run: |
+
+          export ARCH=arm64
+          sudo dpkg-buildpackage -b -us -uc && cp ../*.deb ./
+      - name: Upload builded to artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v3
+
+        with:
+
+          name: moe-container-manager_0.0.1rc0_ard64.deb.zip
+
+          path: moe-container-manager_0.0.1rc0_amd64.deb
