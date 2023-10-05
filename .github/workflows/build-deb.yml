@@ -58,12 +58,19 @@ jobs:
       - name: Free Disk Space
         uses: rokibhasansagar/slimhub_actions@main
 
-      - name: Build pkg ARM64 
-        uses: pguyot/arm-runner-action@v2 
-        with: 
-           base_image: raspios_lite_arm64:latest 
-           bind_mount_repository: true 
-           commands: | 
+       - uses: uraimo/run-on-arch-action@v2
+        name: Build deb
+        id: runcmd
+        with:
+          arch: aarch64
+          distro: ubuntu_latest
+
+          # Not required, but speeds up builds by storing container images in
+          # a GitHub package registry.
+          githubToken: ${{ github.token }}
+
+          # Set an output parameter `uname` for use in subsequent steps
+          run: |
              sudo apt update
 
              sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config libseccomp-dev golang lld
