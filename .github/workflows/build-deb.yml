@@ -58,8 +58,9 @@ jobs:
       - name: Free Disk Space
         uses: rokibhasansagar/slimhub_actions@main
 
-       - uses: uraimo/run-on-arch-action@v2
-        name: Build deb
+       
+      - name: Build deb
+        uses: uraimo/run-on-arch-action@v2
         id: runcmd
         with:
           arch: aarch64
