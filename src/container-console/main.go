@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 /*
  *
- * This file is part of termux-container, with ABSOLUTELY NO WARRANTY.
+ * This file is part of moe-container-manager, with ABSOLUTELY NO WARRANTY.
  *
  * MIT License
  *
@@ -32,7 +32,7 @@
 // It can do:
 // Built in commands highlighting.
 // Up/Down to show history.
-// Call to termux-container.
+// Call to moe-container-manager.
 // It works, so do not touch anything.
 
 package main
@@ -54,7 +54,7 @@ import (
 var list []string = []string{"help", "exit", "new", "search", "pull", "rmi", "cp", "ls", "rm", "login", "import", "export", "info"}
 
 // File to store history command.
-var historyfile = "$HOME/.container_history"
+var historyfile = "/home/.container_history"
 
 type (
 	errMsg error
@@ -124,7 +124,7 @@ func init() {
 	fmt.Printf("%s%s\n", space, "     ▀▅▅▅▀                ▀▀▀▀▀ █        █")
 	fmt.Printf("%s%s\n", space, "        ▀                       ▀        ▀")
 	fmt.Printf("%s\n", "\033[1;38;2;254;228;208m")
-	fmt.Printf("%s%s\n", space, "       The Console Of Termux-container")
+	fmt.Printf("%s%s\n", space, "       The Console Of moe-container-manager")
 	fmt.Printf("%s%s\n", space, "          Made With  By Moe-hacker")
 	fmt.Printf("%s%s\n", space, "            Powered By Bubble Tea")
 	fmt.Printf("%s%s\n", space, "          WARNING: NO WARRANTY HERE")
