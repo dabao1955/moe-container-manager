@@ -43,38 +43,3 @@ jobs:
           name: moe-container-manager_0.0.1rc0_amd64.deb.zip
 
           path: moe-container-manager_0.0.1rc0_amd64.deb
-
-
-
-  build-deb-arm64:
-
-    runs-on: ubuntu-latest
-
-    steps:
-
-      - name: Checkout repo
-
-        uses: actions/checkout@v4
-       
-      - name: Build deb
-        uses: uraimo/run-on-arch-action@v2
-        id: builddeb
-        with:
-          arch: aarch64
-          distro: ubuntu22.04
-          # Set an output parameter `uname` for use in subsequent steps
-          run: |
-             sudo apt update
-
-             sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config libseccomp-dev golang lld
-
-             sudo dpkg-buildpackage -b -us -uc && cp ../*.deb ./
-      - name: Upload builded to artifact
-        if: github.event_name == 'push'
-        uses: actions/upload-artifact@v3
-
-        with:
-
-          name: moe-container-manager_0.0.1rc0_arm64.deb.zip
-
-          path: moe-container-manager_0.0.1rc0_arm64.deb
