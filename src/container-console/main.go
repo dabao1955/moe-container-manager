@@ -54,7 +54,7 @@ import (
 var list []string = []string{"help", "exit", "new", "search", "pull", "rmi", "cp", "ls", "rm", "login", "import", "export", "info"}
 
 // File to store history command.
-var historyfile = "/home/.container_history"
+var historyfile = "/usr/home/.container_history"
 
 type (
 	errMsg error
