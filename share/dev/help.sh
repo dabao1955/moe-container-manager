@@ -11,31 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+# Usage:
+# help [-c/-s]
+# Load shared.sh
+source /usr/share/moe-container-manager/shell/shared.sh
 function script_help() {
+  # Usage:
+  # script_help
   col=$(($(($(stty size | awk '{print $2}'))) / 2 - 25))
-  logo="\033[1;38;2;254;228;208m
-\033[${col}G         ●●●●● ●●●●● ●●●●  ●   ● ●   ● ●   ●
-\033[${col}G           ●   ●     ●   ● ●● ●● ●   ●  ● ●
-\033[${col}G           ●   ●●●●  ●●●●  ● ● ● ●   ●   ●
-\033[${col}G           ●   ●     ●  ●  ●   ● ●   ●  ● ●
-\033[${col}G           ●   ●●●●● ●   ● ●   ●  ●●●  ●   ●
 
-
-
-\033[${col}G ●●●   ●●●  ●   ● ●●●●●   ●    ●●●  ●   ● ●●●●● ●●●●
-\033[${col}G●   ● ●   ● ●●  ●   ●    ● ●    ●   ●●  ● ●     ●   ●
-\033[${col}G●     ●   ● ● ● ●   ●   ●   ●   ●   ● ● ● ●●●●  ●●●●
-\033[${col}G●   ● ●   ● ●  ●●   ●   ●●●●●   ●   ●  ●● ●     ●  ●
-\033[${col}G ●●●   ●●●  ●   ●   ●   ●   ●  ●●●  ●   ● ●●●●● ●   ●
-
-"
-  printf "$logo"
   SIZE=$(stty size | awk '{print $2}')
   let SIZE=$(($SIZE - 16))
   echo "//"
   echo
-  echo -e "\e[30;1;48;2;254;228;208;38;2;0;0;0mTERMUX-CONTAINER$(yes " " | sed $SIZE'q' | tr -d '\n')\033[0m"
+  echo -e "\e[30;1;48;2;254;228;208;38;2;0;0;0mmoe-container-manager$(yes " " | sed $SIZE'q' | tr -d '\n')\033[0m"
   echo
   echo -e "${COLOR}//"
   echo
@@ -67,3 +56,7 @@ function console_help() {
   echo "  export [Name]              :Export a container as an image."
   echo "  info                       :Show version && system info."
 }
+case "$1" in
+"-c") console_help ;;
+"-s") script_help ;;
+esac

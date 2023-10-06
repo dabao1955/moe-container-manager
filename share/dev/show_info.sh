@@ -16,31 +16,16 @@
 # But it's cool, isn't it?
 # Usage:
 # show_info
-source /data/data/com.termux/files/usr/share/termux-container/shell/shared.sh
-logo="\033[1;38;2;254;228;208m
-         ●●●●● ●●●●● ●●●●  ●   ● ●   ● ●   ●
-           ●   ●     ●   ● ●● ●● ●   ●  ● ●
-           ●   ●●●●  ●●●●  ● ● ● ●   ●   ●
-           ●   ●     ●  ●  ●   ● ●   ●  ● ●
-           ●   ●●●●● ●   ● ●   ●  ●●●  ●   ●
+# Load shared.sh
+source /usr/share/moe-container-manager/shell/shared.sh
 
-
-
- ●●●   ●●●  ●   ● ●●●●●   ●    ●●●  ●   ● ●●●●● ●●●●
-●   ● ●   ● ●●  ●   ●    ● ●    ●   ●●  ● ●     ●   ●
-●     ●   ● ● ● ●   ●   ●   ●   ●   ● ● ● ●●●●  ●●●●
-●   ● ●   ● ●  ●●   ●   ●●●●●   ●   ●  ●● ●     ●  ●
- ●●●   ●●●  ●   ●   ●   ●   ●  ●●●  ●   ● ●●●●● ●   ●
-"
-printf "$logo"
-echo
 echo -e "\nScript Info :"
 echo
 echo -e "[\ueb11] Activation Stat       : Not Active"
-echo -e "[\ue729] Commit ID             : ${TERMUX_CONTAINER_COMMIT_ID}"
+echo -e "[\ue729] Commit ID             : ${MOE_CONTAINER_MANAGER_COMMIT_ID}"
 echo -e "[\uf46b] Author                : Moe-hacker"
-echo -e "[\ue7c4] License               : ${TERMUX_CONTAINER_LICENSE}"
-echo -e "[\uf469] Version               : ${TERMUX_CONTAINER_VERSION}"
+echo -e "[\ue7c4] License               : ${MOE_CONTAINER_MANAGER_LICENSE}"
+echo -e "[\uf469] Version               : ${MOE_CONTAINER_MANAGER_VERSION}"
 echo -e "[\uf1d1] ruri Version          : $(ruri -V)"
 echo -e "[\ue78b] ruri License          : MIT"
 echo -e "[\ue796] rootfstool Version    : $(rootfstool version | head -1 | awk '{print $3}')"
@@ -69,23 +54,11 @@ for i in $(ls /proc/$$/ns | grep -v for_children); do
   NS+="$i "
 done
 echo -e "[\uf013] Supported namespace   : ${NS}"
-# XXX: `su -c` will not work properly with kernelSU.
-if [[ -e /bin/magisk ]]; then
-  echo -e "[\ufd23] Magisk version        : $(su -c /bin/magisk -V)"
-  echo -e "[\ufc7e] SELinux               : $(sudo getenforce)"
-fi
-if [[ -e /data/adb/ksud ]]; then
-  echo -e "[\uf639] KernelSU version      : $(sudo /data/adb/ksud -V)"
-  echo -e "[\ufc7e] SELinux               : $(sudo getenforce)"
-fi
+echo -e "[\ufc7e] SELinux               : $(sudo getenforce)"
+
 echo -e "\nHardware Info :"
 echo
-echo -e "[\uf493] Brand                 : $(getprop ro.product.brand)"
-echo -e "[\uf493] Model                 : $(getprop ro.product.model)"
-echo -e "[] Model Codename        : $(getprop ro.product.board)"
-echo -e "[] Platform Codename     : $(getprop ro.board.platform)"
 echo -e "[] Cpus                  : $(lscpu | grep CPU\(s\)\: | awk '{print $2}')"
-echo -e "[] SOC Model             : $(getprop ro.soc.model)"
 echo -e "[] Total Memory          : $(free -g --si | grep "Mem" | awk {'print $2'})GB"
 _temp=$(cat /sys/class/thermal/thermal_zone0/temp)
 temp=$((_temp / 1000))

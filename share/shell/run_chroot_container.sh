@@ -95,7 +95,7 @@ function run_ruri_container() {
     echo -e ""
     LINE=$(($(stty size | awk '{print $2}')))
     LINE=$(($LINE - 16))
-    echo -e "\e[30;1;48;2;254;228;208;38;2;0;0;0mTERMUX-CONTAINER$(yes " " | sed ${LINE}'q' | tr -d '\n')\033[0m"
+    echo -e "\e[30;1;48;2;254;228;208;38;2;0;0;0mMOE-CONTAINER-MANAGER$(yes " " | sed ${LINE}'q' | tr -d '\n')\033[0m"
     echo -e "${COLOR}"
     echo -e "//"
     echo -e ""
@@ -105,11 +105,11 @@ function run_ruri_container() {
     echo -e " /        /    \\   [] KERNEL VERSION: $kernelMajor.$kernelMinor.$kernelPatch"
     echo -e "/________/      \\  [] TIME: ${TIME}"
     echo -e "\\        \\      /  [] HOSTNAME: ${HOSTNAME}"
-    echo -e " \\        \\    /   [] ANDROID VERSION: ${ANDROID}"
+    echo -e " \\        \\    /   [] RURI VERSION: 9.0"
     echo -e "  \\        \\  /    [] CONTAINER DIR: $(echo ${CONTAINER_DIR} | sed 's#/data/data/com.termux/files/home#$HOME#' | sed 's#/data/data/com.termux/files/usr#$PREFIX#')"
     echo -e "   \\________\\/     [] PRIVAGE LEVEL: ${PRIVAGE_LEVEL}"
     echo -e ""
-    echo -e "〉TERMUX-CONTAINER"
+    echo -e "〉MOE-CONTAINER-MANAGER"
     LINE=$(($(stty size | awk '{print $2}')))
     echo -e "$(yes "─" | sed ${LINE}'q' | tr -d '\n')"
     echo -e "//////"
@@ -119,14 +119,11 @@ function run_ruri_container() {
     echo -e "\033[31mError: Container directory does not exist !${COLOR}"
     return 1
   fi
-  [[ -e ${CONTAINER_DIR}/sdcard ]] || mkdir -p ${CONTAINER_DIR}/sdcard
-  if [[ ${MOUNT_SDCARD} == "true" ]]; then
-    mount --bind -o ro /sdcard ${CONTAINER_DIR}/sdcard
-  fi
+
   # Mount termux's tmpdir.
   mount --bind ${PREFIX}/tmp ${CONTAINER_DIR}/tmp
   # Fix nosuid error of sudo.
-  mount -o remount,suid /data >>/dev/null 2>&1
+
   CONTAINER_PARAMETER="-w"
   if [[ ${ENABLE_UNSHARE} == "true" ]]; then
     # Run rurid if it's not running.

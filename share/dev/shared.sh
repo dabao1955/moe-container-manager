@@ -14,10 +14,10 @@
 #
 # Version info.
 # To be 9.5 now because I rewrote it twice since 8.0.
-export TERMUX_CONTAINER_VERSION="9.5-dev"
-export TERMUX_CONTAINER_LICENSE="Apache-2.0"
+export MOE_CONTAINER_MANAGER_VERSION="0.0.1rc0"
+export MOE_CONTAINER_MANAGER_LICENSE="Apache-2.0"
 # Will be automatically set by Makefile.
-export TERMUX_CONTAINER_COMMIT_ID=""
+export MOE_CONTAINER_MANAGER_COMMIT_ID=""
 # Output main color.
 RGB_COLOR="254;228;208"
 export COLOR="\033[1;38;2;${RGB_COLOR}m"
@@ -85,8 +85,8 @@ function error() {
   # error "Error message"
   echo -e "\033[31m$@\033[0m" >&2
   printf "${COLOR}${CAT2}\033[0m" >&2
-  echo -e "${COLOR}If you think something is wrong, please report at:\n\033[4mhttps://github.com/Moe-hacker/termux-container/discussions\033[0m" >&2
-  exit 1
+  echo -e "${COLOR}It is not still work now." >&2
+  exit 127
 }
 # From Tmoe.
 # In fact I don't think that there are any phones with amd64 CPUS and Android system now.

@@ -50,13 +50,7 @@ sudo chmod 777 -R -v $PREFIX/var $PREFIX/tmp $PREFIX/etc
 function _init() {
   # Usage:
   # _init
-  for i in $(ls /usr/share/moe-container-manager/functions); do
-    source /usr/share/moe-container-manager/functions/$i
-  done
-  if [[ ! -e /usr/etc/container/global.conf ]]; then
-    error "Could not find global config file!"
-  fi
-  source /usr/etc/container/global.conf
+
   for i in capsh unshare chroot proot wget curl; do
     if ! command -v $i 2>&1 >/dev/null; then
       error "Missing dependencies: $i!"

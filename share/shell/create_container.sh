@@ -37,7 +37,7 @@ function create_chroot_container() {
   echo nameserver 8.8.8.8 >>${CONTAINER_DIR}/etc/resolv.conf
   echo nameserver 114.114.114.114 >>${CONTAINER_DIR}/etc/resolv.conf
   # Fix network problem.
-  cp $PREFIX/share/termux-container/group_add.sh ${CONTAINER_DIR}/tmp
+  cp $PREFIX/share/moe-container-manager/group_add.sh ${CONTAINER_DIR}/tmp
   chmod 777 ${CONTAINER_DIR}/tmp/group_add.sh
   if [[ ${NEW_USER} != "" && ${PASSWORD} != "" ]]; then
     sed -i "s/NEW_USER=\"\"/NEW_USER=${NEW_USER}/" ${CONTAINER_DIR}/tmp/group_add.sh
@@ -75,7 +75,7 @@ function create_proot_container() {
   rm -f ${CONTAINER_DIR}/etc/resolv.conf >>/dev/null 2>&1
   echo nameserver 8.8.8.8 >>${CONTAINER_DIR}/etc/resolv.conf
   echo nameserver 114.114.114.114 >>${CONTAINER_DIR}/etc/resolv.conf
-  cp $PREFIX/share/termux-container/group_add.sh ${CONTAINER_DIR}/tmp/
+  cp $PREFIX/share/moe-container-manager/group_add.sh ${CONTAINER_DIR}/tmp/
   chmod 777 ${CONTAINER_DIR}/tmp/group_add.sh
   if [[ ${NEW_USER} != "" && ${PASSWORD} != "" ]]; then
     sed -i "s/NEW_USER=\"\"/NEW_USER=${NEW_USER}/" ${CONTAINER_DIR}/tmp/group_add.sh
