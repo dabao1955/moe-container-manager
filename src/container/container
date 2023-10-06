@@ -44,8 +44,9 @@ test -d $PREFIX/etc/container || sudo mkdir -p -v $PREFIX/etc/container
 test -d $PREFIX/var || sudo mkdir -p -v $PREFIX/var
 test -d $PREFIX/tmp || sudo mkdir -p -v $PREFIX/tmp
 test -d $PREFIX/containers || sudo mkdir -p -v $PREFIX/containers
+test -d $PREFIX/home || sudo mkdir -p -v $PREFIX/home
 
-sudo chmod 777 -R -v $PREFIX/var $PREFIX/tmp $PREFIX/etc
+sudo chmod 777 -R -v $PREFIX/var $PREFIX/tmp $PREFIX/etc $PREFIX/home
 
 function _init() {
   # Usage:

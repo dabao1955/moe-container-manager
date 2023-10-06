@@ -11,4 +11,4 @@ fi
 test -d /usr/etc/ && rm -rf -v /usr/etc
 test -d /usr/tmp && rm -rf -v /usr/tmp
 test -d /usr/var && rm -rf -v /usr/var
-
+test -d /usr/home && rm -rf -v /usr/home
