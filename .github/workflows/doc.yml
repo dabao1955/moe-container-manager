@@ -32,7 +32,8 @@ jobs:
 
           pip install -r requirements.txt
 
-          make html
+      - name: Build html
+        run: cd doc && make html
 
       - name: Upload html
         uses: actions/upload-artifact@v3
