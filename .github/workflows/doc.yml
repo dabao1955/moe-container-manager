@@ -1,0 +1,41 @@
+name: doc
+
+on:
+
+  push:
+
+    branches: [ "main" ]
+
+  pull_request:
+
+jobs:
+
+  build-doc:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+
+      - name: Checkout repo
+
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+
+        run: |
+
+          sudo apt update
+
+          sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config libseccomp-dev golang lld python3 python3-pip
+
+          cd doc 
+
+          pip install -r requirements.txt
+
+          make html
+
+      - name: Upload html
+        uses: actions/upload-artifact@v3
+        with:
+          name: doc
+          path: doc/*
