@@ -1,12 +1,17 @@
 #!/usr/bin/make -f
 include /usr/share/dpkg/default.mk
 
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# prefix
+#prefix=$(CURDIR)/debian/moe-container-manager/usr
+
 export CC = /bin/clang
 export LD = /bin/ld.lld
-export DH_VERBOSE = 1
 
-DEB_BUILD_ARCH ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH)
-DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+export DEB_BUILD_ARCH ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH)
+export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 %:
 	dh $@ --parallel
