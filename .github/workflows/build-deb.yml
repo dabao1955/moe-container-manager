@@ -34,6 +34,7 @@ jobs:
 
         run: |
 
+          make update-code
           sudo dpkg-buildpackage -b -us -uc && cp ../*.deb ./
       - name: Upload builded to artifact
         if: github.event_name == 'push'
