@@ -36,7 +36,7 @@ install:
 	@cp rootfstool/rootfstool out
 	@mv ruri/ruri out
 	@mv yoshinon/yoshinon out
-	@mv pkc/builds/pkc out
+	@mv pkc/build/pkc out
 	@cp container/container out
 	@cp container-console/container-console out
 
