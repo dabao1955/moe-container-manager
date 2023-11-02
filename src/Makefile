@@ -21,17 +21,17 @@ $(shell mkdir out)
 endif
 
 .PHONY: all
-all: ruri yoshinin container-console pkc container install
+all: ruri.o yoshinin.o container-console.o pkc.o container.o install
 ruri.o:
 	@[ -e ruri/ruri ]||(make -C ruri static)
 yoshinon.o:
 	@[ -e yoshinon/yoshinon ]||(make -C yoshinon)
 container-console.o:
-	@[ -e container-console/build/container-console ]||(cd container-console&&make)
+	@[ -e container-console/build/container-console ]||(make -C container-console)
 pkc.o:
 	@[ -e pkc/build/pkc ]||(cd pkc&&mkdir build&&cd build&&cmake ..&&make)
 container.o:
-	@sed -i "s/MOE_CONTAINER_MANAGER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
+	sed -i "s/MOE_CONTAINER_MANAGER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
 install:
 	@cp rootfstool/rootfstool out
 	@mv ruri/ruri out
