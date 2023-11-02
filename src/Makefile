@@ -29,14 +29,14 @@ yoshinon.o:
 container-console.o:
 	@[ -e container-console/build/container-console ]||(make -C container-console)
 pkc.o:
-	@[ -e pkc/build/pkc ]||(cd pkc&&mkdir build&&cd build&&cmake ..&&make)
+	@[ -e pkc/build/pkc ]||(cd pkc&&mkdir builds&&cd builds&&cmake ..&&make)
 container.o:
 	sed -i "s/MOE_CONTAINER_MANAGER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
 install:
 	@cp rootfstool/rootfstool out
 	@mv ruri/ruri out
 	@mv yoshinon/yoshinon out
-	@mv pkc/build/pkc out
+	@mv pkc/builds/pkc out
 	@cp container/container out
 	@cp container-console/container-console out
 
