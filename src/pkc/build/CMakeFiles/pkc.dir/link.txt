@@ -1,0 +1,1 @@
+/data/data/com.termux/files/usr/bin/cc -O2 -g -DNDEBUG -static CMakeFiles/pkc.dir/pkc.c.o -o pkc 

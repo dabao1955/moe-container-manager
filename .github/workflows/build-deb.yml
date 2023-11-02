@@ -30,12 +30,15 @@ jobs:
           sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config libseccomp-dev golang lld cmake libpthreadpool0 libpthreadpool-dev
 
           
-      - name: Build deb
+      - name: Update Code
 
         run: |
 
           make update-code
-          sudo dpkg-buildpackage -b -us -uc && cp ../*.deb ./
+
+      - name: Build Code 
+        run: |
+          sudo dpkg-buildpackage -b -us -uc && cp ../moe-container-manager_* ./out -rv
       - name: Upload builded to artifact
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
@@ -44,4 +47,4 @@ jobs:
 
           name: moe-container-manager_0.0.1rc0_amd64.deb.zip
 
-          path: moe-container-manager_0.0.1rc0_amd64.deb
+          path: out/*

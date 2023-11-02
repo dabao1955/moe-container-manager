@@ -1,0 +1,7 @@
+/data/data/com.termux/files/home/moe-container-manager/src/pkc/build/CMakeFiles/pkc.dir
+/data/data/com.termux/files/home/moe-container-manager/src/pkc/build/CMakeFiles/edit_cache.dir
+/data/data/com.termux/files/home/moe-container-manager/src/pkc/build/CMakeFiles/rebuild_cache.dir
+/data/data/com.termux/files/home/moe-container-manager/src/pkc/build/CMakeFiles/list_install_components.dir
+/data/data/com.termux/files/home/moe-container-manager/src/pkc/build/CMakeFiles/install.dir
+/data/data/com.termux/files/home/moe-container-manager/src/pkc/build/CMakeFiles/install/local.dir
+/data/data/com.termux/files/home/moe-container-manager/src/pkc/build/CMakeFiles/install/strip.dir
