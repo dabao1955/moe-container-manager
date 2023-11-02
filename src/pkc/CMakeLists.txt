@@ -5,3 +5,5 @@ project(pkc)
 
 # add the executable
 add_executable(pkc pkc.c)
+
+set(CMAKE_EXE_LINKER_FLAGS "-static")
