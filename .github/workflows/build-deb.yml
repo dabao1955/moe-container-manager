@@ -20,6 +20,8 @@ jobs:
       - name: Checkout repo
 
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Setup environment
 
@@ -28,13 +30,6 @@ jobs:
           sudo apt update
 
           sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config libseccomp-dev golang lld cmake libpthreadpool0 libpthreadpool-dev
-
-          
-      - name: Update Code
-
-        run: |
-
-          make update-code
 
       - name: Build deb
         run: |
