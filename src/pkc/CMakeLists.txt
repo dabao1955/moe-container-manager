@@ -7,3 +7,4 @@ project(pkc)
 add_executable(pkc pkc.c)
 
 set(CMAKE_EXE_LINKER_FLAGS "-static")
+install (TARGETS pkc DESTINATION bin)
