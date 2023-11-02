@@ -51,12 +51,12 @@ $(shell mkdir out/doc out/doc/moe-container-manager)
 endif
 
 build: src/Makefile
-	@make -C src
-	cp -R src/out/* out/bin/
-	cp LICENSE out/doc/moe-container-manager/
+	@cd src && make 
+	@cp -R src/out/* out/bin/
+	@cp LICENSE out/doc/moe-container-manager/
 update-code:
 	@git submodule init && git submodule update --remote
-	sleep 1s
+	@sleep 1s
 install:build
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
 	@cp -rv $(O)/bin/* /usr/bin/
