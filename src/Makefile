@@ -49,4 +49,4 @@ gettext:
 .PHONY: clean
 
 clean: out
-	rm -rf out ruri/ruri yoshinon container-console/build pkc/build
+	rm -rf out ruri/ruri yoshinon/yoshinon container-console/build pkc/build
