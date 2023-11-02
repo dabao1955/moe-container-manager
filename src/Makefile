@@ -29,7 +29,10 @@ yoshinon.o:
 container-console.o:
 	@[ -e container-console/build/container-console ]||(make -C container-console)
 pkc.o:
-	@[ -e pkc/build/pkc ]||(cd pkc&&mkdir builds&&cd builds&&cmake ..&&make)
+	@cd pkc
+	@test -d build || rm -rf build
+	@test -d build || mkdir build
+	@cd build && cmake .. && make
 container.o:
 	sed -i "s/MOE_CONTAINER_MANAGER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
 install:
@@ -49,4 +52,4 @@ gettext:
 .PHONY: clean
 
 clean: out
-	rm -rf out ruri/ruri yoshinon/yoshinon container-console/build pkc/build
+	rm -rf out ruri/ruri yoshinon/yoshinon container-console/container-console pkc/build
