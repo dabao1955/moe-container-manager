@@ -51,11 +51,11 @@ $(shell mkdir out/doc out/doc/moe-container-manager)
 endif
 
 build: src/Makefile
-	make -C src
+	@make -C src
 	cp -R src/out/* out/bin/
 	cp LICENSE out/doc/moe-container-manager/
 update-code:
-	git submodule init && git submodule update --remote
+	@git submodule init && git submodule update --remote
 install:build
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
 	@cp -rv $(O)/bin/* /usr/bin/
@@ -98,4 +98,5 @@ shell-format:
 
 .PHONY: distclean
 distclean:
-	rm -rf $(O) src/out src/pkc/pkc src/ruri/ruri
+	rm -rf $(O) 
+	make -C src clean

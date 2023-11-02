@@ -20,25 +20,33 @@ ifeq ("$(wildcard out)","")
 $(shell mkdir out)
 endif
 
-
-all:
-	[ -e ruri/ruri ]||(make -C ruri static)
-	[ -e yoshinon/yoshinon ]||(make -C yoshinon)
-	[ -e container-console/container-console ]||(cd container-console&&make)
-	[ -e pkc/pkc ]||(cd pkc&&clang -c pkc.c -o pkc)
-	sed -i "s/MOE_CONTAINER_MANAGER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
+.PHONY: all
+all: ruri yoshinin container-console pkc container install
+ruri.o:
+	@[ -e ruri/ruri ]||(make -C ruri static)
+yoshinon.o:
+	@[ -e yoshinon/yoshinon ]||(make -C yoshinon)
+container-console.o:
+	@[ -e container-console/build/container-console ]||(cd container-console&&make)
+pkc.o:
+	@[ -e pkc/build/pkc ]||(cd pkc&&mkdir build&&cd build&&cmake ..&&make)
+container.o:
+	@sed -i "s/MOE_CONTAINER_MANAGER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
+install:
 	@cp rootfstool/rootfstool out
 	@mv ruri/ruri out
 	@mv yoshinon/yoshinon out
-	@mv pkc/pkc out
+	@mv pkc/build/pkc out
 	@cp container/container out
+	@cp container-console/container-console out
 
 gettext:
 	xgettext -o container.pot -L Shell --keyword=po_getmsg --no-wrap container/container
 	msginit -i container.pot -l zh_CN.UTF-8 --no-wrap -o container.po
 	rm container.pot
 	mv container.po ../lang/container-newlang.po
+
 .PHONY: clean
 
 clean: out
-	rm -rf out
+	rm -rf out ruri/ruri yoshinon container-console/build pkc/build
