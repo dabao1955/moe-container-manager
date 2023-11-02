@@ -29,7 +29,7 @@ yoshinon.o:
 container-console.o:
 	@[ -e container-console/build/container-console ]||(make -C container-console)
 pkc.o:
-	@cd pkc && mkdir build && cd build && cmake .. && make
+	@cd pkc && rm -rf build && mkdir build && cd build && cmake .. && make
 container.o:
 	sed -i "s/MOE_CONTAINER_MANAGER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
 install:
