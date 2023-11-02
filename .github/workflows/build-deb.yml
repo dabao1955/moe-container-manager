@@ -36,9 +36,9 @@ jobs:
 
           make update-code
 
-      - name: Build Code 
+      - name: Build deb
         run: |
-          sudo dpkg-buildpackage -b -us -uc && cp ../moe-container-manager_* ./out -rv
+          sudo dpkg-buildpackage -b -us -uc &&sudo cp ../moe-container-manager_* ./out -rv && sudo chmod 755 -R -v out/*
       - name: Upload builded to artifact
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
