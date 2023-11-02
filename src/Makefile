@@ -21,7 +21,7 @@ $(shell mkdir out)
 endif
 
 .PHONY: all
-all: ruri.o yoshinin.o container-console.o pkc.o container.o install
+all: ruri.o yoshinon.o container-console.o pkc.o container.o install
 ruri.o:
 	@[ -e ruri/ruri ]||(make -C ruri static)
 yoshinon.o:
