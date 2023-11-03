@@ -69,31 +69,17 @@ $(shell mkdir out/doc out/doc/moe-container-manager)
 endif
 
 build: src/Makefile
-	make -C src -j$(nproc)
+	make -C src -j2
 	@cp -R src/out/* out/bin/
 	@cp LICENSE out/doc/moe-container-manager/
 update-code:
 	@git submodule init && git submodule update --remote
 	@sleep 1s
-install:build
+install: out/doc/moe-container-manager/LICENSE
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
 	@cp -rv $(O)/bin/* /usr/bin/
 	@cp -rv $(O)/doc/* /usr/share/doc/
 	@cp -rv $(O)/moe-container-manager /usr/share/
-DEB=$(O)/deb
-$(DEB):build
-ifneq ($(shell test -d $(DEB)||echo x),)
-	@mkdir -v $(DEB)
-	@mkdir -pv $(DEB)/usr
-	@mkdir -pv $(DEB)/usr/bin/
-	@mkdir -pv $(DEB)/usr/share/
-	@mkdir -pv $(DEB)/usr/share/doc
-	@cp -v $(O)/bin/* $(DEB)/usr/bin/
-	@cp -rv $(O)/moe-container-manager $(DEB)/usr/share/
-	@cp -rv $(O)/doc/* $(DEB)/usr/share/doc
-
-endif
-
 .PHONY: clean
 clean:
 	@printf "\033[1;38;2;254;228;208m[+] Clean.\033[0m\n"&&sleep 1s

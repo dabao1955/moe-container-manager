@@ -39,7 +39,7 @@ install:
 	@mv yoshinon/yoshinon out
 	@mv pkc/build/pkc out
 	@cp container/container out
-	@cp container-console/container-console out
+	@mv container-console/container-console out
 
 gettext:
 	xgettext -o container.pot -L Shell --keyword=po_getmsg --no-wrap container/container
