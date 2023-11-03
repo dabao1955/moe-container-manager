@@ -51,7 +51,7 @@ $(shell mkdir out/doc out/doc/moe-container-manager)
 endif
 
 build: src/Makefile
-	@cd src && make 
+	make -C src -j(nproc)
 	@cp -R src/out/* out/bin/
 	@cp LICENSE out/doc/moe-container-manager/
 update-code:
