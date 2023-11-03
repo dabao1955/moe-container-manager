@@ -69,7 +69,7 @@ $(shell mkdir out/doc out/doc/moe-container-manager)
 endif
 
 build: src/Makefile
-	make -C src -j2
+	make -C src 
 	@cp -R src/out/* out/bin/
 	@cp LICENSE out/doc/moe-container-manager/
 update-code:
