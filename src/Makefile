@@ -16,8 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 ifeq ("$(wildcard out)","")
-$(shell mkdir out)
+ $(shell mkdir out)
 endif
 
 .PHONY: all
