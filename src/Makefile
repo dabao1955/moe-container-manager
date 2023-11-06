@@ -22,24 +22,26 @@ ifeq ("$(wildcard out)","")
 endif
 
 .PHONY: all
-all: ruri.o yoshinon.o container-console.o pkc.o container.o install
+all: ruri.o yoshinon.o container-console.o nekoasc.o pkc.o install
 ruri.o:
-	@[ -e ruri/ruri ]||(make -C ruri static)
+	[ -e ruri/ruri ]||(make -C ruri static)
 yoshinon.o:
-	@[ -e yoshinon/yoshinon ]||(make -C yoshinon)
+	[ -e yoshinon/yoshinon ]||(make -C yoshinon)
 container-console.o:
-	@[ -e container-console/build/container-console ]||(make -C container-console)
+	[ -e container-console/container-console ]||(make -C container-console)
+nekoasc.o:
+	[ -e nekoasc/nekoasc ]||(make -C nekoasc)
 pkc.o:
 	@cd pkc && rm -rf build && mkdir build && cd build && cmake .. && make
-container.o:
-	sed -i "s/MOE_CONTAINER_MANAGER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
 install:
+	@sed -i "s/MOE_CONTAINER_MANAGER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
 	@cp rootfstool/rootfstool out
 	@mv ruri/ruri out
 	@mv yoshinon/yoshinon out
 	@mv pkc/build/pkc out
 	@cp container/container out
 	@mv container-console/container-console out
+	@mv nekoasc/nekoasc out
 
 gettext:
 	xgettext -o container.pot -L Shell --keyword=po_getmsg --no-wrap container/container
