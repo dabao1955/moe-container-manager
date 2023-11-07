@@ -51,7 +51,7 @@ jobs:
 
     steps:
       - name: Install Python3
-        run: pacman -S python3 git
+        run: pacman -Sy python3 git
       - name: Checkout
         run: git clone https://github.com/dabao1955/moe-container-manager/ --recursive code
 
