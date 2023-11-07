@@ -73,7 +73,7 @@ jobs:
           args: >
             bash -c
             "uname -a &&
-            apt update &&
+            apt update && apt install wget -y &&
             wget https://apt.llvm.org/llvm.sh &&
             bash llvm.sh 16 &&
             apt install -y pkg-config dpkg-dev debhelper lld libseccomp-dev libcap-dev build-essential cmake golang &&
