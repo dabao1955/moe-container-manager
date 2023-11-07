@@ -43,3 +43,45 @@ jobs:
           name: moe-container-manager_0.0.1rc0_amd64.deb.zip
 
           path: out/*
+          
+  build-archlinux:
+
+    container: archlinux:base-devel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Out
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Install Python3
+        run: pacman -Syy python3
+
+      - name: Build
+        run: python3 tools/pkgs/makepkg.py
+        
+  ubuntu-arm64:
+    runs-on: ubuntu-latest
+
+    concurrency:
+        group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-UbuntuArm64
+        cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - run: |
+          docker run --rm --privileged multiarch/qemu-user-static:register --reset
+      - uses: docker://multiarch/ubuntu-core:arm64-bionic
+        with:
+          args: >
+            bash -c
+            "uname -a &&
+            apt update &&
+            apt install -y pkg-config dpkg-dev debhelper clang lld libseccomp-dev libcap-dev build-essential cmake golang &&
+            git clone --recursive https://github.com/dabao1955/moe-container-manager/ code &&
+            cd code && dpkg-buildpackage -b -us -uc &&
+            sudo ruri --version &&
+            sudo rootfstool --version"
+
