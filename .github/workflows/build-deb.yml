@@ -50,16 +50,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check Out
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-          
       - name: Install Python3
-        run: pacman -Syy python3
+        run: pacman -Syy python3 git
+      - name: Checkout
+        run: git clone https://github.com/dabao1955/moe-container-manager/ --recursive code
 
       - name: Build
-        run: python3 tools/pkgs/makepkg.py
+        run: cd code && python3 tools/pkgs/makepkg.py
         
   ubuntu-arm64:
     runs-on: ubuntu-latest
@@ -71,7 +68,7 @@ jobs:
 
       - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
           
-      - uses: docker://multiarch/ubuntu-core:arm64-jammy
+      - uses: docker://multiarch/ubuntu-core:arm64-focal
         with:
           args: >
             bash -c
