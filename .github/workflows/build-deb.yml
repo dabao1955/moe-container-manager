@@ -51,7 +51,7 @@ jobs:
 
     steps:
       - name: Install Python3
-        run: pacman -Syy python3 git
+        run: pacman -S python3 git
       - name: Checkout
         run: git clone https://github.com/dabao1955/moe-container-manager/ --recursive code
 
@@ -74,7 +74,9 @@ jobs:
             bash -c
             "uname -a &&
             apt update &&
-            apt install -y pkg-config dpkg-dev debhelper clang lld libseccomp-dev libcap-dev build-essential cmake golang &&
+            wget https://apt.llvm.org/llvm.sh &&
+            bash llvm.sh 16 &&
+            apt install -y pkg-config dpkg-dev debhelper lld libseccomp-dev libcap-dev build-essential cmake golang &&
             git clone --recursive https://github.com/dabao1955/moe-container-manager/ code &&
             cd code && dpkg-buildpackage -b -us -uc &&
             sudo ruri --version &&
