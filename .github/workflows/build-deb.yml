@@ -58,27 +58,3 @@ jobs:
       - name: Build
         run: cd code && python3 tools/pkgs/makepkg.py
         
-  ubuntu-arm64:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
-          
-      - uses: docker://multiarch/ubuntu-core:arm64-focal
-        with:
-          args: >
-            bash -c
-            "uname -a &&
-            apt update && apt install wget -y &&
-            wget https://apt.llvm.org/llvm.sh &&
-            bash llvm.sh 16 &&
-            apt install -y pkg-config dpkg-dev debhelper lld libseccomp-dev libcap-dev build-essential cmake golang &&
-            git clone --recursive https://github.com/dabao1955/moe-container-manager/ code &&
-            cd code && dpkg-buildpackage -b -us -uc &&
-            sudo ruri --version &&
-            sudo rootfstool --version"
-
