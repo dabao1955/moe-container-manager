@@ -8,7 +8,7 @@ def install_missing_dependencies():
         if os.system(f"pacman -Qs {dependency} > /dev/null") != 0:
             missing_dependencies.append(dependency)
     if len(missing_dependencies) > 0:
-        os.system(f"sudo pacman -S {' '.join(missing_dependencies)}")
+        os.system(f"sudo pacman --noconfirm -S {' '.join(missing_dependencies)}")
         print(f"Installed missing dependencies: {missing_dependencies}")
     else:
         print("All dependencies are already installed.")
