@@ -14,11 +14,11 @@ url="https://github.com/dabao1955/moe-container-manager"
 
 license=('Apache-2.0')
 
-depends=(golang p7zip unzip zip git wget curl nano proot axel pv gawk gettext lld)
+depends=(p7zip unzip zip git wget curl nano proot axel pv gawk gettext lld)
 
-makedepends=(git clang make libcap)
+makedepends=(git clang make libcap go cmake)
 
-source=(https://github.com/dabao1955/moe-container-manager/archive/refs/heads/main.zip)
+source=("${pkgname%-git}::git+https://github.com/dabao1955/moe-container-manager.git")
 
 noextract=()
 
@@ -27,6 +27,8 @@ md5sums=('SKIP')
 build() {
 
   cd "$pkgname"
+
+  make update-code
 
   make
 

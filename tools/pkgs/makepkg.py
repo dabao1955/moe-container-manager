@@ -2,7 +2,7 @@ import os
 import sys
 
 def install_missing_dependencies():
-    dependencies = ['libseccomp', 'p7zip', 'unzip', 'zip', 'git', 'golang', 'wget', 'curl', 'nano', 'proot', 'axel', 'pv', 'gawk', 'gettext', 'git', 'clang', 'make', 'libcap', "lld"]
+    dependencies = ['libseccomp', 'p7zip', 'unzip', 'zip', 'git', 'go', 'wget', 'curl', 'nano', 'proot', 'axel', 'pv', 'gawk', 'gettext', 'git', 'clang', 'make', 'libcap', "lld", 'go', 'zip', 'pv', 'cmake']
     missing_dependencies = []
     for dependency in dependencies:
         if os.system(f"pacman -Qs {dependency} > /dev/null") != 0:
@@ -14,7 +14,7 @@ def install_missing_dependencies():
         print("All dependencies are already installed.")
 
 def main():
-    if os.system("uname -r | grep arch > /dev/null") != 0:
+    if os.system("uname -a | grep arch > /dev/null") != 0:
         print("This script is only intended to run on Arch Linux.")
         return
     install_missing_dependencies()
