@@ -24,7 +24,7 @@ endif
 .PHONY: all
 all: ruri.o yoshinon.o container-console.o nekoasc.o pkc.o install
 ruri.o:
-	[ -e ruri/ruri ]||(make -C ruri dev)
+	[ -e ruri/ruri ]||(make -C ruri static)
 yoshinon.o:
 	[ -e yoshinon/yoshinon ]||(make -C yoshinon)
 container-console.o:
