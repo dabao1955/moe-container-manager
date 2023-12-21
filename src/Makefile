@@ -53,10 +53,11 @@ format:
 	@shfmt -i 2 -w ../share/shell/*
 
 sync:
-	@cd nekoasc&&git pull git@github.com:moe-hacker/nekoasc main
-	@cd rootfstool&&git pull git@github.com:moe-hacker/rootfstool main
-	@cd ruri&&git pull git@github.com:moe-hacker/ruri main
-	@cd yoshinon&&git pull git@github.com:moe-hacker/yoshinon main
+	@git config pull.rebase false
+	@cd nekoasc&&git pull https://github.com/moe-hacker/nekoasc main&& cd ..
+	@cd rootfstool&&git pull https://github.com/moe-hacker/rootfstool main&& cd ..
+	@cd ruri&&git pull https://github.com/moe-hacker/ruri main&& cd ..
+	@cd yoshinon&&git pull https://github.com/moe-hacker/yoshinon main&& cd ..
 
 .PHONY: clean
 
