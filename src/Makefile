@@ -24,17 +24,16 @@ endif
 .PHONY: all
 all: ruri.o yoshinon.o container-console.o nekoasc.o pkc.o install
 ruri.o:
-	[ -e ruri/ruri ]||(make -C ruri static)
+	@[ -e ruri/ruri ]||(make -C ruri static)
 yoshinon.o:
-	[ -e yoshinon/yoshinon ]||(make -C yoshinon)
+	@[ -e yoshinon/yoshinon ]||(make -C yoshinon)
 container-console.o:
-	[ -e container-console/container-console ]||(make -C container-console)
+	@[ -e container-console/container-console ]||(make -C container-console)
 nekoasc.o:
-	[ -e nekoasc/nekoasc ]||(make -C nekoasc)
+	@[ -e nekoasc/nekoasc ]||(make -C nekoasc static-bionic)
 pkc.o:
 	@cd pkc && rm -rf build && mkdir build && cd build && cmake .. && make
 install:
-	@sed -i "s/MOE_CONTAINER_MANAGER_COMMIT_ID=\"\"/TERMUX_CONTAINER_COMMIT_ID=\"`git log --oneline|head -1|cut -d " " -f 1`\"/" container/container
 	@cp rootfstool/rootfstool out
 	@mv ruri/ruri out
 	@mv yoshinon/yoshinon out
@@ -44,12 +43,22 @@ install:
 	@mv nekoasc/nekoasc out
 
 gettext:
-	xgettext -o container.pot -L Shell --keyword=po_getmsg --no-wrap container/container
-	msginit -i container.pot -l zh_CN.UTF-8 --no-wrap -o container.po
-	rm container.pot
-	mv container.po ../lang/container-newlang.po
+	@xgettext -o container.pot -L Shell --keyword=po_getmsg --no-wrap container/container
+	@msginit -i container.pot -l zh_CN.UTF-8 --no-wrap -o container.po
+	@rm container.pot
+	@mv container.po ../lang/container-newlang.po
+
+format:
+	@shfmt -i 2 -w container/container
+	@shfmt -i 2 -w ../share/shell/*
+
+sync:
+	@cd nekoasc&&git pull git@github.com:moe-hacker/nekoasc main
+	@cd rootfstool&&git pull git@github.com:moe-hacker/rootfstool main
+	@cd ruri&&git pull git@github.com:moe-hacker/ruri main
+	@cd yoshinon&&git pull git@github.com:moe-hacker/yoshinon main
 
 .PHONY: clean
 
 clean: out
-	rm -rf out ruri/ruri yoshinon/yoshinon container-console/container-console pkc/build
+	@rm -rf out ruri/ruri yoshinon/yoshinon container-console/container-console pkc/build

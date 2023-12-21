@@ -56,13 +56,11 @@ function _init() {
     if ! command -v $i 2>&1 >/dev/null; then
       error "Missing dependencies: $i!"
     fi
+  for i in ruri container-console nekoasc rootfstool yoshinon; do
+    if ! command -v $i 2>&1 >/dev/null; then
+      error "$i not found, package might be broken!"
+    fi
   done
-  if ! command -v ruri 2>&1 >/dev/null; then
-    error "ruri not found, package might be broken!"
-  fi
-  if ! command -v container-console 2>&1 >/dev/null; then
-    error "container-console not found, package might be broken!"
-  fi
   kernelVersion="$(uname -r)"
   kernelMajor="${kernelVersion%%.*}"
   if ((kernelMajor < 4)); then
