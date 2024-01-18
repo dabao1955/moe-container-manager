@@ -19,6 +19,8 @@
 
 
 # What is this？
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdabao1955%2Fmoe-container-manager.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdabao1955%2Fmoe-container-manager?ref=badge_shield)
+
 container manager for chroot and proot, based on moe-hacker/termux-container
 
 # Quick start
@@ -69,3 +71,7 @@ python3 makepkg.py
 ```
 # Usage:     
 See `container -h` and `help` in container console.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdabao1955%2Fmoe-container-manager.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdabao1955%2Fmoe-container-manager?ref=badge_large)
