@@ -23,6 +23,7 @@ ENDCOLOR    = \033[0m
 CC_LOG = @printf '    $(CCCOLOR)CC$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 STRIP_LOG = @printf ' $(STRIPCOLOR)STRIP$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 O = out
+SRCODE = make -C src 
 .PHONY: all
 all: show-greetings update-code $(BIN) $(SHARE) build
 show-greetings:
@@ -68,8 +69,11 @@ ifeq ("$(wildcard out/doc)","")
 $(shell mkdir out/doc out/doc/moe-container-manager)
 endif
 
+sync: 
+	@$(SRCODE) sync
+
 build: src/Makefile
-	make -C src 
+	@$(SRCODE) 
 	@cp -R src/out/* out/bin/
 	@cp LICENSE out/doc/moe-container-manager/
 update-code:
@@ -97,11 +101,11 @@ help:
 	@echo "(>_) "
 
 c-format:
-	python3 tools/c-format.py
+	@python3 tools/c-format.py
 shell-format:
-	python3 tools/shell-format.py
+	@python3 tools/shell-format.py
 
 .PHONY: distclean
 distclean:
-	rm -rf $(O) 
-	make -C src clean
+	@rm -rf $(O) 
+	@$(SRCODE) clean
