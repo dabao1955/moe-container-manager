@@ -35,8 +35,6 @@
 ################################
 ################################
 # Load functions && Load configs && check the environment.
-set -eu
-
 export PREFIX=/usr
 
 test -d $PREFIX/etc || sudo mkdir -p -v $PREFIX/etc
