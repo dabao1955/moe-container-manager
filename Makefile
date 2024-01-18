@@ -38,7 +38,7 @@ show-greetings:
 	@printf "               \\        \\    /\n"
 	@printf "                \\        \\  /\n"
 	@printf "                 \\________\\/\n"
-	sleep 1s
+	@sleep 1s
 ifeq ("$(wildcard out/)","")
 $(shell mkdir out/)
 endif
