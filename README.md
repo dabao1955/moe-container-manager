@@ -19,8 +19,6 @@
 
 ![](https://img.shields.io/badge/stability-unknown-fee4d0?style=for-the-badge&color=fee4d0&logo=frontendmentor&logoColor=fee4d0)
 
-#[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdabao1955%2Fmoe-container-manager.svg?type=for-the-badge)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdabao1955%2Fmoe-container-manager?ref=badge_shield)
-
 # What is this？
 
 container manager for chroot and proot, based on moe-hacker/termux-container
