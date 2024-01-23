@@ -74,16 +74,16 @@ sync:
 
 build: src/Makefile
 	@$(SRCODE) 
-	@cp -R src/out/* out/bin/
+	@cp -r src/out/* out/bin/
 	@cp LICENSE out/doc/moe-container-manager/
 update-code:
 	@git submodule init && git submodule update --remote
 	@sleep 1s
 install: out/doc/moe-container-manager/LICENSE
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
-	@cp -rv $(O)/bin/* /usr/bin/
-	@cp -rv $(O)/doc/* /usr/share/doc/
-	@cp -rv $(O)/moe-container-manager /usr/share/
+	@cp -r $(O)/bin/* /usr/bin/
+	@cp -r $(O)/doc/* /usr/share/doc/
+	@cp -r $(O)/moe-container-manager /usr/share/
 .PHONY: clean
 clean:
 	@printf "\033[1;38;2;254;228;208m[+] Clean.\033[0m\n"&&sleep 1s
