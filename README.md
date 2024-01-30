@@ -35,7 +35,7 @@ container manager for chroot and proot, based on moe-hacker/termux-container
 
 ### for Debian/Ubuntu
 ```
-sudo apt install golang libcap-dev build-essential clang libseccomp-dev -y
+sudo apt install golang libcap-dev build-essential clang libseccomp-dev lld -y
 cd moe-container-manager
 make
 make install
@@ -43,7 +43,7 @@ make install
 
 ### for Arch Linux
 ```
-sudo pacman -Syy p7zip golang unzip zip git wget curl nano proot axel pv gawk gettext git clang make libcap libseccomp
+sudo pacman -Syy p7zip golang unzip zip git wget curl nano proot axel pv gawk gettext git clang make libcap libseccomp go
 cd moe-container-manager
 make
 make install
