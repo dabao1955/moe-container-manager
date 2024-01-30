@@ -26,8 +26,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config libseccomp-dev golang lld cmake libpthreadpool0 libpthreadpool-dev shfmt
-      - name: fetch
-        run: make sync
+
       - name: Build deb
         run: |
           sudo dpkg-buildpackage -b -us -uc &&sudo cp ../moe-container-manager_* ./out -rv && sudo chmod 755 -R -v out/*
