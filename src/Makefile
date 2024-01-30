@@ -22,20 +22,17 @@ ifeq ("$(wildcard out)","")
 endif
 
 .PHONY: all
-all: ruri.o yoshinon.o nekoasc.o pkc.o install
+all: ruri.o yoshinon.o nekoasc.o install
 ruri.o:
 	@[ -e ruri/ruri ]||(make -C ruri static)
 yoshinon.o:
 	@[ -e yoshinon/yoshinon ]||(make -C yoshinon)
 nekoasc.o:
 	@[ -e nekoasc/nekoasc ]||(make -C nekoasc static-bionic)
-pkc.o:
-	@cd pkc && rm -rf build && mkdir build && cd build && cmake .. && make
 install:
 	@cp rootfstool/rootfstool out
 	@mv ruri/ruri out
 	@mv yoshinon/yoshinon out
-	@mv pkc/build/pkc out
 	@mv nekoasc/nekoasc out
 
 gettext:
@@ -47,13 +44,6 @@ gettext:
 format:
 	@shfmt -i 2 -w container/container
 	@shfmt -i 2 -w ../share/shell/*
-
-sync:
-	@git config pull.rebase false
-	@cd nekoasc&&git pull https://github.com/moe-hacker/nekoasc main&& cd ..
-	@cd rootfstool&&git pull https://github.com/moe-hacker/rootfstool main&& cd ..
-	@cd ruri&&git pull https://github.com/moe-hacker/ruri main&& cd ..
-	@cd yoshinon&&git pull https://github.com/moe-hacker/yoshinon main&& cd ..
 
 .PHONY: clean
 

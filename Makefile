@@ -25,7 +25,7 @@ STRIP_LOG = @printf ' $(STRIPCOLOR)STRIP$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 O = out
 SRCODE = make -C src 
 .PHONY: all
-all: show-greetings update-code $(BIN) $(SHARE) build
+all: show-greetings $(BIN) $(SHARE) build
 show-greetings:
 	echo Starting Build ...
 	@printf "\033[1;38;2;254;228;208m"
@@ -73,17 +73,11 @@ ifeq ("$(wildcard out/doc)","")
 $(shell mkdir out/doc out/doc/moe-container-manager)
 endif
 
-sync: 
-	@$(SRCODE) sync
-
 build: src/Makefile
 	@$(SRCODE)
 	@cp -r src/out/* out/bin/
 	@cp LICENSE out/doc/moe-container-manager/
 	@tar -xvf share/proc.tar.xz -C out/moe-container-manager/proc
-update-code:
-	@git submodule init && git submodule update --remote
-	@sleep 1s
 install: out/doc/moe-container-manager/LICENSE
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
 	@cp -r $(O)/bin/* /usr/bin/
