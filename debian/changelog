@@ -1,3 +1,8 @@
+moe-container-manager (0.0.1rc1) unstable; urgency=low
+
+  * Fix tools build err.
+
+ -- dabao1955 <dabao1955@163.com>  Tue, 30 Jan 2024 19:15:38 +0800
 moe-container-manager (0.0.1rc0) unstable; urgency=low
 
   * Rebase Chroot Tools.

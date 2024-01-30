@@ -22,13 +22,11 @@ ifeq ("$(wildcard out)","")
 endif
 
 .PHONY: all
-all: ruri.o yoshinon.o container-console.o nekoasc.o pkc.o install
+all: ruri.o yoshinon.o nekoasc.o pkc.o install
 ruri.o:
 	@[ -e ruri/ruri ]||(make -C ruri static)
 yoshinon.o:
 	@[ -e yoshinon/yoshinon ]||(make -C yoshinon)
-container-console.o:
-	@[ -e container-console/container-console ]||(make -C container-console)
 nekoasc.o:
 	@[ -e nekoasc/nekoasc ]||(make -C nekoasc static-bionic)
 pkc.o:
@@ -38,8 +36,6 @@ install:
 	@mv ruri/ruri out
 	@mv yoshinon/yoshinon out
 	@mv pkc/build/pkc out
-	@cp container/container out
-	@mv container-console/container-console out
 	@mv nekoasc/nekoasc out
 
 gettext:
@@ -62,4 +58,4 @@ sync:
 .PHONY: clean
 
 clean: out
-	@rm -rf out ruri/ruri yoshinon/yoshinon container-console/container-console pkc/build
+	@rm -rf out ruri/ruri yoshinon/yoshinon pkc/build

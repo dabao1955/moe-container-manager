@@ -60,6 +60,10 @@ ifeq ("$(wildcard out/moe-container-manager)","")
 $(shell cp share out/moe-container-manager -R)
 endif
 
+ifeq ("$(wildcard out/moe-container-manager/proc)","")
+$(shell cp share out/moe-container-manager/proc -R)
+endif
+
 $(BIN):$(O)
 
 ifeq ("$(wildcard out/bin)","")
@@ -73,9 +77,10 @@ sync:
 	@$(SRCODE) sync
 
 build: src/Makefile
-	@$(SRCODE) 
+	@$(SRCODE)
 	@cp -r src/out/* out/bin/
 	@cp LICENSE out/doc/moe-container-manager/
+	@tar -xvf share/proc.tar.xz -C out/moe-container-manager/proc
 update-code:
 	@git submodule init && git submodule update --remote
 	@sleep 1s
