@@ -73,5 +73,8 @@ python3 makepkg.py
 See `container -h` and `help` in container console.
 
 
-## License
+# License
+
+This project follows the Apache-2.0 open source license agreement, and its sub-projects adopt its original agreement.
+
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdabao1955%2Fmoe-container-manager.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdabao1955%2Fmoe-container-manager?ref=badge_large)
