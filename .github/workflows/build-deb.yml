@@ -17,11 +17,11 @@ jobs:
       - name: Setup environment
         run: |
           apt update
-          apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config libseccomp-dev golang lld cmake libpthreadpool0 libpthreadpool-dev shfmt
+          apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config git libseccomp-dev golang lld cmake libpthreadpool0 libpthreadpool-dev shfmt
 
       - name: Build deb
         run: |
-          dpkg-buildpackage -b -us -uc && cp ../moe-container-manager_* ./out -rv && sudo chmod 755 -R out/*
+          dpkg-buildpackage -b -us -uc && cp ../moe-container-manager_* ./out -rv && chmod 755 -R out/*
       - name: Upload builded to artifact
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
