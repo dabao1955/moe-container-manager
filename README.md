@@ -21,7 +21,7 @@
 
 # What is this？
 
-container manager for chroot and proot, based on moe-hacker/termux-container
+moe-container-manager is a port of Linux cli environment that cannot run docker and kvm, based on termux-container.
 
 # Quick start
 

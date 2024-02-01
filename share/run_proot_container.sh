@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Copyright 2023 moe-hacker
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,8 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-export PREFIX=/usr
+#
 
+unset PREFIX && export PREFIX=/usr
+# These values will be automatically set.
+CONTAINER_DIR=[CONTAINER_DIR]
+MOUNT_SDCARD=[MOUNT_SDCARD]
+CROSS_ARCH=[CROSS_ARCH]
+# A simple proot script.
 unset LD_PRELOAD
 COMMAND="proot"
 COMMAND+=" --link2symlink"
@@ -25,6 +31,9 @@ COMMAND+=" -b /dev"
 COMMAND+=" -b /sys"
 COMMAND+=" -b /proc"
 COMMAND+=" -w /root"
+if [[ ${MOUNT_SDCARD} = "true" ]]; then
+  COMMAND+=" -b /sdcard"
+fi
 if [[ ${CROSS_ARCH} != "null" ]]; then
   COMMAND+=" -q qemu-${CROSS_ARCH}"
 fi
@@ -62,7 +71,10 @@ COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/vmstat:/proc/vmstat"
 COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/zoneinfo:/proc/zoneinfo"
 # Mount termux's tmpdir.
 COMMAND+=" --mount=$PREFIX/tmp:/tmp"
-#####
-##TODO
+if [[ ! $1 ]];then
 COMMAND+=" /bin/su - root"
+else
+COMMAND+=" $@"
+fi
+# Yes, this can exec the command.
 ${COMMAND}

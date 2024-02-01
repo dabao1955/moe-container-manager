@@ -18,9 +18,9 @@
 # limitations under the License.
 #
 #
-# The value will be set automatically.
-NEW_USER=""
-PASSWORD=""
+# These values will be set automatically.
+NEW_USER=[NEW_USER]
+PASSWORD=[PASSWORD]
 # Fix `command not found`
 PATH=$PATH:"/bin:/sbin:/usr/bin"
 # Fix networking and other permission issues on Android.

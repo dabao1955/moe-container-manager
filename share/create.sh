@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/bin/sh
+
+set -e
+
+unset PREFIX && export PREFIX=/usr
+pv $ROOTFS | tar -xJf - -C ${CONTAINER_DIR}
 # Fix permission of su.
 # proot do not need this
 chown root:root ${CONTAINER_DIR}/bin/su
