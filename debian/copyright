@@ -3,33 +3,28 @@ Upstream-Name: moe-container-manager
 Source: https://github.com/dabao1955/moe-container-manager
 
 Files: *
-Copyright: 2023 dabao1955 <dabao1955@163.com>
+Copyright: 2024 dabao1955 <dabao1955@163.com>
 License: Apache-2.0
 
-Files: src/riru
-Copyright: 2023 Moe-hacker <moe-hacker@outlook.com>
-
-License: Apache-2.0
-
-Files: src/container-console
-Copyright: 2023 Moe-hacker <moe-hacker@outlook.com>
+Files: src/ruri
+Copyright: 2024 Moe-hacker <moe-hacker@outlook.com>
 
 License: Apache-2.0
 
 Files: src/rootfstool
-Copyright: 2023 Moe-hacker <moe-hacker@outlook.com>
-
-License: Apache-2.0
-
-Files: src/pkc
-Copyright: 2023 dabao1955 <dabao1955@163.com>
+Copyright: 2024 Moe-hacker <moe-hacker@outlook.com>
 
 License: Apache-2.0
 
 Files: src/yoshinon
-Copyright: 2023 Moe-hacker <moe-hacker@outlook.com>
+Copyright: 2024 Moe-hacker <moe-hacker@outlook.com>
 
 License: MIT 
+
+Files: src/nekoasc
+Copyright: 2024 Moe-hacker <moe-hacker@outlook.com>
+
+License: MIT
 
 License: Apache-2.0
  Licensed under the Apache License, Version 2.0 (the "License");
