@@ -1,45 +1,35 @@
 name: CI
 
 on:
-
   push:
-
     branches: [ "main" ]
-
   pull_request:
   workflow_dispatch:
 
 jobs:
-
   build-deb-amd64:
-
+    container: debian:bookworm
     runs-on: ubuntu-latest
-
     steps:
-
       - name: Checkout repo
-
         uses: actions/checkout@v4
 
       - name: Setup environment
-
         run: |
           sudo apt update
           sudo apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config libseccomp-dev golang lld cmake libpthreadpool0 libpthreadpool-dev shfmt
 
       - name: Build deb
         run: |
-          sudo dpkg-buildpackage -b -us -uc &&sudo cp ../moe-container-manager_* ./out -rv && sudo chmod 755 -R -v out/*
+          sudo dpkg-buildpackage -b -us -uc &&sudo cp ../moe-container-manager_* ./out -rv && sudo chmod 755 -R out/*
       - name: Upload builded to artifact
         if: github.event_name == 'push'
         uses: actions/upload-artifact@v3
 
         with:
-
           name: moe-container-manager_0.0.1rc0_amd64.deb.zip
+          path: out/*.deb
 
-          path: out/*
-          
   build-archlinux:
 
     container: archlinux:base-devel

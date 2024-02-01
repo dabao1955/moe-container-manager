@@ -40,9 +40,8 @@ static void init_container(void)
 	if (direxist == NULL) {
 		// Mount && create system runtime files.
 		// umount /proc before we mount it.
+		// Maybe needless.
 		umount2("/proc", MNT_DETACH | MNT_FORCE);
-		// Fix issues in archlinux containers.
-		mount("/", "/", NULL, MS_BIND, NULL);
 		// Mount proc,sys and dev.
 		mkdir("/sys", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 		mkdir("/proc", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
@@ -59,14 +58,16 @@ static void init_container(void)
 		mkdir("/dev/mqune", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 		mount("mqune", "/dev/mqune", "mqune", 0, NULL);
 		// Protect some system runtime directories by mounting themselves as read-only.
-		mount("/proc/bus", "/proc/bus", "proc", MS_BIND | MS_RDONLY, NULL);
-		mount("/proc/fs", "/proc/fs", "proc", MS_BIND | MS_RDONLY, NULL);
-		mount("/proc/irq", "/proc/irq", "proc", MS_BIND | MS_RDONLY, NULL);
-		mount("/proc/sys", "/proc/sys", "proc", MS_BIND | MS_RDONLY, NULL);
-		mount("/proc/asound", "/proc/asound", "proc", MS_BIND | MS_RDONLY, NULL);
-		mount("/proc/scsi", "/proc/scsi", "proc", MS_BIND | MS_RDONLY, NULL);
-		mount("/sys/firmware", "/sys/firmware", "sysfs", MS_BIND | MS_RDONLY, NULL);
-		mount("tmpfs", "/sys/block", "tmpfs", MS_NOSUID, "size=65536k,mode=755");
+		mount("/proc/bus", "/proc/bus", NULL, MS_BIND | MS_REC, NULL);
+		mount("/proc/bus", "/proc/bus", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+		mount("/proc/fs", "/proc/fs", NULL, MS_BIND | MS_REC, NULL);
+		mount("/proc/fs", "/proc/fs", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+		mount("/proc/irq", "/proc/irq", NULL, MS_BIND | MS_REC, NULL);
+		mount("/proc/irq", "/proc/irq", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+		mount("/proc/sys", "/proc/sys", NULL, MS_BIND | MS_REC, NULL);
+		mount("/proc/sys", "/proc/sys", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+		mount("/proc/sys-trigger", "/proc/sys-trigger", NULL, MS_BIND | MS_REC, NULL);
+		mount("/proc/sys-trigger", "/proc/sys-trigger", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
 		// Mount binfmt_misc.
 		mount("binfmt_misc", "/proc/sys/fs/binfmt_misc", "binfmt_misc", 0, NULL);
 		// Create system runtime files in /dev and then fix permissions.
@@ -95,10 +96,19 @@ static void init_container(void)
 		symlink("/proc/self/fd/1", "/dev/stdout");
 		symlink("/proc/self/fd/2", "/dev/stderr");
 		symlink("/dev/null", "/dev/tty0");
-		// Fix issues in archlinux containers.
-		remove("/etc/mtab");
-		unlink("/etc/mtab");
-		symlink("/proc/mounts", "/etc/mtab");
+		// Mask some directories/files.
+		mount("tmpfs", "/proc/asound", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "/proc/acpi", "tmpfs", MS_RDONLY, NULL);
+		mount("/dev/null", "/proc/kcore", "", MS_BIND, NULL);
+		mount("/dev/null", "/proc/keys", "", MS_BIND, NULL);
+		mount("/dev/null", "/proc/latency_stats", "", MS_BIND, NULL);
+		mount("/dev/null", "/proc/timer_list", "", MS_BIND, NULL);
+		mount("/dev/null", "/proc/timer_stats", "", MS_BIND, NULL);
+		mount("/dev/null", "/proc/sched_debug", "", MS_BIND, NULL);
+		mount("tmpfs", "/proc/scsi", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "/sys/firmware", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "/sys/devices/virtual/powercap", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "/sys/block", "tmpfs", MS_RDONLY, NULL);
 	}
 	// Avoid running closedir(NULL), we put it to else branch.
 	else {
@@ -108,32 +118,23 @@ static void init_container(void)
 // Run before chroot(2), so that init_container() will not take effect.
 static void mount_host_runtime(struct CONTAINER_INFO *container_info)
 {
-	// Check if system runtime files are already created.
 	char buf[PATH_MAX] = { '\0' };
-	sprintf(buf, "%s/sys/kernel", container_info->container_dir);
-	DIR *direxist = opendir(buf);
-	if (direxist == NULL) {
-		// Mount /dev.
-		memset(buf, '\0', sizeof(buf));
-		sprintf(buf, "%s/dev", container_info->container_dir);
-		mount("/dev", buf, NULL, MS_BIND, NULL);
-		// mount /proc.
-		memset(buf, '\0', sizeof(buf));
-		sprintf(buf, "%s/proc", container_info->container_dir);
-		mount("/proc", buf, NULL, MS_BIND, NULL);
-		// Mount /sys.
-		memset(buf, '\0', sizeof(buf));
-		sprintf(buf, "%s/sys", container_info->container_dir);
-		mount("/sys", buf, NULL, MS_BIND, NULL);
-		// Mount binfmt_misc.
-		memset(buf, '\0', sizeof(buf));
-		sprintf(buf, "%s/proc/sys/fs/binfmt_misc", container_info->container_dir);
-		mount("binfmt_misc", buf, "binfmt_misc", 0, NULL);
-	}
-	// Avoid running closedir(NULL), we put it to else branch.
-	else {
-		closedir(direxist);
-	}
+	// Mount /dev.
+	memset(buf, '\0', sizeof(buf));
+	sprintf(buf, "%s/dev", container_info->container_dir);
+	mount("/dev", buf, NULL, MS_BIND, NULL);
+	// mount /proc.
+	memset(buf, '\0', sizeof(buf));
+	sprintf(buf, "%s/proc", container_info->container_dir);
+	mount("/proc", buf, NULL, MS_BIND, NULL);
+	// Mount /sys.
+	memset(buf, '\0', sizeof(buf));
+	sprintf(buf, "%s/sys", container_info->container_dir);
+	mount("/sys", buf, NULL, MS_BIND, NULL);
+	// Mount binfmt_misc.
+	memset(buf, '\0', sizeof(buf));
+	sprintf(buf, "%s/proc/sys/fs/binfmt_misc", container_info->container_dir);
+	mount("binfmt_misc", buf, "binfmt_misc", 0, NULL);
 }
 // Return the same value as mkdir().
 static int mkdirs(char *dir, mode_t mode)
@@ -358,9 +359,21 @@ void run_chroot_container(struct CONTAINER_INFO *container_info)
 	sigprocmask(SIG_BLOCK, &sigs, 0);
 	// Mount mountpoints.
 	mount_mountpoints(container_info);
-	// If `-S` option is set, bind-mount /dev/, /sys/ and /proc/ from host.
-	if (container_info->host_runtime_dir) {
-		mount_host_runtime(container_info);
+	// Check if system runtime files are already created.
+	char buf[PATH_MAX] = { '\0' };
+	sprintf(buf, "%s/sys/kernel", container_info->container_dir);
+	DIR *direxist = opendir(buf);
+	if (direxist == NULL) {
+		// '/' should be a mountpoint in container.
+		mount(container_info->container_dir, container_info->container_dir, NULL, MS_BIND, NULL);
+		// If `-S` option is set, bind-mount /dev/, /sys/ and /proc/ from host.
+		if (container_info->host_runtime_dir) {
+			mount_host_runtime(container_info);
+		}
+	}
+	// Avoid running closedir(NULL), we put it to else branch.
+	else {
+		closedir(direxist);
 	}
 	// Set default command for exec().
 	if (container_info->command[0] == NULL) {
@@ -375,6 +388,10 @@ void run_chroot_container(struct CONTAINER_INFO *container_info)
 	chroot("/");
 	// Mount/create system runtime dir/files.
 	init_container();
+	// Fix /etc/mtab.
+	remove("/etc/mtab");
+	unlink("/etc/mtab");
+	symlink("/proc/mounts", "/etc/mtab");
 	// Set up Seccomp BPF.
 	if (container_info->enable_seccomp) {
 		setup_seccomp(container_info);
