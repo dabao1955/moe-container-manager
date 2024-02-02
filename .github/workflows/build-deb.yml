@@ -24,11 +24,11 @@ jobs:
           dpkg-buildpackage -b -us -uc && cp ../moe-container-manager_* ./out -rv && chmod 755 -R out/*
       - name: Upload builded to artifact
         if: github.event_name == 'push'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
 
         with:
           name: moe-container-manager_0.0.1rc0_amd64.deb.zip
-          path: out/*.deb
+          path: out/moe*
 
   build-archlinux:
 
@@ -39,8 +39,7 @@ jobs:
       - name: Install Python3
         run: pacman -Sy python3 git --noconfirm
       - name: Checkout
-        run: git clone https://github.com/dabao1955/moe-container-manager/ --recursive code
+        uses: actions/checkout@v4
 
       - name: Build
-        run: cd code && python3 tools/pkgs/makepkg.py
-        
+        run: python3 tools/pkgs/makepkg.py
