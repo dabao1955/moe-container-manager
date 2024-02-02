@@ -9,7 +9,7 @@ chmod 777 ${CONTAINER_DIR}/bin/su
 [[ -e ${CONTAINER_DIR}/dev ]] || mkdir ${CONTAINER_DIR}/dev
 [[ -e ${CONTAINER_DIR}/proc ]] || mkdir ${CONTAINER_DIR}/proc
 [[ -e ${CONTAINER_DIR}/sys ]] || mkdir ${CONTAINER_DIR}/sys
-[[ -e ${CONTAINER_DIR}/sdcard ]] || mkdir ${CONTAINER_DIR}/sdcard
+
 # Fix dns problem.
 rm -f ${CONTAINER_DIR}/etc/resolv.conf >>/dev/null 2>&1
 echo nameserver 8.8.8.8 >>${CONTAINER_DIR}/etc/resolv.conf
