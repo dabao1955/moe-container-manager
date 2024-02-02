@@ -50,7 +50,6 @@ ifneq ($(shell test -d $(DOC)||echo x),)
 	echo you can run <cd doc && make preview> to read docs.
 endif
 
-	
 BIN = $(O)/bin/
 
 SHARE = $(O)/moe-container-manager
@@ -61,7 +60,7 @@ $(shell cp share out/moe-container-manager -R)
 endif
 
 ifeq ("$(wildcard out/moe-container-manager/proc)","")
-$(shell cp share out/moe-container-manager/proc -R)
+$(shell cp share out/moe-container-manager/proc -R && rm -rf share/proc.tar.xz)
 endif
 
 $(BIN):$(O)
@@ -106,5 +105,5 @@ shell-format:
 
 .PHONY: distclean
 distclean:
-	@rm -rf $(O) 
+	@rm -rf $(O)
 	@$(SRCODE) clean
