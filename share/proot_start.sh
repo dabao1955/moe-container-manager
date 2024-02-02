@@ -1,5 +1,5 @@
-#!/bin/sh
-# Copyright 2023 moe-hacker
+#!/bin/bash
+# Copyright 2024 moe-hacker
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,11 @@
 # limitations under the License.
 #
 
-unset PREFIX && export PREFIX=/usr
 # These values will be automatically set.
+# If you don't know what you are doing,
+# do not edit them.
+export PREFIX=/usr
+
 CONTAINER_DIR=[CONTAINER_DIR]
 MOUNT_SDCARD=[MOUNT_SDCARD]
 CROSS_ARCH=[CROSS_ARCH]
@@ -71,10 +74,10 @@ COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/vmstat:/proc/vmstat"
 COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/zoneinfo:/proc/zoneinfo"
 # Mount termux's tmpdir.
 COMMAND+=" --mount=$PREFIX/tmp:/tmp"
-if [[ ! $1 ]];then
-COMMAND+=" /bin/su - root"
+if [[ ! $1 ]]; then
+  COMMAND+=" /bin/su - root"
 else
-COMMAND+=" $@"
+  COMMAND+=" $@"
 fi
 # Yes, this can exec the command.
 ${COMMAND}

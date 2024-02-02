@@ -1,8 +1,5 @@
-#!/bin/sh
+#!/bin/bash
 
-set -e
-
-unset PREFIX && export PREFIX=/usr
 pv $ROOTFS | tar -xJf - -C ${CONTAINER_DIR}
 # Fix permission of su.
 # proot do not need this
