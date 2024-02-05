@@ -79,10 +79,10 @@ build: src/Makefile
 	@tar -xf share/proc.tar.xz -C out/moe-container-manager/proc
 install: out/doc/moe-container-manager/LICENSE
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
+	@rm -rf out/moe-container-manager/proc.tar.xz
 	@cp -r $(O)/bin/* /usr/bin/
 	@cp -r $(O)/doc/* /usr/share/doc/
 	@cp -r $(O)/moe-container-manager /usr/share/
-	@rm -rf share/proc.tar.xz
 
 .PHONY: clean
 clean:

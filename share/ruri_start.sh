@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 # Copyright 2024 moe-hacker
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,18 +20,11 @@
 CONTAINER_DIR=[CONTAINER_DIR]
 MOUNT_SDCARD=[MOUNT_SDCARD]
 ENABLE_UNSHARE=[ENABLE_UNSHARE]
-USE_DAEMON=[USE_DAEMON]
 EXTRA_ARGS="[EXTRA_ARGS]"
-# Start daemon.
+# unset $LD_PRELOAD
 unset LD_PRELOAD
-if [[ ${USE_DAEMON} == "true" ]]; then
-  ruri -T || ruri -D
-fi
 # Set args.
 ARGS=${EXTRA_ARGS}
-if [[ ${MOUNT_SDCARD} == "true" ]]; then
-  ARGS+=" -m /sdcard /sdcard"
-fi
 if [[ ${ENABLE_UNSHARE} == "true" ]]; then
   ARGS+=" -u"
 fi

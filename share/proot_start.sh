@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 # Copyright 2024 moe-hacker
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,12 @@
 # These values will be automatically set.
 # If you don't know what you are doing,
 # do not edit them.
-export PREFIX=/usr
-
 CONTAINER_DIR=[CONTAINER_DIR]
 MOUNT_SDCARD=[MOUNT_SDCARD]
 CROSS_ARCH=[CROSS_ARCH]
+
+export PREFIX=/usr
+
 # A simple proot script.
 unset LD_PRELOAD
 COMMAND="proot"
@@ -34,9 +35,6 @@ COMMAND+=" -b /dev"
 COMMAND+=" -b /sys"
 COMMAND+=" -b /proc"
 COMMAND+=" -w /root"
-if [[ ${MOUNT_SDCARD} = "true" ]]; then
-  COMMAND+=" -b /sdcard"
-fi
 if [[ ${CROSS_ARCH} != "null" ]]; then
   COMMAND+=" -q qemu-${CROSS_ARCH}"
 fi
