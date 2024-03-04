@@ -68,8 +68,6 @@ NO_OPTIMIZE = -O0 -fno-omit-frame-pointer
 NO_RELRO = -z norelro
 # Disable No-eXecute.
 NO_NX = -z execstack
-# Position Independent Executables.
-NO_PIE = -no-pie
 # Disable Stack Canary.
 NO_CANARY = -fno-stack-protector
 # Warning Options.
@@ -94,14 +92,14 @@ CHECKER = clang-tidy --use-color
 CHECKER_FLAGS = --checks=*,-clang-analyzer-security.insecureAPI.strcpy,-altera-unroll-loops,-cert-err33-c,-concurrency-mt-unsafe,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,-readability-function-cognitive-complexity,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-bugprone-easily-swappable-parameters,-cert-err34-c,-misc-include-cleaner,-readability-identifier-length,-bugprone-signal-handler,-cert-msc54-cpp,-cert-sig30-c,-altera-id-dependent-backward-branch
 # Link with libcap, libpthread and libseccomp.
 LD_FLAGS = -lcap -lpthread -lseccomp $(NX) $(RELRO)
-DEV_LD_FLAGS = -lcap -lpthread -lseccomp $(NO_RELRO) $(NO_NX) $(NO_PIE)
+DEV_LD_FLAGS = -lcap -lpthread -lseccomp $(NO_RELRO) $(NO_NX)
 # Fix issues in termux (with bionic).
 BIONIC_FIX = -ffunction-sections -fdata-sections
 BIONIC_CFLAGS = $(OPTIMIZE_CFLAGS) $(BIONIC_FIX) -static
 # Bionic has built-in libpthread.
 BIONIC_LD_FLAGS = -lcap -lseccomp -Wl,--gc-sections $(NX) $(RELRO)
 # Target.
-objects = caplist.o chroot.o info.o seccomp.o signal.o tool.o unshare.o mount.o elf-magic.o main.o
+objects = caplist.o chroot.o info.o rurienv.o seccomp.o signal.o umount.o unshare.o rootless.o mount.o k2v.o elf-magic.o config.o main.o
 O = out
 .ONESHELL:
 all :CFLAGS=$(OPTIMIZE_CFLAGS)

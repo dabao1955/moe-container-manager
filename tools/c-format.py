@@ -7,5 +7,4 @@ def check_c_files():
     if result.returncode != 0:
         print("check failed")
         print(result.stderr.decode())
-                    
 check_c_files()

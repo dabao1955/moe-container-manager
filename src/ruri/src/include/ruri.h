@@ -82,25 +82,39 @@
 // Include other headers.
 #include "elf-magic.h"
 #include "version.h"
+#include "k2v.h"
 // Info of a container to create.
-struct __attribute__((aligned(128))) CONTAINER_INFO {
+struct __attribute__((aligned(128))) CONTAINER {
+	// Container directory.
 	char *container_dir;
+	// Capabilities to drop.
 	cap_value_t drop_caplist[CAP_LAST_CAP + 1];
+	// Command for exec(2).
 	char *command[MAX_COMMANDS];
-	// Mount before chroot(2).
-	char *mountpoint[MAX_MOUNTPOINTS];
+	// Extra mountpoints.
+	char *extra_mountpoint[MAX_MOUNTPOINTS];
+	// Environment variables.
 	char *env[MAX_ENVS];
+	// Set NO_NEW_PRIV bit.
 	bool no_new_privs;
+	// Enable built-in seccomp profile.
 	bool enable_seccomp;
+	// Do not show warnings.
 	bool no_warnings;
-	bool use_unshare;
+	// Unshare container.
+	bool enable_unshare;
+	// Useless rootless container support.
 	bool rootless;
 	// Mount host runtime.
-	bool host_runtime_dir;
+	bool mount_host_runtime;
+	// Container pid for setns(2).
 	pid_t ns_pid;
-	// For cross-architecture containers.
+	// Arch of cross-architecture container.
 	char *cross_arch;
+	// Path of QEMU binary.
 	char *qemu_path;
+	// Do not store .rurienv file.
+	bool use_rurienv;
 };
 // For get_magic().
 #define magicof(x) (x##_magic)
@@ -126,20 +140,26 @@ struct __attribute__((aligned(16))) MAGIC {
 		exit(EXIT_FAILURE);                                                                                           \
 	}
 void register_signal(void);
-void setup_seccomp(struct CONTAINER_INFO *container_info);
+void setup_seccomp(struct CONTAINER *container);
 void show_version_info(void);
 void show_version_code(void);
 void AwA(void);
 void show_helps(void);
 void show_examples(void);
-void add_to_list(cap_value_t *list, cap_value_t cap);
-bool is_in_list(const cap_value_t *list, cap_value_t cap);
-void del_from_list(cap_value_t *list, cap_value_t cap);
+void store_info(const struct CONTAINER *container);
+struct CONTAINER *read_info(struct CONTAINER *container, const char *container_dir);
+void add_to_caplist(cap_value_t *list, cap_value_t cap);
+bool is_in_caplist(const cap_value_t *list, cap_value_t cap);
+void del_from_caplist(cap_value_t *list, cap_value_t cap);
+void build_caplist(cap_value_t caplist[], bool privileged, cap_value_t drop_caplist_extra[], cap_value_t keep_caplist_extra[]);
 struct MAGIC *get_magic(const char *cross_arch);
-int run_unshare_container(struct CONTAINER_INFO *container_info);
-void run_chroot_container(struct CONTAINER_INFO *container_info);
+void run_unshare_container(struct CONTAINER *container);
+char *container_info_to_k2v(const struct CONTAINER *container);
+void run_chroot_container(struct CONTAINER *container);
+void run_rootless_container(struct CONTAINER *container);
 int trymount(const char *source, const char *target, unsigned int mountflags);
 void umount_container(const char *container_dir);
+struct CONTAINER *read_config(struct CONTAINER *container, const char *path);
 //   ██╗ ██╗  ███████╗   ████╗   ███████╗
 //  ████████╗ ██╔════╝ ██╔═══██╗ ██╔════╝
 //  ╚██╔═██╔╝ █████╗   ██║   ██║ █████╗

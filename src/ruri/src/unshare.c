@@ -29,7 +29,7 @@
  */
 #include "include/ruri.h"
 // For run_unshare_container().
-static pid_t init_unshare_container(bool no_warnings)
+static pid_t init_unshare_container(struct CONTAINER *container)
 {
 	/*
 	 * Use unshare(2) to create new namespaces and fork(2) to join them.
@@ -38,39 +38,42 @@ static pid_t init_unshare_container(bool no_warnings)
 	 */
 	pid_t unshare_pid = INIT_VALUE;
 	// Create namespaces.
-	if (unshare(CLONE_NEWNS) == -1 && !no_warnings) {
+	if (unshare(CLONE_NEWNS) == -1 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that mount namespace is not supported on this device QwQ\033[0m\n");
 	}
-	if (unshare(CLONE_NEWUTS) == -1 && !no_warnings) {
+	if (unshare(CLONE_NEWUTS) == -1 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that uts namespace is not supported on this device QwQ\033[0m\n");
 	}
-	if (unshare(CLONE_NEWIPC) == -1 && !no_warnings) {
+	if (unshare(CLONE_NEWIPC) == -1 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that ipc namespace is not supported on this device QwQ\033[0m\n");
 	}
-	if (unshare(CLONE_NEWPID) == -1 && !no_warnings) {
+	if (unshare(CLONE_NEWPID) == -1 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that pid namespace is not supported on this device QwQ\033[0m\n");
 	}
-	if (unshare(CLONE_NEWCGROUP) == -1 && !no_warnings) {
+	if (unshare(CLONE_NEWCGROUP) == -1 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that cgroup namespace is not supported on this device QwQ\033[0m\n");
 	}
-	if (unshare(CLONE_NEWTIME) == -1 && !no_warnings) {
+	if (unshare(CLONE_NEWTIME) == -1 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that time namespace is not supported on this device QwQ\033[0m\n");
 	}
-	if (unshare(CLONE_SYSVSEM) == -1 && !no_warnings) {
+	if (unshare(CLONE_SYSVSEM) == -1 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that semaphore namespace is not supported on this device QwQ\033[0m\n");
 	}
-	if (unshare(CLONE_FILES) == -1 && !no_warnings) {
+	if (unshare(CLONE_FILES) == -1 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that we could not unshare file descriptors with child process QwQ\033[0m\n");
 	}
-	if (unshare(CLONE_FS) == -1 && !no_warnings) {
+	if (unshare(CLONE_FS) == -1 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that we could not unshare filesystem information with child process QwQ\033[0m\n");
 	}
 	// Fork itself into namespace.
 	// This can fix `can't fork: out of memory` issue.
 	unshare_pid = fork();
 	if (unshare_pid > 0) {
-		// Print pid info.
-		printf("Container PID: %d\n", unshare_pid);
+		// Store container info.
+		if (container->use_rurienv) {
+			container->ns_pid = getpid();
+			store_info(container);
+		}
 		// Fix `can't access tty` issue.
 		waitpid(unshare_pid, NULL, 0);
 	} else if (unshare_pid < 0) {
@@ -79,7 +82,7 @@ static pid_t init_unshare_container(bool no_warnings)
 	return unshare_pid;
 }
 // For run_unshare_container().
-static pid_t join_ns(struct CONTAINER_INFO *container_info)
+static pid_t join_ns(struct CONTAINER *container)
 {
 	pid_t unshare_pid = INIT_VALUE;
 	// Use setns(2) to enter existing namespaces.
@@ -89,51 +92,51 @@ static pid_t join_ns(struct CONTAINER_INFO *container_info)
 	char pid_ns_file[PATH_MAX] = { '\0' };
 	char time_ns_file[PATH_MAX] = { '\0' };
 	char uts_ns_file[PATH_MAX] = { '\0' };
-	sprintf(cgroup_ns_file, "%s%d%s", "/proc/", container_info->ns_pid, "/ns/cgroup");
-	sprintf(ipc_ns_file, "%s%d%s", "/proc/", container_info->ns_pid, "/ns/ipc");
-	sprintf(mount_ns_file, "%s%d%s", "/proc/", container_info->ns_pid, "/ns/mnt");
-	sprintf(pid_ns_file, "%s%d%s", "/proc/", container_info->ns_pid, "/ns/pid");
-	sprintf(time_ns_file, "%s%d%s", "/proc/", container_info->ns_pid, "/ns/time");
-	sprintf(uts_ns_file, "%s%d%s", "/proc/", container_info->ns_pid, "/ns/uts");
+	sprintf(cgroup_ns_file, "%s%d%s", "/proc/", container->ns_pid, "/ns/cgroup");
+	sprintf(ipc_ns_file, "%s%d%s", "/proc/", container->ns_pid, "/ns/ipc");
+	sprintf(mount_ns_file, "%s%d%s", "/proc/", container->ns_pid, "/ns/mnt");
+	sprintf(pid_ns_file, "%s%d%s", "/proc/", container->ns_pid, "/ns/pid");
+	sprintf(time_ns_file, "%s%d%s", "/proc/", container->ns_pid, "/ns/time");
+	sprintf(uts_ns_file, "%s%d%s", "/proc/", container->ns_pid, "/ns/uts");
 	// Enter namespaces via setns(2).
 	int ns_fd = INIT_VALUE;
 	ns_fd = open(mount_ns_file, O_RDONLY | O_CLOEXEC);
-	if (ns_fd < 0 && !container_info->no_warnings) {
+	if (ns_fd < 0 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that mount namespace is not supported on this device QwQ\033[0m\n");
 	} else {
 		setns(ns_fd, 0);
 		close(ns_fd);
 	}
 	ns_fd = open(pid_ns_file, O_RDONLY | O_CLOEXEC);
-	if (ns_fd < 0 && !container_info->no_warnings) {
+	if (ns_fd < 0 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that pid namespace is not supported on this device QwQ\033[0m\n");
 	} else {
 		setns(ns_fd, 0);
 		close(ns_fd);
 	}
 	ns_fd = open(time_ns_file, O_RDONLY | O_CLOEXEC);
-	if (ns_fd < 0 && !container_info->no_warnings) {
+	if (ns_fd < 0 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that time namespace is not supported on this device QwQ\033[0m\n");
 	} else {
 		setns(ns_fd, 0);
 		close(ns_fd);
 	}
 	ns_fd = open(uts_ns_file, O_RDONLY | O_CLOEXEC);
-	if (ns_fd < 0 && !container_info->no_warnings) {
+	if (ns_fd < 0 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that uts namespace is not supported on this device QwQ\033[0m\n");
 	} else {
 		setns(ns_fd, 0);
 		close(ns_fd);
 	}
 	ns_fd = open(cgroup_ns_file, O_RDONLY | O_CLOEXEC);
-	if (ns_fd < 0 && !container_info->no_warnings) {
+	if (ns_fd < 0 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that cgroup namespace is not supported on this device QwQ\033[0m\n");
 	} else {
 		setns(ns_fd, 0);
 		close(ns_fd);
 	}
 	ns_fd = open(ipc_ns_file, O_RDONLY | O_CLOEXEC);
-	if (ns_fd < 0 && !container_info->no_warnings) {
+	if (ns_fd < 0 && !container->no_warnings) {
 		warning("\033[33mWarning: seems that ipc namespace is not supported on this device QwQ\033[0m\n");
 	} else {
 		setns(ns_fd, 0);
@@ -157,18 +160,20 @@ static pid_t join_ns(struct CONTAINER_INFO *container_info)
 	return unshare_pid;
 }
 // Run unshare container.
-int run_unshare_container(struct CONTAINER_INFO *container_info)
+void run_unshare_container(struct CONTAINER *container)
 {
 	pid_t unshare_pid = INIT_VALUE;
 	// unshare(2) itself into new namespaces.
-	if (container_info->ns_pid < 0) {
-		unshare_pid = init_unshare_container(container_info->no_warnings);
+	if (container->use_rurienv) {
+		read_info(container, container->container_dir);
+	}
+	if (container->ns_pid < 0) {
+		unshare_pid = init_unshare_container(container);
 	} else {
-		unshare_pid = join_ns(container_info);
+		unshare_pid = join_ns(container);
 	}
 	// Check if we have joined the container's namespaces.
 	if (unshare_pid == 0) {
-		run_chroot_container(container_info);
+		run_chroot_container(container);
 	}
-	return 0;
 }

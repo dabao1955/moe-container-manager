@@ -29,17 +29,3 @@ jobs:
         with:
           name: moe-container-manager_0.0.1rc0_amd64.deb.zip
           path: out/moe*
-
-  build-archlinux:
-
-    container: archlinux:base-devel
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Install Python3
-        run: pacman -Sy python3 git --noconfirm
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Build
-        run: python3 tools/pkgs/makepkg.py
