@@ -28,7 +28,7 @@
  *
  */
 #include "include/nekoasc.h"
-struct ARGS
+struct __attribute__((aligned(32))) ARGS
 {
   unsigned int interval;
   int mode;

@@ -8,6 +8,7 @@ include /usr/share/dpkg/default.mk
 #prefix=$(CURDIR)/debian/moe-container-manager/usr
 
 export CC = /bin/clang
+export CXX = /bin/clang++
 export LD = /bin/ld.lld
 
 export DEB_BUILD_ARCH ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH)
@@ -18,9 +19,3 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 override_dh_auto_configure:
 	dh_auto_configure -- DEFINES+="VERSION=$(DEB_VERSION_UPSTREAM)"
-
-show_license:
-	cat LICENSE
-
-show_copyright:
-	cat debian/copyright

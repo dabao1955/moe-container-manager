@@ -135,6 +135,9 @@ void show_helps(void)
 	printf("  -U, --umount [container_dir]    Umount a container\n");
 	printf("\n");
 	printf("ARGS:\n");
+	printf("  -D, --dump-config               Dump the config.\n");
+	printf("  -o, --output [config file]      Set output file of `-D` option\n");
+	printf("  -c, --config [config file]      Use config file\n");
 	printf("  -a, --arch [arch]               Simulate architecture via binfmt_misc & QEMU, need `-q`\n");
 	printf("  -q, --qemu-path [path]          Specify the path of QEMU\n");
 	printf("  -u, --unshare                   Enable unshare feature\n");
@@ -149,8 +152,6 @@ void show_helps(void)
 	printf("  -m, --mount [dir/dev/img] [dir] Mount dir/block-device/image to mountpoint\n");
 	printf("  -S, --host-runtime              Bind-mount /dev/, /sys/ and /proc/ from host\n");
 	printf("  -w, --no-warnings               Disable warnings\n");
-	printf("\n");
-	printf("Please unset $LD_PRELOAD before running this program.\n");
 	printf("\n");
 }
 // For `ruri -H`.

@@ -27,7 +27,7 @@ SRCODE = make -C src
 .PHONY: all
 all: show-greetings $(BIN) $(SHARE) build
 show-greetings:
-	echo Starting Build ...
+	@echo Starting Build ...
 	@printf "\033[1;38;2;254;228;208m"
 	@printf "                  _________\n"
 	@printf "                 /        /\\ \n"
@@ -40,7 +40,23 @@ show-greetings:
 	@printf "                 \\________\\/\n"
 	@sleep 1s
 ifeq ("$(wildcard out/)","")
-$(shell mkdir out/)
+	$(shell mkdir out/)
+endif
+ifeq ("$(wildcard $(SHARE))","")
+	$(shell mkdir out/share)
+	$(shell cp src/share $(SHARE) -R)
+	$(shell mkdir $(SHARE)/proc)
+endif
+ifeq ("$(wildcard $(SHARE)/doc)","")
+	$(shell mkdir out/share/doc)
+	$(shell mkdir out/share/doc/moe-container-manager)
+endif
+ifeq ("$(wildcard $(LIB))","")
+	$(shell mkdir out/lib)
+	$(shell mkdir $(LIB))
+endif
+ifeq ("$(wildcard $(BIN))","")
+	$(shell mkdir $(BIN))
 endif
 
 DOC = doc
@@ -52,37 +68,22 @@ endif
 
 BIN = $(O)/bin/
 
-SHARE = $(O)/moe-container-manager
-$(SHARE):$(O)
-
-ifeq ("$(wildcard out/moe-container-manager)","")
-$(shell cp share out/moe-container-manager -R)
-endif
-
-ifeq ("$(wildcard out/moe-container-manager/proc)","")
-$(shell cp share out/moe-container-manager/proc -R)
-endif
-
-$(BIN):$(O)
-
-ifeq ("$(wildcard out/bin)","")
-$(shell mkdir out/bin)
-endif
-ifeq ("$(wildcard out/doc)","")
-$(shell mkdir out/doc out/doc/moe-container-manager)
-endif
+SHARE = $(O)/share/moe-container-manager
+LIB = $(O)/lib/moe-container-manager
 
 build: src/Makefile
 	@$(SRCODE)
 	@cp -r src/out/* out/bin/
-	@cp LICENSE out/doc/moe-container-manager/
-	@tar -xf share/proc.tar.xz -C out/moe-container-manager/proc
-install: out/doc/moe-container-manager/LICENSE
+	@cp LICENSE out/share/doc/moe-container-manager/
+	@tar -xf src/share/proc.tar.xz -C $(SHARE)/proc
+install: out/share/doc/moe-container-manager/LICENSE
 	@printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
-	@rm -rf out/moe-container-manager/proc.tar.xz
+	@rm -rf $(SHARE)/proc.tar.xz
 	@cp -r $(O)/bin/* /usr/bin/
-	@cp -r $(O)/doc/* /usr/share/doc/
-	@cp -r $(O)/moe-container-manager /usr/share/
+	@cp -r $(O)/share/doc/* /usr/share/doc/
+	@cp -r $(O)/share/moe-container-manager /usr/share/
+test:
+	@perl --version
 
 .PHONY: clean
 clean:

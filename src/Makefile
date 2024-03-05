@@ -22,30 +22,31 @@ ifeq ("$(wildcard out)","")
 endif
 
 .PHONY: all
-all: ruri.o yoshinon.o nekoasc.o install
+all: ruri.o yoshinon.o nekoasc.o interface.o libk2v.o install-bin install-lib
 ruri.o:
 	@[ -e ruri/ruri ]||(make -C ruri static)
 yoshinon.o:
 	@[ -e yoshinon/yoshinon ]||(make -C yoshinon)
 nekoasc.o:
 	@[ -e nekoasc/nekoasc ]||(make -C nekoasc static-bionic)
-install:
+libk2v.o:
+	@[ -e libk2v/libk2v.so ]||(cd libk2v && cc -fPIC -shared -fstack-protector-all -fstack-clash-protection -mshstk  -D_FORTIFY_SOURCE=3 -Wno-unused-result -O2 -std=gnu99 -Wno-gnu-zero-variadic-macro-arguments -o libk2v.so src/k2v.c -z noexecstack -z now && strip libk2v.so && cc -std=gnu99 -c -o libk2v.o src/k2v.c && ar -r libk2v.a libk2v.o)
+k2sh.o:
+	@[ -e libk2v/k2sh ]||(make -C libk2v)
+interface.o:
+	@[ -e interface/build/interface ]||(cd interface && mkdir build && cd build && cmake .. && make)
+
+install-bin:
 	@cp rootfstool/rootfstool out
 	@mv ruri/ruri out
 	@mv yoshinon/yoshinon out
 	@mv nekoasc/nekoasc out
-
-gettext:
-	@xgettext -o container.pot -L Shell --keyword=po_getmsg --no-wrap container/container
-	@msginit -i container.pot -l zh_CN.UTF-8 --no-wrap -o container.po
-	@rm container.pot
-	@mv container.po ../lang/container-newlang.po
-
-format:
-	@shfmt -i 2 -w container/container
-	@shfmt -i 2 -w ../share/shell/*
+	@mv interface/build/interface out
+install-lib: libk2v/libk2v.so
+	@mv libk2v/libk2v.so ../out/lib/moe-container-manager
+	@mv libk2v/libk2v.a ../out/lib/moe-container-manager
 
 .PHONY: clean
 
 clean: out
-	@rm -rf out ruri/ruri yoshinon/yoshinon pkc/build
+	@rm -rf out ruri/ruri yoshinon/yoshinon nekoasc/nekoasc interface/build libk2v/libk2v*

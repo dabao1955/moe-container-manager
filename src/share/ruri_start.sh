@@ -18,10 +18,18 @@
 # If you don't know what you are doing,
 # do not edit them.
 CONTAINER_DIR=[CONTAINER_DIR]
-EXTRA_MOUNTPOINTS="[EXTRA_MOUNTPOINTS]"
-sudo ruri -U ${CONTAINER_DIR}
-for i in ${EXTRA_MOUNTPOINTS}
-do
-sudo unmount -lvf $i
-done
-echo -e "\033[33mPlease reboot your device if you need to remove the container.\033[0m"
+MOUNT_SDCARD=[MOUNT_SDCARD]
+ENABLE_UNSHARE=[ENABLE_UNSHARE]
+EXTRA_ARGS="[EXTRA_ARGS]"
+# unset $LD_PRELOAD
+unset LD_PRELOAD
+# Set args.
+ARGS=${EXTRA_ARGS}
+if [[ ${MOUNT_SDCARD} == "true" ]]; then
+  ARGS+=" -m /sdcard /sdcard"
+fi
+if [[ ${ENABLE_UNSHARE} == "true" ]]; then
+  ARGS+=" -u"
+fi
+# Run container.
+LD_PRELOAD= sudo ruri ${ARGS} ${CONTAINER_DIR} $@

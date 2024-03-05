@@ -18,7 +18,6 @@
 # If you don't know what you are doing,
 # do not edit them.
 CONTAINER_DIR=[CONTAINER_DIR]
-EXTRA_MOUNTPOINTS="[EXTRA_MOUNTPOINTS]"
 # Show warning.
 echo -e "\033[33mWarning: please reboot your device before removing the container."
 echo "I am not responsible for anything that may happen to your device by using this script !!!"
@@ -27,19 +26,15 @@ echo -e "\n\n"
 echo "Press CTRL-C to cancel this script"
 echo "Or press yes to remove this container\n"
 read -p "=>" i
-if [[ i != "yes" ]];then
-echo "exit"
-exit 0
+if [[ i != "yes" ]]; then
+  echo "exit"
+  exit 0
 fi
-# Umount.
-sudo ruri -U ${CONTAINER_DIR}
-for i in ${EXTRA_MOUNTPOINTS}
-do
-sudo umount -lvf $i
-done
+# Kill proot.
+killall -9 proot
 # Remove.
 echo "This is the last chance to regret it"
 echo "Press CTRL-C to cancel this script"
 echo "Or press enter to continue\n"
 read i
-sudo rm -rvf ${CONTAINER_DIR}
+rm -rf ${CONTAINER_DIR}
