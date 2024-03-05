@@ -23,7 +23,7 @@ ENDCOLOR    = \033[0m
 CC_LOG = @printf '    $(CCCOLOR)CC$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 STRIP_LOG = @printf ' $(STRIPCOLOR)STRIP$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 O = out
-SRCODE = make -C src 
+SRCODE = $(MAKE) -C src
 .PHONY: all
 all: show-greetings $(BIN) $(SHARE) build
 show-greetings:
@@ -62,7 +62,7 @@ endif
 DOC = doc
 $(DOC): /usr/bin/w3m
 ifneq ($(shell test -d $(DOC)||echo x),)
-	make -C doc
+	$(MAKE) -C doc
 	echo you can run <cd doc && make preview> to read docs.
 endif
 

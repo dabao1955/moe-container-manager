@@ -22,31 +22,23 @@ ifeq ("$(wildcard out)","")
 endif
 
 .PHONY: all
-all: ruri.o yoshinon.o nekoasc.o interface.o libk2v.o install-bin install-lib
+all: ruri.o yoshinon.o nekoasc.o interface.o libk2v.o install
 ruri.o:
-	@[ -e ruri/ruri ]||(make -C ruri static)
+	@[ -e ruri/ruri ]||($(MAKE) -C ruri static)
 yoshinon.o:
-	@[ -e yoshinon/yoshinon ]||(make -C yoshinon)
+	@[ -e yoshinon/yoshinon ]||(cd yoshinon && mkdir build && cd build && cmake .. && $(MAKE))
 nekoasc.o:
-	@[ -e nekoasc/nekoasc ]||(make -C nekoasc static-bionic)
+	@[ -e nekoasc/nekoasc ]||($(MAKE) -C nekoasc static)
 libk2v.o:
-	@[ -e libk2v/libk2v.so ]||(cd libk2v && cc -fPIC -shared -fstack-protector-all -fstack-clash-protection -mshstk  -D_FORTIFY_SOURCE=3 -Wno-unused-result -O2 -std=gnu99 -Wno-gnu-zero-variadic-macro-arguments -o libk2v.so src/k2v.c -z noexecstack -z now && strip libk2v.so && cc -std=gnu99 -c -o libk2v.o src/k2v.c && ar -r libk2v.a libk2v.o)
-k2sh.o:
-	@[ -e libk2v/k2sh ]||(make -C libk2v)
+	@[ -e libk2v/build/k2sh ]||(cd libk2v && mkdir build && cd build && cmake .. && $(MAKE) && make install)
 interface.o:
-	@[ -e interface/build/interface ]||(cd interface && mkdir build && cd build && cmake .. && make)
+	@[ -e interface/build/interface ]||(cd interface && mkdir build && cd build && cmake .. && $(MAKE) && make install)
 
-install-bin:
+install:
 	@cp rootfstool/rootfstool out
 	@mv ruri/ruri out
-	@mv yoshinon/yoshinon out
 	@mv nekoasc/nekoasc out
-	@mv interface/build/interface out
-install-lib: libk2v/libk2v.so
-	@mv libk2v/libk2v.so ../out/lib/moe-container-manager
-	@mv libk2v/libk2v.a ../out/lib/moe-container-manager
 
 .PHONY: clean
-
 clean: out
-	@rm -rf out ruri/ruri yoshinon/yoshinon nekoasc/nekoasc interface/build libk2v/libk2v*
+	@rm -rf out ruri/ruri yoshinon/build nekoasc/nekoasc nekoasc/out interface/build libk2v/build

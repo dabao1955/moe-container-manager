@@ -15,6 +15,7 @@ libk2v only contain 1000- lines of code, while tomlc99 have 2000+.
  * We will always use a (char *)key to get the value.
  * The comment line starts with `#`, and `#` should be the first character of the line.
  * All the value should be wrapped by `"`, and do not use `'`.
+ * Don't nest `""` within the value, you can use `''` if you really need.
  * The key should not be wrapped.
  * The end of a line is '\n', and will not contain `;` or `,`.
  * The array is wrapped by `[]`,and each value should be separated by `,`.
@@ -48,6 +49,13 @@ float_val="19.19810"
 int_array_val=("1" "2" "3")
 float_array_val=("1.0" "2.0" "3.0")
 char_array_val=("string1" "string2" "string3")
+```
+To use k2sh:      
+```
+tmpfile=$(mktemp)
+./k2sh test/test.conf > $tmpfile
+source $tmpfile
+rm $tmpfile
 ```
 # Hello world:
 test/hello.conf:

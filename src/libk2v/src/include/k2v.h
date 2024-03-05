@@ -14,8 +14,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -27,11 +27,11 @@
  *
  *
  */
-#include <fcntl.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
 // Bool!!!
 #if __STDC_VERSION__ < 202000L
 #define bool _Bool
