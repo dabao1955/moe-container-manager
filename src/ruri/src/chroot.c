@@ -37,14 +37,17 @@ static void check_binary(const struct CONTAINER *container)
 	struct stat init_binary_stat;
 	// lstat(3) will return -1 while the init_binary does not exist.
 	if (lstat(init_binary, &init_binary_stat) != 0) {
+		umount_container(container->container_dir);
 		error("\033[31mPlease check if CONTAINER_DIRECTORY and [COMMAND [ARG]...] are correct QwQ\n");
 	}
 	if (S_ISDIR(init_binary_stat.st_mode)) {
+		umount_container(container->container_dir);
 		error("\033[31mCOMMAND can not be a directory QwQ\n");
 	}
 	// Check QEMU path.
 	if (container->cross_arch != NULL) {
 		if (container->qemu_path == NULL) {
+			umount_container(container->container_dir);
 			error("\033[31mError: path of QEMU is not set QwQ\n");
 		}
 		// Check if QEMU binary exists and is not a directory.
@@ -54,9 +57,11 @@ static void check_binary(const struct CONTAINER *container)
 		struct stat qemu_binary_stat;
 		// lstat(3) will return -1 while the init_binary does not exist.
 		if (lstat(qemu_binary, &qemu_binary_stat) != 0) {
+			umount_container(container->container_dir);
 			error("\033[31mPlease check if path of QEMU is correct QwQ\n");
 		}
 		if (S_ISDIR(qemu_binary_stat.st_mode)) {
+			umount_container(container->container_dir);
 			error("\033[31mQEMU path can not be a directory QwQ\n");
 		}
 	}
@@ -76,8 +81,7 @@ static void init_container(void)
 		mkdir("/proc", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 		mkdir("/dev", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 		mount("proc", "/proc", "proc", MS_NOSUID | MS_NOEXEC | MS_NODEV, NULL);
-		// For /sys,we make it read-only.
-		mount("sysfs", "/sys", "sysfs", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_RDONLY, NULL);
+		mount("sysfs", "/sys", "sysfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, NULL);
 		mount("tmpfs", "/dev", "tmpfs", MS_NOSUID, "size=65536k,mode=755");
 		// Continue mounting some other directories in /dev.
 		mkdir("/dev/pts", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
@@ -182,9 +186,11 @@ static void drop_caps(const struct CONTAINER *container)
 		if (container->drop_caplist[i] == INIT_VALUE) {
 			break;
 		}
-		if (cap_drop_bound(container->drop_caplist[i]) != 0 && !container->no_warnings) {
-			warning("\033[33mWarning: Failed to drop cap `%s`\n", cap_to_name(container->drop_caplist[i]));
-			warning("\033[33merror reason: %s\033[0m\n", strerror(errno));
+		if (CAP_IS_SUPPORTED(container->drop_caplist[i])) {
+			if (cap_drop_bound(container->drop_caplist[i]) != 0 && !container->no_warnings) {
+				warning("\033[33mWarning: Failed to drop cap `%s`\n", cap_to_name(container->drop_caplist[i]));
+				warning("\033[33merror reason: %s\033[0m\n", strerror(errno));
+			}
 		}
 	}
 }
@@ -231,15 +237,29 @@ static void setup_binfmt_misc(const struct CONTAINER *container)
 // Run before chroot(2).
 void mount_mountpoints(const struct CONTAINER *container)
 {
+	char *mountpoint_dir = NULL;
+	// Mount extra_mountpoint.
 	for (int i = 0; true; i += 2) {
 		if (container->extra_mountpoint[i] == NULL) {
 			break;
 		}
 		// Set the mountpoint to mount.
-		char *mountpoint_dir = (char *)malloc(strlen(container->extra_mountpoint[i + 1]) + strlen(container->container_dir) + 2);
+		mountpoint_dir = (char *)malloc(strlen(container->extra_mountpoint[i + 1]) + strlen(container->container_dir) + 2);
 		strcpy(mountpoint_dir, container->container_dir);
 		strcat(mountpoint_dir, container->extra_mountpoint[i + 1]);
 		trymount(container->extra_mountpoint[i], mountpoint_dir, 0);
+		free(mountpoint_dir);
+	}
+	// Mount extra_ro_mountpoint.
+	for (int i = 0; true; i += 2) {
+		if (container->extra_ro_mountpoint[i] == NULL) {
+			break;
+		}
+		// Set the mountpoint to mount.
+		mountpoint_dir = (char *)malloc(strlen(container->extra_ro_mountpoint[i + 1]) + strlen(container->container_dir) + 2);
+		strcpy(mountpoint_dir, container->container_dir);
+		strcat(mountpoint_dir, container->extra_ro_mountpoint[i + 1]);
+		trymount(container->extra_ro_mountpoint[i], mountpoint_dir, MS_RDONLY);
 		free(mountpoint_dir);
 	}
 }
@@ -269,6 +289,10 @@ void run_chroot_container(struct CONTAINER *container)
 		if (!container->enable_unshare && container->use_rurienv) {
 			store_info(container);
 		}
+		// If `-R` option is set, make / read-only.
+		if (container->ro_root) {
+			mount(container->container_dir, container->container_dir, NULL, MS_BIND | MS_REMOUNT | MS_RDONLY, NULL);
+		}
 		// If `-S` option is set, bind-mount /dev/, /sys/ and /proc/ from host.
 		if (container->mount_host_runtime) {
 			mount_host_runtime(container);
@@ -296,7 +320,6 @@ void run_chroot_container(struct CONTAINER *container)
 	chdir(container->container_dir);
 	chroot(".");
 	chdir("/");
-	chroot("/");
 	// Mount/create system runtime dir/files.
 	init_container();
 	// Fix /etc/mtab.

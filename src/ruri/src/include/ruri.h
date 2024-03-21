@@ -69,9 +69,11 @@
 #endif
 // Bool!!!
 #if __STDC_VERSION__ < 202000L
+#ifndef bool
 #define bool _Bool
 #define true ((_Bool) + 1u)
 #define false ((_Bool) + 0u)
+#endif
 #endif
 // For initializing some variables.
 #define INIT_VALUE (-114)
@@ -93,6 +95,8 @@ struct __attribute__((aligned(128))) CONTAINER {
 	char *command[MAX_COMMANDS];
 	// Extra mountpoints.
 	char *extra_mountpoint[MAX_MOUNTPOINTS];
+	// Extra read-only mountpoints.
+	char *extra_ro_mountpoint[MAX_MOUNTPOINTS];
 	// Environment variables.
 	char *env[MAX_ENVS];
 	// Set NO_NEW_PRIV bit.
@@ -115,6 +119,8 @@ struct __attribute__((aligned(128))) CONTAINER {
 	char *qemu_path;
 	// Do not store .rurienv file.
 	bool use_rurienv;
+	// Mount / as read-only.
+	bool ro_root;
 };
 // For get_magic().
 #define magicof(x) (x##_magic)

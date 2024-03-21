@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <fstream>
 
 namespace proj {
     #ifndef __linux__
@@ -11,5 +12,5 @@ namespace proj {
     #endif
 
     const char* const prog_name = "interface";
-    const char* const prog_version = "v0.0.1rc1";
+    const char* const prog_version = "v0.0.1rc2";
 }

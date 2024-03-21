@@ -13,31 +13,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+function pull_rootfs() {
+  # It will set the following variable(s):
+  # $ROOTFS
+  mkdir -p /usr/share/moe-container-manager/rootfs 2>&1 >/dev/null || true
+  mirrorlist=$(rootfstool m)
+  j=1
+  for i in $mirrorlist; do
+    arg+="[$j] $i "
+    j=$((j + 1))
+  done
+  num=$(yoshinon --menu --cursorcolor "114;5;14" --title "MAMAGER-$VERSION" "Select a mirror" 12 25 4 $arg)
+  num=$(echo $num | cut -d "[" -f 2 | cut -d "]" -f 1)
+  distro=$(echo $mirrorlist | cut -d " " -f $num)
+  rootfslist=$(rootfstool l -m $MIRROR | awk '{print $2}')
+  j=1
+  arg=""
+  for i in $rootfslist; do
+    arg+="[$j] $i "
+    j=$((j + 1))
+  done
+  num=$(yoshinon --menu --cursorcolor "114;5;14" --title "MAMAGER-$VERSION" "Select a distro" 12 25 4 $arg)
+  num=$(echo $num | cut -d "[" -f 2 | cut -d "]" -f 1)
+  distro=$(echo $rootfslist | cut -d " " -f $num)
+  versionlist=$(rootfstool s -d $distro -m $MIRROR | awk '{print $4}')
+  j=1
+  arg=""
+  for i in $versionlist; do
+    arg+="[$j] $i "
+    j=$((j + 1))
+  done
+  num=$(yoshinon --menu --cursorcolor "114;5;14" --title "MAMAGER-$VERSION" "Select the version" 12 25 4 $arg)
+  num=$(echo $num | cut -d "[" -f 2 | cut -d "]" -f 1)
+  version=$(echo $versionlist | cut -d " " -f $num)
+  if [[ ! -e /usr/share/moe-container-manager/rootfs/$distro-$version.tar.xz ]]; then
+    cd /usr/tmp
+    rm rootfs.tar.xz*
+    axel -n 16 $(rootfstool u -d $distro -v $version -m $MIRROR)
+    mv rootfs.tar.xz /usr/share/moe-container-manager/rootfs/$distro-$version.tar.xz
+  fi
+  export ROOTFS=/usr/share/moe-container-manager/rootfs/$distro-$version.tar.xz
+}
 pv $ROOTFS | tar -xJf - -C ${CONTAINER_DIR}
-# Fix permission of su.
-# proot do not need this
-chown root:root ${CONTAINER_DIR}/bin/su
-chmod 777 ${CONTAINER_DIR}/bin/su
-# Create mountpoints.
-[[ -e ${CONTAINER_DIR}/dev ]] || mkdir ${CONTAINER_DIR}/dev
-[[ -e ${CONTAINER_DIR}/proc ]] || mkdir ${CONTAINER_DIR}/proc
-[[ -e ${CONTAINER_DIR}/sys ]] || mkdir ${CONTAINER_DIR}/sys
-[[ -e ${CONTAINER_DIR}/sdcard ]] || mkdir ${CONTAINER_DIR}/sdcard
-# Fix dns problem.
-rm -f ${CONTAINER_DIR}/etc/resolv.conf >>/dev/null 2>&1
-echo nameserver 8.8.8.8 >>${CONTAINER_DIR}/etc/resolv.conf
-echo nameserver 114.114.114.114 >>${CONTAINER_DIR}/etc/resolv.conf
-# Fix network problem.
-cp $PREFIX/share/termux-container/group_add.sh ${CONTAINER_DIR}/tmp
-chmod 777 ${CONTAINER_DIR}/tmp/group_add.sh
-
-if [[ ${NEW_USER} != "" && ${PASSWORD} != "" ]]; then
-  sed -i "s/NEW_USER=\"\"/NEW_USER=${NEW_USER}/" ${CONTAINER_DIR}/tmp/group_add.sh
-  sed -i "s/PASSWORD=\"\"/PASSWORD=${PASSWORD}/" ${CONTAINER_DIR}/tmp/group_add.sh
-fi
-unset LD_PRELOAD
-COMMAND="proot --link2symlink --sysvipc -0 -r ${CONTAINER_DIR} -b /dev -b /sys -b /proc -w /root"
-if [[ ${CROSS_ARCH} != "null" ]]; then
-  COMMAND+=" -q qemu-${CROSS_ARCH}"
-fi
-${COMMAND} /tmp/group_add.sh

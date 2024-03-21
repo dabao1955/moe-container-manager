@@ -71,6 +71,7 @@ static struct CONTAINER *parse_args(int argc, char **argv, struct CONTAINER *con
 		show_helps();
 		exit(EXIT_FAILURE);
 	}
+	// Init configs.
 	bool dump_config = false;
 	char *output_path = NULL;
 	cap_value_t keep_caplist_extra[CAP_LAST_CAP + 1] = { INIT_VALUE };
@@ -87,10 +88,12 @@ static struct CONTAINER *parse_args(int argc, char **argv, struct CONTAINER *con
 	container->command[0] = NULL;
 	container->env[0] = NULL;
 	container->extra_mountpoint[0] = NULL;
+	container->extra_ro_mountpoint[0] = NULL;
 	container->cross_arch = NULL;
 	container->qemu_path = NULL;
 	container->ns_pid = INIT_VALUE;
 	container->use_rurienv = true;
+	container->ro_root = false;
 	// A very large and shit-code for() loop.
 	// At least it works fine...
 	for (int index = 1; index < argc; index++) {
@@ -164,7 +167,7 @@ static struct CONTAINER *parse_args(int argc, char **argv, struct CONTAINER *con
 			break;
 		}
 		// Dump config.
-		else if (strcmp(argv[index], "-D") == 0 || strcmp(argv[index], "--dump-config") == 0) {
+		if (strcmp(argv[index], "-D") == 0 || strcmp(argv[index], "--dump-config") == 0) {
 			dump_config = true;
 		}
 		// Output file.
@@ -223,6 +226,10 @@ static struct CONTAINER *parse_args(int argc, char **argv, struct CONTAINER *con
 		else if (strcmp(argv[index], "-S") == 0 || strcmp(argv[index], "--host-runtime") == 0) {
 			container->mount_host_runtime = true;
 		}
+		// Mount / as read-only.
+		else if (strcmp(argv[index], "-R") == 0 || strcmp(argv[index], "--read-only") == 0) {
+			container->ro_root = true;
+		}
 		// Set extra env.
 		else if (strcmp(argv[index], "-e") == 0 || strcmp(argv[index], "--env") == 0) {
 			index++;
@@ -265,6 +272,27 @@ static struct CONTAINER *parse_args(int argc, char **argv, struct CONTAINER *con
 				error("\033[31mError: unknown mountpoint QwQ\n");
 			}
 		}
+		// Set extra read-only mountpoints.
+		else if (strcmp(argv[index], "-M") == 0 || strcmp(argv[index], "--ro-mount") == 0) {
+			index++;
+			if ((argv[index] != NULL) && (argv[index + 1] != NULL)) {
+				for (int i = 0; i < MAX_MOUNTPOINTS; i++) {
+					if (container->extra_ro_mountpoint[i] == NULL) {
+						container->extra_ro_mountpoint[i] = realpath(argv[index], NULL);
+						index++;
+						container->extra_ro_mountpoint[i + 1] = strdup(argv[index]);
+						container->extra_ro_mountpoint[i + 2] = NULL;
+						break;
+					}
+					// Max 128 mountpoints.
+					if (i == (MAX_MOUNTPOINTS - 1)) {
+						error("\033[31mToo many mountpoints QwQ\n");
+					}
+				}
+			} else {
+				error("\033[31mError: unknown mountpoint QwQ\n");
+			}
+		}
 		// Extra capabilities to keep.
 		else if (strcmp(argv[index], "-k") == 0 || strcmp(argv[index], "--keep") == 0) {
 			index++;
@@ -295,6 +323,9 @@ static struct CONTAINER *parse_args(int argc, char **argv, struct CONTAINER *con
 		else if ((strchr(argv[index], '/') && strcmp(strchr(argv[index], '/'), argv[index]) == 0) || (strchr(argv[index], '.') && strcmp(strchr(argv[index], '.'), argv[index]) == 0)) {
 			// Get the absolute path of container.
 			container->container_dir = realpath(argv[index], NULL);
+			if (container->container_dir == NULL) {
+				error("\033[31mCONTAINER_DIR %s does not exist\033[0m\n", argv[index]);
+			}
 			index++;
 			// Arguments after container_dir will be read as init command.
 			if (argv[index]) {
@@ -380,11 +411,13 @@ int main(int argc, char **argv)
 	check_container(container);
 	// Run container.
 	// unset $LD_PRELOAD.
-	unsetenv("LD_PRELOAD");
-	pid_t pid = fork();
-	if (pid > 0) {
-		waitpid(pid, NULL, 0);
-		exit(EXIT_SUCCESS);
+	if (getenv("LD_PRELOAD") != NULL) {
+		unsetenv("LD_PRELOAD");
+		pid_t pid = fork();
+		if (pid > 0) {
+			waitpid(pid, NULL, 0);
+			exit(EXIT_SUCCESS);
+		}
 	}
 	if ((container->enable_unshare) && !(container->rootless)) {
 		run_unshare_container(container);

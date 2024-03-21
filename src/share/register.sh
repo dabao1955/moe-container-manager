@@ -13,3 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+read -p "Enter the path of container >" CONTAINER_DIR
+if [[ $1 == -r ]]; then
+  read -p "Choose the backend:\n[1] ruri [2] proot >" BACKEND
+  if [[ $BACKEND == "1" ]]; then
+    BACKEND="ruri"
+  else
+    BACKEND="proot"
+  fi
+else
+  BACKEND="proot"
+fi
+read -p "Name the container >" NAME
+
+#check
+
+if [[ $BACKEND == "ruri" ]]; then
+
+fi

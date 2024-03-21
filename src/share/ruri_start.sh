@@ -25,9 +25,6 @@ EXTRA_ARGS="[EXTRA_ARGS]"
 unset LD_PRELOAD
 # Set args.
 ARGS=${EXTRA_ARGS}
-if [[ ${MOUNT_SDCARD} == "true" ]]; then
-  ARGS+=" -m /sdcard /sdcard"
-fi
 if [[ ${ENABLE_UNSHARE} == "true" ]]; then
   ARGS+=" -u"
 fi

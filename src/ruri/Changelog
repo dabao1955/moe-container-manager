@@ -7,7 +7,10 @@
   * `-D` option now aliases to `--dump-config`.
   * Add `-o` option: `--output` for `-D`.
   * Add `-N` option: `--no-rurienv`.
+  * Add `-R` option: `--read-only`.
+  * Add `-M` option: `--ro-mount`.
   * Automatically unset $LD_PRELOAD before running container(Maybe will not work).
+  * Fix `-U` option might also umount other mountpoints on host.
   * General bug fixes.
 # v2.7:
   * Catch segfault.

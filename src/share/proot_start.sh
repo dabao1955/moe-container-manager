@@ -14,68 +14,105 @@
 # limitations under the License.
 #
 
-# These values will be automatically set.
-# If you don't know what you are doing,
-# do not edit them.
-CONTAINER_DIR=[CONTAINER_DIR]
-MOUNT_SDCARD=[MOUNT_SDCARD]
-CROSS_ARCH=[CROSS_ARCH]
-
-export PREFIX=/usr
+# You need to set the following variable(s)
+# before running this script:
+#
+# $CONTAINER_DIR
+# $EXTRA_ARGS
 
 # A simple proot script.
-unset LD_PRELOAD
-COMMAND="proot"
-COMMAND+=" --link2symlink"
-COMMAND+=" --kill-on-exit"
-COMMAND+=" --sysvipc"
-COMMAND+=" -0"
-COMMAND+=" -r ${CONTAINER_DIR}"
-COMMAND+=" -b /dev"
-COMMAND+=" -b /sys"
-COMMAND+=" -b /proc"
-COMMAND+=" -w /root"
-if [[ ${CROSS_ARCH} != "null" ]]; then
-  COMMAND+=" -q qemu-${CROSS_ARCH}"
-fi
-# Files extracted from Redmi 10X 5G, I hope it works.
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/buddyinfo:/proc/buddyinfo"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/cgroups:/proc/cgroups"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/consoles:/proc/consoles"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/crypto:/proc/crypto"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/devices:/proc/devices"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/diskstats:/proc/diskstats"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/execdomains:/proc/execdomains"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/fb:/proc/fb"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/filesystems:/proc/filesystems"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/interrupts:/proc/interrupts"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/iomem:/proc/iomem"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/ioports:/proc/ioports"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/kallsyms:/proc/kallsyms"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/key-users:/proc/key-users"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/keys:/proc/keys"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/kpageflags:/proc/kpageflags"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/loadavg:/proc/loadavg"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/locks:/proc/locks"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/misc:/proc/misc"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/modules:/proc/modules"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/pagetypeinfo:/proc/pagetypeinfo"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/partitions:/proc/partitions"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/sched_debug:/proc/sched_debug"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/softirqs:/proc/softirqs"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/stat:/proc/stat"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/timer_list:/proc/timer_list"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/uptime:/proc/uptime"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/version:/proc/version"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/vmallocinfo:/proc/vmallocinfo"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/vmstat:/proc/vmstat"
-COMMAND+=" --mount=$PREFIX/share/moe-container-manager/proc/zoneinfo:/proc/zoneinfo"
-# Mount termux's tmpdir.
-COMMAND+=" --mount=$PREFIX/tmp:/tmp"
-if [[ ! $1 ]]; then
-  COMMAND+=" /bin/su - root"
-else
-  COMMAND+=" $@"
-fi
-# Yes, this can exec the command.
-${COMMAND}
+function run_proot_container() {
+  unset LD_PRELOAD
+  COMMAND="proot"
+  COMMAND+=" --link2symlink"
+  COMMAND+=" --kill-on-exit"
+  COMMAND+=" --sysvipc"
+  COMMAND+=" -0"
+  COMMAND+=" -r ${CONTAINER_DIR}"
+  COMMAND+=" -b /dev"
+  COMMAND+=" -b /sys"
+  COMMAND+=" -b /proc"
+  COMMAND+=" -w /root"
+  # Files extracted from Redmi 10X 5G, I hope it works.
+  COMMAND+=" --mount=/usr/share/moe-container/proc/buddyinfo:/proc/buddyinfo"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/cgroups:/proc/cgroups"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/consoles:/proc/consoles"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/crypto:/proc/crypto"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/devices:/proc/devices"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/diskstats:/proc/diskstats"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/execdomains:/proc/execdomains"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/fb:/proc/fb"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/filesystems:/proc/filesystems"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/interrupts:/proc/interrupts"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/iomem:/proc/iomem"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/ioports:/proc/ioports"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/kallsyms:/proc/kallsyms"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/key-users:/proc/key-users"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/keys:/proc/keys"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/kpageflags:/proc/kpageflags"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/loadavg:/proc/loadavg"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/locks:/proc/locks"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/misc:/proc/misc"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/modules:/proc/modules"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/pagetypeinfo:/proc/pagetypeinfo"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/partitions:/proc/partitions"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/sched_debug:/proc/sched_debug"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/softirqs:/proc/softirqs"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/stat:/proc/stat"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/timer_list:/proc/timer_list"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/uptime:/proc/uptime"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/version:/proc/version"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/vmallocinfo:/proc/vmallocinfo"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/vmstat:/proc/vmstat"
+  COMMAND+=" --mount=/usr/share/moe-container/proc/zoneinfo:/proc/zoneinfo"
+  # Mount termux's tmpdir.
+  COMMAND+=" --mount=$PREFIX/tmp:/tmp"
+  # Mount container_dir.
+  COMMAND+=" --mount=${CONTAINER_DIR}:/"
+  # Extra args.
+  COMMAND+=" ${EXTRA_ARGS}"
+  if [[ ! $1 ]]; then
+    COMMAND+=" /bin/su - root"
+  else
+    COMMAND+=" $@"
+  fi
+  # Yes, this can exec the command.
+  ${COMMAND}
+}
+function main() {
+  while [[ $1 ]]; do
+    case $1 in
+    "--root-dir" | "-r")
+      shift
+      export CONTAINER_DIR="$1"
+      shift
+      continue
+      ;;
+    "--extra-args" | "-e")
+      shift
+      export EXTRA_ARGS="$1"
+      shift
+      continue
+      ;;
+    *)
+      if [[ ${CONTAINER_DIR} ]]; then
+        run_proot_container $@
+        exit 0
+      else
+        echo -e "\033[31mUnknow option $1, usage:"
+        echo -e "proot_start.sh <-r [container_dir]> [-e \"extra args\"] [COMMAND...ARGS...]\033[0m"
+        exit 1
+      fi
+      ;;
+    esac
+    shift
+  done
+
+  if [[ ${CONTAINER_DIR} ]]; then
+    run_proot_container
+  else
+    echo -e "\033[31mcontainer_dir is not set!\033[0m"
+  fi
+}
+# The `main` function.
+main $@

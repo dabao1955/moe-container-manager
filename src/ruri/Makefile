@@ -91,13 +91,13 @@ CHECKER = clang-tidy --use-color
 # Unused checks are disabled.
 CHECKER_FLAGS = --checks=*,-clang-analyzer-security.insecureAPI.strcpy,-altera-unroll-loops,-cert-err33-c,-concurrency-mt-unsafe,-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,-readability-function-cognitive-complexity,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers,-bugprone-easily-swappable-parameters,-cert-err34-c,-misc-include-cleaner,-readability-identifier-length,-bugprone-signal-handler,-cert-msc54-cpp,-cert-sig30-c,-altera-id-dependent-backward-branch
 # Link with libcap, libpthread and libseccomp.
-LD_FLAGS = -lcap -lpthread -lseccomp $(NX) $(RELRO)
-DEV_LD_FLAGS = -lcap -lpthread -lseccomp $(NO_RELRO) $(NO_NX)
+LD_FLAGS = -lcap -lpthread -lseccomp $(NX) $(RELRO) -Wl,--build-id=sha1
+DEV_LD_FLAGS = -lcap -lpthread -lseccomp $(NO_RELRO) $(NO_NX) -Wl,--build-id=sha1
 # Fix issues in termux (with bionic).
 BIONIC_FIX = -ffunction-sections -fdata-sections
 BIONIC_CFLAGS = $(OPTIMIZE_CFLAGS) $(BIONIC_FIX) -static
 # Bionic has built-in libpthread.
-BIONIC_LD_FLAGS = -lcap -lseccomp -Wl,--gc-sections $(NX) $(RELRO)
+BIONIC_LD_FLAGS = -lcap -lseccomp -Wl,--gc-sections $(NX) $(RELRO) -Wl,--build-id=sha1
 # Target.
 objects = caplist.o chroot.o info.o rurienv.o seccomp.o signal.o umount.o unshare.o rootless.o mount.o k2v.o elf-magic.o config.o main.o
 O = out
@@ -105,7 +105,7 @@ O = out
 all :CFLAGS=$(OPTIMIZE_CFLAGS)
 all :build_dir $(objects)
 	@cd $(O)
-	@$(CC) $(CFLAGS) -o $(BIN_TARGET) $(objects) $(LD_FLAGS)
+	@$(CC) $(CFLAGS) ../src/build-id.ld -o $(BIN_TARGET) $(objects) $(LD_FLAGS)
 	$(LD_LOG) $(BIN_TARGET)
 	@$(STRIP) $(BIN_TARGET)
 	$(STRIP_LOG) $(BIN_TARGET)
@@ -115,14 +115,14 @@ dev :CFLAGS=$(DEV_CFLAGS)
 dev :build_dir $(objects)
 	@cd $(O)
 	$(LD_LOG) $(BIN_TARGET)
-	@$(CC) $(CFLAGS) -o $(BIN_TARGET) $(objects) $(DEV_LD_FLAGS)
+	@$(CC) $(CFLAGS) ../src/build-id.ld -o $(BIN_TARGET) $(objects) $(DEV_LD_FLAGS)
 	@cp -f $(BIN_TARGET) ../
 	@cd ..&&rm -rf $(O)
 static :CFLAGS=$(STATIC_CFLAGS)
 static :build_dir $(objects)
 	@cd $(O)
 	$(LD_LOG) $(BIN_TARGET)
-	@$(CC) $(CFLAGS) -o $(BIN_TARGET) $(objects) $(LD_FLAGS)
+	@$(CC) $(CFLAGS) ../src/build-id.ld -o $(BIN_TARGET) $(objects) $(LD_FLAGS)
 	$(STRIP_LOG) $(BIN_TARGET)
 	@$(STRIP) $(BIN_TARGET)
 	@cp -f $(BIN_TARGET) ../
@@ -131,7 +131,7 @@ static-bionic :CFLAGS=$(BIONIC_CFLAGS)
 static-bionic :build_dir $(objects)
 	@cd $(O)
 	$(LD_LOG) $(BIN_TARGET)
-	@$(CC) $(CFLAGS) -o $(BIN_TARGET) $(objects) $(BIONIC_LD_FLAGS)
+	@$(CC) $(CFLAGS) ../src/build-id.ld -o $(BIN_TARGET) $(objects) $(BIONIC_LD_FLAGS)
 	$(STRIP_LOG) $(BIN_TARGET)
 	@$(STRIP) $(BIN_TARGET)
 	@cp -f $(BIN_TARGET) ../
@@ -176,4 +176,4 @@ help :
 	@echo "  make format         format code"
 	@echo "*Premature optimization is the root of all evil."
 	@echo "Dependent libraries:"
-	@printf " - libpthread\n - libcap (for non-bionic system)\n - libseccomp\n\033[0m"
+	@printf " - libpthread (for non-bionic system)\n - libcap\n - libseccomp\n\033[0m"

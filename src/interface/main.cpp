@@ -13,6 +13,21 @@ inline void usage(int exit_value = 0){
     return;
 }
 
+inline void readc(int exit_value = 0){
+    ifstream fin;
+    fin.open("/usr/share/moe-container/container-list.txt",ios::in);
+    if(!fin.is_open())
+    {
+        std::cerr<<"cannot open the file";
+    }
+
+    char buf[1024]={0};
+    while (fin >> buf)
+    {
+        cout << buf << endl;
+    }
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2)  {
         cout << "Error: No inputs, use <interface -h> to learn how to use.\n";
@@ -36,10 +51,11 @@ int main(int argc, char *argv[]) {
                         return 0;
                     case 'c':
                         cout << "create a new container\n";
-                        system("/usr/share/moe-container/create.sh");
+                        system("/usr/share/moe-container/register.sh");
                         return 0;
                     case 'l':
                         cout << "Installed container list:\n";
+                        readc();
                         return 0;
                     default:
                         cerr<<proj::prog_name<<":error:unrecognition option -:"<<pchar<<endl;

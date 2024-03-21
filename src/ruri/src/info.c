@@ -77,6 +77,19 @@ void AwA(void)
 	printf("%s\n", "");
 }
 // For `ruri -v`.
+extern char build_id_start;
+extern char build_id_end;
+// See https://stackoverflow.com/questions/55641889/access-build-id-at-runtime
+static char *get_build_id(void)
+{
+	static char ret[128] = { '\0' };
+	char buf[4] = { '\0' };
+	for (char *s = &build_id_start + 16; s < &build_id_end; s++) {
+		sprintf(buf, "%x", *s);
+		strcat(ret, buf);
+	}
+	return ret;
+}
 void show_version_info(void)
 {
 	/*
@@ -100,6 +113,7 @@ void show_version_info(void)
 	printf("%s%d%s%d%s", "libk2v ...........:  ", LIBK2V_MAJOR, ".", LIBK2V_MINOR, "\n");
 	printf("%s%s\n", "Compiler version .:  ", __VERSION__);
 	printf("%s%s\n", "Build date .......:  ", __TIMESTAMP__);
+	printf("%s%s\n", "Build ID .........:  ", get_build_id());
 	printf("\nThere is NO WARRANTY, to the extent permitted by law\n");
 	printf("\033[0m\n");
 }
@@ -128,30 +142,35 @@ void show_helps(void)
 	printf("  ruri [ARGS]... [CONTAINER_DIRECTORY]... [COMMAND [ARGS]...]\n");
 	printf("\n");
 	printf("OPTIONS:\n");
-	printf("  -v, --version                   Show version info\n");
-	printf("  -V, --version-code              Show version code\n");
-	printf("  -h, --help                      Show helps\n");
-	printf("  -H, --show-examples             Show helps and commandline examples\n");
-	printf("  -U, --umount [container_dir]    Umount a container\n");
+	printf("  -v, --version ...................:  Show version info\n");
+	printf("  -V, --version-code ..............: Show version code\n");
+	printf("  -h, --help ......................: Show helps\n");
+	printf("  -H, --show-examples .............: Show helps and commandline examples\n");
+	printf("  -U, --umount [container_dir] ....: Umount a container\n");
 	printf("\n");
 	printf("ARGS:\n");
-	printf("  -D, --dump-config               Dump the config.\n");
-	printf("  -o, --output [config file]      Set output file of `-D` option\n");
-	printf("  -c, --config [config file]      Use config file\n");
-	printf("  -a, --arch [arch]               Simulate architecture via binfmt_misc & QEMU, need `-q`\n");
-	printf("  -q, --qemu-path [path]          Specify the path of QEMU\n");
-	printf("  -u, --unshare                   Enable unshare feature\n");
-	printf("  -n, --no-new-privs              Set NO_NEW_PRIVS Flag\n");
-	printf("  -N, --no-rurienv                Do not use .rurienv file\n");
-	printf("  -s, --enable-seccomp            Enable built-in Seccomp profile\n");
-	printf("  -p, --privileged                Run privileged container\n");
-	printf("  -r, --rootless                  Run rootless container\n");
-	printf("  -k, --keep [cap]                Keep the specified cap\n");
-	printf("  -d, --drop [cap]                Drop the specified cap\n");
-	printf("  -e, --env [env] [value]         Set env to its value *Not work if init command is like `su -`\n");
-	printf("  -m, --mount [dir/dev/img] [dir] Mount dir/block-device/image to mountpoint\n");
-	printf("  -S, --host-runtime              Bind-mount /dev/, /sys/ and /proc/ from host\n");
-	printf("  -w, --no-warnings               Disable warnings\n");
+	printf("  -D, --dump-config ...............: Dump the config.\n");
+	printf("  -o, --output [config file] ......: Set output file of `-D` option\n");
+	printf("  -c, --config [config file] ......: Use config file\n");
+	printf("  -a, --arch [arch] ...............: Simulate architecture via binfmt_misc (*)\n");
+	printf("  -q, --qemu-path [path] ..........: Specify the path of QEMU\n");
+	printf("  -u, --unshare ...................: Enable unshare feature\n");
+	printf("  -n, --no-new-privs ..............: Set NO_NEW_PRIVS Flag\n");
+	printf("  -N, --no-rurienv ................: Do not use .rurienv file\n");
+	printf("  -s, --enable-seccomp ............: Enable built-in Seccomp profile\n");
+	printf("  -p, --privileged ................: Run privileged container\n");
+	printf("  -r, --rootless ..................: Run rootless container\n");
+	printf("  -k, --keep [cap] ................: Keep the specified cap\n");
+	printf("  -d, --drop [cap] ................: Drop the specified cap\n");
+	printf("  -e, --env [env] [value] .........: Set environment variables to its value (**)\n");
+	printf("  -m, --mount [dir/dev/img] [dir] .: Mount dir/block-device/image to mountpoint\n");
+	printf("  -M, --ro-mount [dir/dev/img] [dir] Mount dir/block-device/image as read-only\n");
+	printf("  -S, --host-runtime ..............: Bind-mount /dev/, /sys/ and /proc/ from host\n");
+	printf("  -R, --read-only .................: Mount / as read-only\n");
+	printf("  -w, --no-warnings ...............: Disable warnings\n");
+	printf("\n");
+	printf("(*) :  `-a` option also need `-q` is set\n");
+	printf("(**): Will not work if [COMMAND [ARGS]...] is like `/bin/su -`\n");
 	printf("\n");
 }
 // For `ruri -H`.
@@ -176,16 +195,14 @@ void show_examples(void)
 	printf("  \033[32msudo ruri \033[34m-p \033[35m/tmp/alpine\n");
 	printf("\033[1;38;2;254;228;208m# If you want to run privileged chroot container,\n");
 	printf("# but you don't want to give the container cap_sys_chroot privileges:\n");
-	printf("  \033[32msudo ruri \033[34m-p --drop \033[36mcap_sys_chroot \033[35m/tmp/alpine\n");
+	printf("  \033[32msudo ruri \033[34m-p -d \033[36mcap_sys_chroot \033[35m/tmp/alpine\n");
 	printf("\033[1;38;2;254;228;208m# If you want to run chroot container with common privileges,\n");
 	printf("# but you want cap_sys_admin to be kept:\n");
-	printf("  \033[32msudo ruri \033[34m--keep \033[36mcap_sys_admin \033[35m/tmp/alpine\n");
+	printf("  \033[32msudo ruri \033[34m-k \033[36mcap_sys_admin \033[35m/tmp/alpine\n");
 	printf("\033[1;38;2;254;228;208m# About unshare:\n");
 	printf("# Unshare container's capability options are same with chroot.\n");
 	printf("\033[1;38;2;254;228;208m# Run unshare container:\n");
 	printf("  \033[32msudo ruri \033[34m-u \033[35m/tmp/alpine\n");
-	printf("\033[1;38;2;254;228;208m# List running containers:\n");
-	printf("  \033[32msudo ruri \033[34m-l\n");
 	printf("\033[1;38;2;254;228;208m# Umount the container:\n");
 	printf("  \033[32msudo ruri \033[34m-U \033[35m/tmp/alpine\n");
 	printf("\n");
