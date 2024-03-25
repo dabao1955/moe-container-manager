@@ -76,8 +76,7 @@ static void init_container(void)
 		mkdir("/proc", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 		mkdir("/dev", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 		mount("proc", "/proc", "proc", MS_NOSUID | MS_NOEXEC | MS_NODEV, NULL);
-		// For /sys,we make it read-only.
-		mount("sysfs", "/sys", "sysfs", MS_NOSUID | MS_NOEXEC | MS_NODEV | MS_RDONLY, NULL);
+		mount("sysfs", "/sys", "sysfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, NULL);
 		mount("tmpfs", "/dev", "tmpfs", MS_NOSUID, "size=65536k,mode=755");
 		// Continue mounting some other directories in /dev.
 		mkdir("/dev/pts", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
@@ -182,9 +181,11 @@ static void drop_caps(const struct CONTAINER *container)
 		if (container->drop_caplist[i] == INIT_VALUE) {
 			break;
 		}
-		if (cap_drop_bound(container->drop_caplist[i]) != 0 && !container->no_warnings) {
-			warning("\033[33mWarning: Failed to drop cap `%s`\n", cap_to_name(container->drop_caplist[i]));
-			warning("\033[33merror reason: %s\033[0m\n", strerror(errno));
+		if (CAP_IS_SUPPORTED(container->drop_caplist[i])) {
+			if (cap_drop_bound(container->drop_caplist[i]) != 0 && !container->no_warnings) {
+				warning("\033[33mWarning: Failed to drop cap `%s`\n", cap_to_name(container->drop_caplist[i]));
+				warning("\033[33merror reason: %s\033[0m\n", strerror(errno));
+			}
 		}
 	}
 }
@@ -269,6 +270,10 @@ void run_chroot_container(struct CONTAINER *container)
 		if (!container->enable_unshare && container->use_rurienv) {
 			store_info(container);
 		}
+		// If `-R` option is set, make / read-only.
+		if (container->ro_root) {
+			mount(container->container_dir, container->container_dir, NULL, MS_BIND | MS_REMOUNT | MS_RDONLY, NULL);
+		}
 		// If `-S` option is set, bind-mount /dev/, /sys/ and /proc/ from host.
 		if (container->mount_host_runtime) {
 			mount_host_runtime(container);
@@ -296,7 +301,6 @@ void run_chroot_container(struct CONTAINER *container)
 	chdir(container->container_dir);
 	chroot(".");
 	chdir("/");
-	chroot("/");
 	// Mount/create system runtime dir/files.
 	init_container();
 	// Fix /etc/mtab.
