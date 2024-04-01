@@ -88,7 +88,7 @@ test:
 .PHONY: clean
 clean:
 	@printf "\033[1;38;2;254;228;208m[+] Clean.\033[0m\n"&&sleep 1s
-	@rm -rfv $(O)
+	@rm -rf $(O)
 	@printf "\033[1;38;2;254;228;208m    .^.   .^.\n"
 	@printf "    /⋀\\_ﾉ_/⋀\\ \n"
 	@printf "   /ﾉｿﾉ\\ﾉｿ丶)|\n"
@@ -108,5 +108,4 @@ shell-format:
 
 .PHONY: distclean
 distclean:
-	@rm -rf $(O)
-	@$(SRCODE) clean
+	@perl tools/clean.pl

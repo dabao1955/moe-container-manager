@@ -55,7 +55,7 @@ CANARY = -fstack-protector-all
 # Stack Clash Protection.
 CLASH_PROTECT = -fstack-clash-protection
 # Shadow Stack.
-SHADOW_STACK = -mshstk
+# SHADOW_STACK = -mshstk
 # Fortified Source.
 FORTIFY = -D_FORTIFY_SOURCE=3 -Wno-unused-result
 # Other "one-key" optimization.
