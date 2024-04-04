@@ -3,6 +3,10 @@
 #include <ctime>
 #include <string>
 #include <fstream>
+#include <string>
+
+#ifndef MAIN_HPP
+#define MAIN_HPP
 
 namespace proj {
     #ifndef __linux__
@@ -14,3 +18,5 @@ namespace proj {
     const char* const prog_name = "interface";
     const char* const prog_version = "v0.0.1rc2";
 }
+
+#endif

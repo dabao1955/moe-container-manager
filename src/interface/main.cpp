@@ -1,4 +1,5 @@
 #include "main.hpp"
+
 using namespace std;
 
 inline void usage(int exit_value = 0){
@@ -33,7 +34,8 @@ inline void readc(int exit_value = 0){
 
 int main(int argc, char *argv[]) {
     if (argc < 2)  {
-        cout << "Error: No inputs, use <interface -h> to learn how to use.\n";
+        cout << "Error: No inputs."
+        << "Please use 'interface -h' to learn how to use.\n";
         return -1;
     } else if (argc > 4){
         cout << "Error: Too many inputs.\n";
