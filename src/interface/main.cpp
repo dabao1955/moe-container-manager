@@ -18,10 +18,11 @@ inline void readc(int exit_value = 0){
     fin.open("/usr/share/moe-container/container-list.txt",ios::in);
     if(!fin.is_open())
     {
-        std::cerr<<"cannot open the file";
+        std::cerr<<"cannot open the file\n";
         return;
     }
 
+    cout << "Installed container list:\n";
     char buf[1024]={0};
     while (fin >> buf)
     {
@@ -57,7 +58,6 @@ int main(int argc, char *argv[]) {
                         system("/usr/share/moe-container/register.sh");
                         return 0;
                     case 'l':
-                        cout << "Installed container list:\n";
                         readc();
                         return 0;
                     default:
