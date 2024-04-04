@@ -2,14 +2,14 @@
 using namespace std;
 
 inline void usage(int exit_value = 0){
-    cout << "Usage: interface [OPTION]... [FILE]...\n";
-    cout << "List information about the FILEs (the current directory by default).\n\n";
-    cout << "-c               create new container.\n";
-    cout << "-h               show the program usage.\n";
-    cout << "-l               list the installed container.\n";
-    cout << "-r               remove installed container.\n";
-    cout << "-v               show the program version.\n\n";
-    cout << "N: this is a unstable app.\n";
+    cout << "Usage: interface [OPTION]... [FILE]...\n"
+         << "List information about the FILEs (the current directory by default).\n\n"
+         << "-c               create new container.\n"
+         << "-h               show the program usage.\n"
+         << "-l               list the installed container.\n"
+         << "-r               remove installed container.\n"
+         << "-v               show the program version.\n\n"
+         << "N: this is a unstable app.\n";
     return;
 }
 
@@ -19,6 +19,7 @@ inline void readc(int exit_value = 0){
     if(!fin.is_open())
     {
         std::cerr<<"cannot open the file";
+        return;
     }
 
     char buf[1024]={0};
@@ -26,6 +27,7 @@ inline void readc(int exit_value = 0){
     {
         cout << buf << endl;
     }
+    fin.close(); // Add this line to close the file.
 }
 
 int main(int argc, char *argv[]) {
@@ -36,15 +38,16 @@ int main(int argc, char *argv[]) {
         cout << "Error: Too many inputs.\n";
         return -2;
     }
-        for(int i = 1;i < argc; ++i){
+
+    for(int i = 1;i < argc; ++i){
         char *pchar = argv[i];
         switch(pchar[0]){
             case '-':{
                 switch(pchar[1]){
                     case 'v':
-                        cout <<proj::prog_name<<" version "<<proj::prog_version<<endl;
-                        cout << "Copyright (C) 2024 dabao1955\n";
-                        cout << "License: Apache-2.0\n";
+                        cout <<proj::prog_name<<" version "<<proj::prog_version<<endl
+                             << "Copyright (C) 2024 dabao1955\n"
+                             << "License: Apache-2.0\n";
                         return 0;
                     case 'h':
                         usage();
@@ -67,4 +70,3 @@ int main(int argc, char *argv[]) {
         }
     }
 }
-
