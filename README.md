@@ -35,7 +35,7 @@ moe-container-manager is a port of Linux cli environment that cannot run docker 
 
 ### for Debian/Ubuntu
 ```
-sudo apt install golang libcap-dev build-essential clang libseccomp-dev lld -y
+sudo apt install golang libcap-dev build-essential clang libseccomp-dev lld cmake -y
 cd moe-container-manager
 make
 make install
@@ -43,14 +43,14 @@ make install
 
 ### for Arch Linux
 ```
-sudo pacman -Syy p7zip golang unzip zip git wget curl nano proot axel pv gawk gettext git clang make libcap libseccomp go
+sudo pacman -Syy p7zip golang unzip zip git wget curl nano proot axel pv gawk gettext git clang make libcap libseccomp go cmake
 cd moe-container-manager
 make
 make install
 ```
 
 ### for Other Linux
-install libcap,clang,golang,libseccomp and make。
+install libcap,clang,golang,libseccomp,cmake and make。
 ```
 cd moe-container-manager
 make
@@ -58,7 +58,7 @@ make install
 ```
 ### build deb package
 ```
-sudo apt install libcap-dev golang build-essential clang libseccomp-dev -y
+sudo apt install libcap-dev golang build-essential clang libseccomp-dev cmake perl -y
 cd moe-container-manager
 dpkg-buildpackage -b -us -uc
 ```
