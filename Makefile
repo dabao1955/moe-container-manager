@@ -108,4 +108,4 @@ shell-format:
 
 .PHONY: distclean
 distclean:
-	@perl tools/clean.pl
+	perl tools/clean.pl

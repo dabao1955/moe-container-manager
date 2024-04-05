@@ -2,7 +2,7 @@
 
 using namespace std;
 
-inline void usage(int exit_value = 127){
+inline void usage(int exit_value = 0){
     cout << "Usage: interface [OPTION]... [FILE]...\n"
          << "List information about the FILEs (the current directory by default).\n\n"
          << "-c               create new container.\n"
@@ -14,13 +14,13 @@ inline void usage(int exit_value = 127){
     return;
 }
 
-inline void readc(int exit_value = 0){
+inline void readc(int exit_value = 1){
     ifstream fin;
     fin.open("/usr/share/moe-container/container-list.txt",ios::in);
     if(!fin.is_open())
     {
         std::cerr<<"cannot open the file\n";
-        return;
+        std::exit(exit_value);
     }
 
     cout << "Installed container list:\n";
@@ -34,7 +34,7 @@ inline void readc(int exit_value = 0){
 
 int main(int argc, char *argv[]) {
     if (argc < 2)  {
-        cout << "Error: No inputs."
+        cout << "Error: No inputs.\n"
         << "Please use 'interface -h' to learn how to use.\n";
         return -1;
     } else if (argc > 4){

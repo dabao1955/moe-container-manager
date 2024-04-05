@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <string>
+#include <linux/version.h>
 
 #ifndef MAIN_HPP
 #define MAIN_HPP
@@ -24,8 +25,6 @@ namespace proj {
 
     void get_input(char *buf, int len);
 }
-
-#define KERNEL_VERSION
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)
 #warning "This program has only used to linux version 4.14.0 or later."

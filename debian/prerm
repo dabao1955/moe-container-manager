@@ -16,3 +16,5 @@ if ps -ef | grep chroot; then
 else
   echo no chroot container running！
 fi
+
+test -f /usr/bin/moe-container-manager && rm /usr/bin/moe-container-manager
