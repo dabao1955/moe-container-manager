@@ -17,6 +17,22 @@ namespace proj {
 
     const char* const prog_name = "interface";
     const char* const prog_version = "v0.0.1rc2";
+    enum
+    {
+      BUF_SIZE = (1024 * 1024)
+    };
+
+    void get_input(char *buf, int len);
 }
+
+#define KERNEL_VERSION
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)
+#warning "This program has only used to linux version 4.14.0 or later."
+#endif
+
+#define MAX_COMMANDS (1024)
+#define MAX_ENVS (128 * 2)
+#define MAX_MOUNTPOINTS (128 * 2)
 
 #endif

@@ -73,12 +73,12 @@ function create_proot_container() {
   pv ${ROOTFS} | tar -xJf - -C ${CONTAINER_DIR}
   unset LD_PRELOAD
   cp /usr/share/moe-container-manager/fixup.sh ${CONTAINER_DIR}/tmp/
-  cp /usr/share/moe-container-manager/fixup.sh /data/data/com.termux/files/usr/tmp/
+  cp /usr/share/moe-container-manager/fixup.sh /tmp/
   /usr/share/moe-container-manager/proot_start.sh -r ${CONTAINER_DIR} /tmp/fixup.sh
   printf "backend=\"proot\"\ncontainer_dir=\"${CONTAINER_DIR}\"\n" >/usr/share/moe-container-manager/containers/${NAME}.conf
 }
 function main() {
-  mkdir -p /usr/share/moe-container-manager/containers/
+  test -d /usr/share/moe-container-manager/containers/ || mkdir -p /usr/share/moe-container-manager/containers/
   if [[ $1 == "-r" ]]; then
     backend=$(yoshinon --menu --cursorcolor "114;5;14" --title "MAMAGER-$VERSION" "choose the backend" 12 25 4 "[1]" "ruri" "[2]" "proot")
     if [[ $backend == "[1]" ]]; then

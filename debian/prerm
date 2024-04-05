@@ -8,7 +8,7 @@ if ps -ef | grep proot; then
 fi
 
 if ps -ef | grep chroot; then
-  if bash src/share/ruri_stop.sh && src/share/ruri_remove.sh; then
+  if bash /usr/share/moe-container-manager/ruri_stop.sh && /usr/share/moe-container-manager/ruri_remove.sh; then
     echo ruri stop successfully.
   else
     echo please kill all chroot containers to continue. && exit 127
@@ -16,8 +16,3 @@ if ps -ef | grep chroot; then
 else
   echo no chroot container running！
 fi
-
-test -d /usr/etc/ && rm -rf -v /usr/etc
-test -d /usr/tmp && rm -rf -v /usr/tmp
-test -d /usr/var && rm -rf -v /usr/var
-test -d /usr/home && rm -rf -v /usr/home

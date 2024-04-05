@@ -2,7 +2,7 @@
 
 using namespace std;
 
-inline void usage(int exit_value = 0){
+inline void usage(int exit_value = 127){
     cout << "Usage: interface [OPTION]... [FILE]...\n"
          << "List information about the FILEs (the current directory by default).\n\n"
          << "-c               create new container.\n"
