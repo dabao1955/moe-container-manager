@@ -1,9 +1,4 @@
-#include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <string>
-#include <fstream>
-#include <string>
+#include "include.hpp"
 #include <linux/version.h>
 
 #ifndef MAIN_HPP

@@ -1,7 +1,10 @@
 #include "main.hpp"
 
+// New feature from c++17,from List directory name
+namespace fs = std::filesystem;
 using namespace std;
 
+// A simple usage
 inline void usage(int exit_value = 0){
     cout << "Usage: interface [OPTION]... [FILE]...\n"
          << "List information about the FILEs (the current directory by default).\n\n"
@@ -15,6 +18,28 @@ inline void usage(int exit_value = 0){
 }
 
 inline void readc(int exit_value = 1){
+    // If file not found, create it
+    ofstream nif("/usr/share/moe-container/container-list.txt");
+    nif.open("/usr/share/moe-container/container-list.txt", ios::app);
+    if (!nif) // If file can not create,exit 1
+    {
+        cout << "can not create file." << endl;
+        std::exit(exit_value);
+    }
+    else
+    {
+        // Set search directory
+        std::string path = "</usr/share/moe-cintainer-manager/containers/>";
+
+        // List of directory and write directoey name to txt
+        for (const auto & entry : fs::directory_iterator(path)) {
+            nif << entry.path().filename() << '\n';
+        }
+        nif.close();
+        return;
+    }
+
+    // Read and cat txt to output the screen
     ifstream fin;
     fin.open("/usr/share/moe-container/container-list.txt",ios::in);
     if(!fin.is_open())
@@ -33,6 +58,7 @@ inline void readc(int exit_value = 1){
 }
 
 int main(int argc, char *argv[]) {
+    svlog::basic_logfile();
     if (argc < 2)  {
         cout << "Error: No inputs.\n"
         << "Please use 'interface -h' to learn how to use.\n";
@@ -42,6 +68,7 @@ int main(int argc, char *argv[]) {
         return -2;
     }
 
+   // Main options
     for(int i = 1;i < argc; ++i){
         char *pchar = argv[i];
         switch(pchar[0]){
@@ -63,6 +90,7 @@ int main(int argc, char *argv[]) {
                         readc();
                         return 0;
                     default:
+                        // proj::prog_name is in main.hpp.
                         cerr<<proj::prog_name<<":error:unrecognition option -:"<<pchar<<endl;
                         usage();
                         return -1;

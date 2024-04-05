@@ -26,8 +26,11 @@ add_executable(k2sh ${K2SH_SRC})
 set_target_properties(k2sh PROPERTIES LINK_FLAGS "-Wl,--gc-sections -z noexecstack -z now -static")
 target_link_libraries(k2sh k2v_static)
 
-add_custom_target(test_k2v ALL)
-add_dependencies(test_k2v k2sh)
+enable_testing()
+add_test(
+  NAME k2v_test
+  COMMAND clang -ggdb -O0 -fno-omit-frame-pointer -z norelro -z execstack -fno-stack-protector -Wall -Wextra -pedantic -Wconversion -Wno-newline-eof -Wl,--gc-sections -L. -lk2v -o testk2v test/test.c && cd test && ./test
+)
 
 install (TARGETS k2sh DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../out)
 install (TARGETS k2v_shared DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../../out/lib/moe-container-manager)
