@@ -26,6 +26,12 @@ add_executable(k2sh ${K2SH_SRC})
 set_target_properties(k2sh PROPERTIES LINK_FLAGS "-Wl,--gc-sections -z noexecstack -z now -static")
 target_link_libraries(k2sh k2v_static)
 
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif(CCACHE_FOUND)
+
 enable_testing()
 add_test(
   NAME k2v_test
