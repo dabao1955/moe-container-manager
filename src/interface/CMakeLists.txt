@@ -10,7 +10,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options("-Wno-unused-result")
 add_compile_options("-O2")
 add_compile_options("-std=c++17")
-add_compile_options("-fPIE -flto")
 add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang -fstack-protector-all")
 
 
@@ -31,5 +30,5 @@ if(CCACHE_FOUND)
 endif(CCACHE_FOUND)
 
 # add cxx flags
-set(CMAKE_EXE_LINKER_FLAGS "-ffunction-sections -fdata-sections -z now -z noexecstack -fPIE -Wall -Wextra -pedantic -fuse-ld=lld")
+set(CMAKE_EXE_LINKER_FLAGS "-ffunction-sections -fdata-sections -z now -z noexecstack -fPIE -Wall -Wextra -pedantic -fuse-ld=lld -flto")
 install (TARGETS interface DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../out)
