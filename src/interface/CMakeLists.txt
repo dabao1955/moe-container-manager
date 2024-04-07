@@ -10,6 +10,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options("-Wno-unused-result")
 add_compile_options("-O2")
 add_compile_options("-std=c++17")
+add_compile_options("-fPIE -flto")
+add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang -fstack-protector-all")
+
 
 # add the executable
 add_executable(interface main.cpp log.cpp)
