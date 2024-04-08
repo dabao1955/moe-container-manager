@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 # set the project name
 project(moe-container-manager-interface)
-set(CMAKE_C_COMPILER "clang")
+set(CMAKE_CXX_COMPILER "clang++")
 
 # add cxx standard
 set(CMAKE_CXX_STANDARD 17)

@@ -19,9 +19,6 @@ jobs:
           apt update
           apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config git libseccomp-dev golang lld cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev
 
-      - name: ccache
-        uses: hendrikmuhs/ccache-action@v1.2
-
       - name: Build deb
         run: |
           dpkg-buildpackage -b -us -uc && cp ../moe-container-manager_* ./out -rv && chmod 755 -R out/*
