@@ -35,7 +35,8 @@ endif(CCACHE_FOUND)
 enable_testing()
 add_test(
   NAME k2v_test
-  COMMAND clang -ggdb -O0 -fno-omit-frame-pointer -z norelro -z execstack -fno-stack-protector -Wall -Wextra -pedantic -Wconversion -Wno-newline-eof -Wl,--gc-sections -L. -lk2v -o testk2v test/test.c && cd test && ./test
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  COMMAND perl test/test.pl
 )
 
 install (TARGETS k2sh DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../out)

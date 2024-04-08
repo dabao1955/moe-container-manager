@@ -127,7 +127,7 @@ static void init_container(void)
 		symlink("/proc/self/fd/1", "/dev/stdout");
 		symlink("/proc/self/fd/2", "/dev/stderr");
 		symlink("/dev/null", "/dev/tty0");
-		// Mask some directories/files.
+		// Mask some directories/files that we don't want the container modify it.
 		mount("tmpfs", "/proc/asound", "tmpfs", MS_RDONLY, NULL);
 		mount("tmpfs", "/proc/acpi", "tmpfs", MS_RDONLY, NULL);
 		mount("/dev/null", "/proc/kcore", "", MS_BIND, NULL);
@@ -149,6 +149,10 @@ static void init_container(void)
 // Run before chroot(2), so that init_container() will not take effect.
 static void mount_host_runtime(const struct CONTAINER *container)
 {
+	/*
+	 * It's unsafe to mount /dev, /proc and /sys from the host.
+	 * But in some cases, we have to do this.
+	 */
 	char buf[PATH_MAX] = { '\0' };
 	// Mount /dev.
 	memset(buf, '\0', sizeof(buf));
@@ -187,12 +191,24 @@ static void drop_caps(const struct CONTAINER *container)
 			break;
 		}
 		if (CAP_IS_SUPPORTED(container->drop_caplist[i])) {
+			// Drop CapBnd.
 			if (cap_drop_bound(container->drop_caplist[i]) != 0 && !container->no_warnings) {
 				warning("\033[33mWarning: Failed to drop cap `%s`\n", cap_to_name(container->drop_caplist[i]));
 				warning("\033[33merror reason: %s\033[0m\n", strerror(errno));
 			}
+			// Drop CapAmb.
+			prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_LOWER, container->drop_caplist[i], 0, 0);
 		}
 	}
+	// Clear CapInh.
+	// hrdp and datap are two pointers, so we malloc() to apply the memory for it first.
+	cap_user_header_t hrdp = (cap_user_header_t)malloc(sizeof *hrdp);
+	cap_user_data_t datap = (cap_user_data_t)malloc(sizeof *datap);
+	syscall(SYS_capget, hrdp, datap);
+	datap->inheritable = 0;
+	syscall(SYS_capset, hrdp, datap);
+	free(hrdp);
+	free(datap);
 }
 // Set envs.
 static void set_envs(const struct CONTAINER *container)
@@ -212,6 +228,10 @@ static void set_envs(const struct CONTAINER *container)
 // Run after init_container().
 static void setup_binfmt_misc(const struct CONTAINER *container)
 {
+	/*
+	 * For running multi-arch container.
+	 * It need the device support binfmt_misc.
+	 */
 	// Get elf magic header.
 	struct MAGIC *magic = get_magic(container->cross_arch);
 	// Umount container if we get an error.
@@ -268,7 +288,7 @@ void run_chroot_container(struct CONTAINER *container)
 {
 	/*
 	 * It's called by main() and run_unshare_container().
-	 * It will chroot(2) to container_dir, call to init_container(), drop capabilities and exec(3) init command in container.
+	 * It will chroot(2) to container_dir, and exec(3) init command in container.
 	 */
 	// Ignore SIGTTIN, if we are running in the background, SIGTTIN may kill this process.
 	sigset_t sigs;

@@ -37,14 +37,17 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <time.h>
 #include <linux/limits.h>
 #include <linux/sched.h>
 #include <linux/securebits.h>
 #include <linux/stat.h>
 #include <linux/version.h>
 #include <linux/loop.h>
+#include <linux/fs.h>
 #include <sys/ioctl.h>
 #include <sys/mount.h>
+#include <sys/syscall.h>
 #include <sys/prctl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -113,7 +116,7 @@ struct __attribute__((aligned(128))) CONTAINER {
 	bool mount_host_runtime;
 	// Container pid for setns(2).
 	pid_t ns_pid;
-	// Arch of cross-architecture container.
+	// Arch of multi-architecture container.
 	char *cross_arch;
 	// Path of QEMU binary.
 	char *qemu_path;
@@ -125,6 +128,8 @@ struct __attribute__((aligned(128))) CONTAINER {
 	char *cpuset;
 	// Memory.
 	char *memory;
+	// A number based on the time when creating container.
+	int container_id;
 };
 // For get_magic().
 #define magicof(x) (x##_magic)
@@ -145,6 +150,7 @@ struct __attribute__((aligned(16))) MAGIC {
 		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", " ﾙﾘﾘ >  x )ﾘ");                                       \
 		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", "ﾉノ㇏  ^ ﾉ|ﾉ");                                       \
 		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", "      ⠁⠁");                                           \
+		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", "RURI ERROR MESSAGE");                                 \
 		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", "If you think something is wrong, please report at:"); \
 		fprintf(stderr, "\033[4;1;38;2;254;228;208m%s\033[0m\n", "https://github.com/Moe-hacker/ruri/issues");        \
 		exit(EXIT_FAILURE);                                                                                           \

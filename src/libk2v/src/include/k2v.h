@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 // Bool!!!
 #if __STDC_VERSION__ < 202000L
 #ifndef bool
@@ -64,3 +65,4 @@ char *float_to_k2v(const char *key, float val);
 char *char_array_to_k2v(const char *key, char *const *val, int len);
 char *int_array_to_k2v(const char *key, int *val, int len);
 char *float_array_to_k2v(const char *key, float *val, int len);
+size_t k2v_get_filesize(const char *path);

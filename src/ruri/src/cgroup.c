@@ -30,6 +30,11 @@
 #include "include/ruri.h"
 static void mount_cgroup_v1(void)
 {
+	/*
+	 * Mount Cgroup v1 memory and cpuset controller.
+	 * Nothing to return because if this function run failed,
+	 * that means cgroup is not supported on the device.
+	 */
 	mkdir("/sys/fs/cgroup", S_IRUSR | S_IWUSR);
 	// Maybe needless.
 	umount2("/sys/fs/cgroup", MNT_DETACH | MNT_FORCE);
@@ -43,6 +48,10 @@ static void mount_cgroup_v1(void)
 }
 static bool is_cgroupv2_supported(void)
 {
+	/*
+	 * Check if cgroup v2 supports cpuset and memory controller.
+	 * Return true if cgroup.controllers contains "cpuset" and "memory".
+	 */
 	bool found_cpuset = false;
 	bool found_memory = false;
 	int fd = open("/sys/fs/cgroup/cgroup.controllers", O_RDONLY | O_CLOEXEC);
@@ -58,9 +67,8 @@ static bool is_cgroupv2_supported(void)
 	close(fd);
 	if (found_cpuset && found_memory) {
 		return true;
-	} else {
-		return false;
 	}
+	return false;
 }
 static int mount_cgroup_v2(void)
 {
@@ -76,6 +84,7 @@ static int mount_cgroup_v2(void)
 	if (ret != 0) {
 		return ret;
 	}
+	// But if it's not suppored, umount the controller and back to v1.
 	if (!is_cgroupv2_supported()) {
 		umount2("/sys/fs/cgroup", MNT_DETACH | MNT_FORCE);
 		return -1;
@@ -92,7 +101,7 @@ static int mount_cgroup(void)
 	if (mount_cgroup_v2() == 0) {
 		return 2;
 	}
-	// But for old devices, we have to use v1.
+	// But on some devices, we have to use v1.
 	mount_cgroup_v1();
 	return 1;
 }
@@ -100,32 +109,40 @@ static void set_cgroup_v1(const struct CONTAINER *container)
 {
 	pid_t pid = getpid();
 	char buf[128] = { '\0' };
-	mkdir("/sys/fs/cgroup/cpuset/ruri", S_IRUSR | S_IWUSR);
-	mkdir("/sys/fs/cgroup/memory/ruri", S_IRUSR | S_IWUSR);
+	char cpuset_cgroup_path[PATH_MAX] = { '\0' };
+	char memory_cgroup_path[PATH_MAX] = { '\0' };
+	sprintf(cpuset_cgroup_path, "/sys/fs/cgroup/cpuset/%d", container->container_id);
+	sprintf(memory_cgroup_path, "/sys/fs/cgroup/memory/%d", container->container_id);
+	mkdir(cpuset_cgroup_path, S_IRUSR | S_IWUSR);
+	mkdir(memory_cgroup_path, S_IRUSR | S_IWUSR);
 	usleep(2000);
 	int fd = -1;
+	char memory_cgroup_procs_path[PATH_MAX] = { '\0' };
+	sprintf(memory_cgroup_procs_path, "/sys/fs/cgroup/memory/%d/cgroup.procs", container->container_id);
+	fd = open(memory_cgroup_procs_path, O_RDWR | O_CLOEXEC);
+	sprintf(buf, "%d\n", pid);
+	write(fd, buf, strlen(buf));
+	close(fd);
 	if (container->memory != NULL) {
-		fd = open("/sys/fs/cgroup/memory/ruri/cgroup.procs", O_RDWR | O_CLOEXEC);
-		sprintf(buf, "%d\n", pid);
-		if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
-			warning("\033[33mSet memory cgroup v1 failed\033[0m\n");
-		}
-		close(fd);
-		fd = open("/sys/fs/cgroup/memory/ruri/memory.limit_in_bytes", O_RDWR | O_CLOEXEC);
+		char memory_cgroup_limit_path[PATH_MAX] = { '\0' };
+		sprintf(memory_cgroup_limit_path, "/sys/fs/cgroup/memory/%d/memory.limit_in_bytes", container->container_id);
+		fd = open(memory_cgroup_limit_path, O_RDWR | O_CLOEXEC);
 		sprintf(buf, "%s\n", container->memory);
 		if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
 			warning("\033[33mSet memory limit failed\033[0m\n");
 		}
 		close(fd);
 	}
+	char cpuset_cgroup_procs_path[PATH_MAX] = { '\0' };
+	sprintf(cpuset_cgroup_procs_path, "/sys/fs/cgroup/cpuset/%d/cgroup.procs", container->container_id);
+	fd = open(cpuset_cgroup_procs_path, O_RDWR | O_CLOEXEC);
+	sprintf(buf, "%d\n", pid);
+	write(fd, buf, strlen(buf));
+	close(fd);
 	if (container->cpuset != NULL) {
-		fd = open("/sys/fs/cgroup/cpuset/ruri/cgroup.procs", O_RDWR | O_CLOEXEC);
-		sprintf(buf, "%d\n", pid);
-		if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
-			warning("\033[33mSet cpuset cgroup v1 failed\033[0m\n");
-		}
-		close(fd);
-		fd = open("/sys/fs/cgroup/cpuset/ruri/cpus", O_RDWR | O_CLOEXEC);
+		char cpuset_cgroup_cpus_path[PATH_MAX] = { '\0' };
+		sprintf(cpuset_cgroup_cpus_path, "/sys/fs/cgroup/%d/cpus", container->container_id);
+		fd = open(cpuset_cgroup_cpus_path, O_RDWR | O_CLOEXEC);
 		sprintf(buf, "%s\n", container->cpuset);
 		if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
 			warning("\033[33mSet cpu limit failed\033[0m\n");
@@ -142,17 +159,20 @@ static void set_cgroup_v2(const struct CONTAINER *container)
 	}
 	pid_t pid = getpid();
 	char buf[128] = { '\0' };
-	mkdir("/sys/fs/cgroup/ruri", S_IRUSR | S_IWUSR);
+	char cgroup_path[PATH_MAX] = { '\0' };
+	sprintf(cgroup_path, "/sys/fs/cgroup/%d", container->container_id);
+	mkdir(cgroup_path, S_IRUSR | S_IWUSR);
 	usleep(2000);
-	int fd = open("/sys/fs/cgroup/ruri/cgroup.procs", O_RDWR | O_CLOEXEC);
+	char cgroup_procs_path[PATH_MAX] = { '\0' };
+	sprintf(cgroup_procs_path, "/sys/fs/cgroup/%d/cgroup.procs", container->container_id);
+	int fd = open(cgroup_procs_path, O_RDWR | O_CLOEXEC);
 	sprintf(buf, "%d\n", pid);
-	if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
-		warning("\033[33mSetup cgroup failed\033[0m\n");
-		return;
-	}
+	write(fd, buf, strlen(buf));
 	close(fd);
 	if (container->memory != NULL) {
-		fd = open("/sys/fs/cgroup/ruri/memory.high", O_RDWR | O_CLOEXEC);
+		char cgroup_memlimit_path[PATH_MAX] = { '\0' };
+		sprintf(cgroup_memlimit_path, "/sys/fs/cgroup/%d/memory.high", container->container_id);
+		fd = open(cgroup_memlimit_path, O_RDWR | O_CLOEXEC);
 		sprintf(buf, "%s\n", container->memory);
 		if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
 			warning("\033[33mSet memory limit failed\033[0m\n");
@@ -160,7 +180,9 @@ static void set_cgroup_v2(const struct CONTAINER *container)
 		close(fd);
 	}
 	if (container->cpuset != NULL) {
-		fd = open("/sys/fs/cgroup/ruri/cpuset.cpus", O_RDWR | O_CLOEXEC);
+		char cgroup_cpuset_path[PATH_MAX] = { '\0' };
+		sprintf(cgroup_cpuset_path, "/sys/fs/cgroup/%d/cpuset.cpus", container->container_id);
+		fd = open(cgroup_cpuset_path, O_RDWR | O_CLOEXEC);
 		sprintf(buf, "%s\n", container->cpuset);
 		if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
 			warning("\033[33mSet cpu limit failed\033[0m\n");
@@ -172,10 +194,18 @@ static void set_cgroup_v2(const struct CONTAINER *container)
 }
 void set_limit(const struct CONTAINER *container)
 {
+	/*
+	 * Mount cgroup controller and set limit.
+	 * Nothing to return, only warnings to show if cgroup is not supported.
+	 */
+	// Mount cgroup controller and get the type of cgroup.
 	int cgtype = mount_cgroup();
+	// For cgroup v1.
 	if (cgtype == 1) {
 		set_cgroup_v1(container);
-	} else {
+	}
+	// For cgroup v2.
+	else {
 		set_cgroup_v2(container);
 	}
 }

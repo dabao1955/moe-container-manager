@@ -67,8 +67,10 @@ test/hello.c:
 #include "../src/include/k2v.h"
 int main(void)
 {
+        // Get buffer size.
+        size_t filesize = k2v_get_filesize("./test/hello.conf");
         // Read the config to memory.
-        char *buf = k2v_open_file("./test/hello.conf", 1024);
+        char *buf = k2v_open_file("./test/hello.conf", filesize);
         // Get the value of `string`.
         char *str = key_get_char("string", buf);
         // Print the value.
@@ -110,6 +112,7 @@ char *float_to_k2v(const char *key, float val);
 char *char_array_to_k2v(const char *key, char *const *val, int len);
 char *int_array_to_k2v(const char *key, int *val, int len);
 char *float_array_to_k2v(const char *key, float *val, int len);
+size_t k2v_get_filesize(const char *path);
 ```
 For usage, see [test/test.c](test/test.c).      
 # Global variables:

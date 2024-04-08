@@ -1,5 +1,4 @@
 #include "include/k2v.h"
-#include <sys/stat.h>
 int main(int argc, char **argv)
 {
 	k2v_show_warning = false;
