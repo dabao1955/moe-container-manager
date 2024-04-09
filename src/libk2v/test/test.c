@@ -2,7 +2,7 @@
 int main(void)
 {
 	// Get buffer size.
-	size_t filesize = k2v_get_filesize("./test/hello.conf");
+	size_t filesize = k2v_get_filesize("./test/test.conf");
 	// Read the file to memory.
 	// k2v will automatically call malloc(bufsize),and do basic checks.
 	char *buf = k2v_open_file("test/test.conf", filesize);

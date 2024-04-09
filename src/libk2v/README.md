@@ -19,6 +19,7 @@ libk2v only contain 1000- lines of code, while tomlc99 have 2000+.
  * The key should not be wrapped.
  * The end of a line is '\n', and will not contain `;` or `,`.
  * The array is wrapped by `[]`,and each value should be separated by `,`.
+ * The value in array should not be `""` (the array should not contain NULL value).
  * It does not support multi-line, so use single line for one key/value pair.
 ```
 # Supported types:
