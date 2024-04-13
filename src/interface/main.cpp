@@ -3,6 +3,9 @@
 // New feature from c++17,from List directory name
 namespace fs = std::filesystem;
 using namespace std;
+using namespace svlog;
+using namespace proj;
+
 
 // A simple usage
 inline void usage(int exit_value = 0){
@@ -58,7 +61,7 @@ inline void readc(int exit_value = 1){
 }
 
 int main(int argc, char *argv[]) {
-    svlog::basic_logfile();
+    basic_logfile();
     if (argc < 2)  {
         cout << "Error: No inputs.\n"
         << "Please use 'interface -h' to learn how to use.\n";
@@ -75,7 +78,7 @@ int main(int argc, char *argv[]) {
             case '-':{
                 switch(pchar[1]){
                     case 'v':
-                        cout <<proj::prog_name<<" version "<<proj::prog_version<<endl
+                        cout <<prog_name<<" version "<<prog_version<<endl
                              << "Copyright (C) 2024 dabao1955\n"
                              << "License: Apache-2.0\n";
                         return 0;
@@ -91,7 +94,7 @@ int main(int argc, char *argv[]) {
                         return 0;
                     default:
                         // proj::prog_name is in main.hpp.
-                        cerr<<proj::prog_name<<":error:unrecognition option -:"<<pchar<<endl;
+                        cerr<<prog_name<<":error:unrecognition option -:"<<pchar<<endl;
                         usage();
                         return -1;
                     }

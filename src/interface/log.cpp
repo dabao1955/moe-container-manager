@@ -10,6 +10,7 @@ namespace svlog {
         catch (const spdlog::spdlog_ex &ex)
         {
             std::cout << "Log init failed: " << ex.what() << std::endl;
+            return;
         }
     }
 }
