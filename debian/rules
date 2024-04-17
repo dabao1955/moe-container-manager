@@ -2,7 +2,7 @@
 include /usr/share/dpkg/default.mk
 
 # Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+export DH_VERBOSE=1
 
 # prefix
 #prefix=$(CURDIR)/debian/moe-container-manager/usr
