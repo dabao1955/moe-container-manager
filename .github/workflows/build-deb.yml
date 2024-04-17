@@ -44,4 +44,7 @@ jobs:
 
       - name: Build deb
         run: |
-          make V=1 -j$(nproc --all)
+          make VERBOSE=1 -j$(nproc --all)
+
+      - name: Run Test
+        run: make test

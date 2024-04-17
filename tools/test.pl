@@ -27,7 +27,7 @@ sub check_rootfstool {
 }
 
 sub check_libk2v {
-    my $mk = "make -C src/libk2v/";
+    my $mk = "cd && src/libk2v && perl test/test.pl";
     my $exit_code = system $mk;
     if ($exit_code != 0) {
         die "Failed to execute $mk. Exit code: $exit_code\n";
