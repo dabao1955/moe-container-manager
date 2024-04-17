@@ -72,7 +72,6 @@ SHARE = $(O)/share/moe-container-manager
 LIB = $(O)/lib/moe-container-manager
 
 build: src/Makefile
-	@$(MAKE) -f tools/installdep.mk
 	@$(SRCODE)
 	@cp -r src/out/* out/bin/
 	@cp LICENSE out/share/doc/moe-container-manager/
