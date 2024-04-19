@@ -14,7 +14,13 @@ add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-know
 
 
 # add the executable
-add_executable(interface main.cpp log.cpp)
+add_executable(interface main.cpp)
+add_custom_command(
+    TARGET interface
+    POST_BUILD
+    COMMAND strip interface
+    VERBATIM
+    )
 
 # on linux clang 14
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")

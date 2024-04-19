@@ -1,9 +1,8 @@
 #include "main.hpp"
+#include "log.hpp"
 
 // New feature from c++17,from List directory name
 namespace fs = std::filesystem;
-using namespace std;
-using namespace svlog;
 using namespace proj;
 
 
@@ -27,6 +26,7 @@ inline void readc(int exit_value = 1){
     if (!nif) // If file can not create,exit 1
     {
         cout << "can not create file." << endl;
+        XLOG_ERROR("this is error log record: {}");
         std::exit(exit_value);
     }
     else
@@ -37,6 +37,7 @@ inline void readc(int exit_value = 1){
         // List of directory and write directoey name to txt
         for (const auto & entry : fs::directory_iterator(path)) {
             nif << entry.path().filename() << '\n';
+            XLOG_WARN("this is warn log record, param: {}");
         }
         nif.close();
         return;
@@ -61,7 +62,8 @@ inline void readc(int exit_value = 1){
 }
 
 int main(int argc, char *argv[]) {
-    basic_logfile();
+    XLOG_INFO("this is info log record: {}");
+
     if (argc < 2)  {
         cout << "Error: No inputs.\n"
         << "Please use 'interface -h' to learn how to use.\n";
