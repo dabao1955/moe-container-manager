@@ -22,13 +22,11 @@ ifeq ("$(wildcard out)","")
 endif
 
 .PHONY: all
-all: ruri.o yoshinon.o nekoasc.o interface.o libk2v.o install
+all: ruri.o yoshinon.o interface.o libk2v.o install
 ruri.o:
 	@[ -e ruri/ruri ]||($(MAKE) -C ruri static)
 yoshinon.o:
 	@[ -e yoshinon/yoshinon ]||(cd yoshinon && mkdir build && cd build && cmake .. && $(MAKE))
-nekoasc.o:
-	@[ -e nekoasc/nekoasc ]||($(MAKE) -C nekoasc static)
 libk2v.o:
 	@[ -e libk2v/build/k2sh ]||(cd libk2v && mkdir build && cd build && cmake .. && $(MAKE) && make install)
 interface.o:

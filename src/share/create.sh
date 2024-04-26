@@ -63,6 +63,7 @@ function create_ruri_container() {
   pv ${ROOTFS} | sudo tar -xJf - -C ${CONTAINER_DIR}
   unset LD_PRELOAD
   cp /usr/share/moe-container-manager/fixup.sh ${CONTAINER_DIR}/tmp/
+  sudo chmod 777 ${CONTAINER_DIR}/tmp/fixup.sh
   sudo ruri ${CONTAINER_DIR} /tmp/fixup.sh
   sudo ruri -D -o /usr/share/moe-container-manager/containers/${NAME}.conf ${CONTAINER_DIR}
   sudo chmod 777 /usr/share/moe-container-manager/containers/${NAME}.conf
@@ -74,6 +75,7 @@ function create_proot_container() {
   unset LD_PRELOAD
   cp /usr/share/moe-container-manager/fixup.sh ${CONTAINER_DIR}/tmp/
   cp /usr/share/moe-container-manager/fixup.sh /tmp/
+  sudo chmod 777 ${CONTAINER_DIR}/tmp/fixup.sh
   /usr/share/moe-container-manager/proot_start.sh -r ${CONTAINER_DIR} /tmp/fixup.sh
   printf "backend=\"proot\"\ncontainer_dir=\"${CONTAINER_DIR}\"\n" >/usr/share/moe-container-manager/containers/${NAME}.conf
 }

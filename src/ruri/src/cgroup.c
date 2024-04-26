@@ -54,7 +54,8 @@ static bool is_cgroupv2_supported(void)
 	 */
 	bool found_cpuset = false;
 	bool found_memory = false;
-	int fd = open("/sys/fs/cgroup/cgroup.controllers", O_RDONLY | O_CLOEXEC);
+	mkdir("/sys/fs/cgroup/ruri", S_IRUSR | S_IWUSR);
+	int fd = open("/sys/fs/cgroup/ruri/cgroup.controllers", O_RDONLY | O_CLOEXEC);
 	char buf[128] = { '\0' };
 	ssize_t len = read(fd, buf, sizeof(buf));
 	buf[len] = '\0';
@@ -107,6 +108,17 @@ static int mount_cgroup(void)
 }
 static void set_cgroup_v1(const struct CONTAINER *container)
 {
+	/*
+	 * We creat a new cgroup name as the same of container_id,
+	 * add pid to the cgroup, and set limit.
+	 * We will do this even if cpu and memory limit are both NULL,
+	 * because this function will only set the limit when we init the container,
+	 * but if the container is still running, we need to join its cgroup,
+	 * which is already created.
+	 * If the container is running, after read_info(), container_id will be unified,
+	 * and container->memory/container->cpuset will be cleared, because it should only
+	 * be set when init the container.
+	 */
 	pid_t pid = getpid();
 	char buf[128] = { '\0' };
 	char cpuset_cgroup_path[PATH_MAX] = { '\0' };
@@ -117,46 +129,55 @@ static void set_cgroup_v1(const struct CONTAINER *container)
 	mkdir(memory_cgroup_path, S_IRUSR | S_IWUSR);
 	usleep(2000);
 	int fd = -1;
-	char memory_cgroup_procs_path[PATH_MAX] = { '\0' };
-	sprintf(memory_cgroup_procs_path, "/sys/fs/cgroup/memory/%d/cgroup.procs", container->container_id);
-	fd = open(memory_cgroup_procs_path, O_RDWR | O_CLOEXEC);
-	sprintf(buf, "%d\n", pid);
-	write(fd, buf, strlen(buf));
-	close(fd);
 	if (container->memory != NULL) {
+		// Set memory limit.
 		char memory_cgroup_limit_path[PATH_MAX] = { '\0' };
 		sprintf(memory_cgroup_limit_path, "/sys/fs/cgroup/memory/%d/memory.limit_in_bytes", container->container_id);
 		fd = open(memory_cgroup_limit_path, O_RDWR | O_CLOEXEC);
 		sprintf(buf, "%s\n", container->memory);
 		if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
-			warning("\033[33mSet memory limit failed\033[0m\n");
+			warning("{yellow}Set memory limit failed{clear}\n");
+		}
+		close(fd);
+	}
+	char memory_cgroup_procs_path[PATH_MAX] = { '\0' };
+	sprintf(memory_cgroup_procs_path, "/sys/fs/cgroup/memory/%d/cgroup.procs", container->container_id);
+	// Add pid to container_id memory cgroup.
+	fd = open(memory_cgroup_procs_path, O_RDWR | O_CLOEXEC);
+	sprintf(buf, "%d\n", pid);
+	write(fd, buf, strlen(buf));
+	close(fd);
+	if (container->cpuset != NULL) {
+		// Set cpuset limit.
+		char cpuset_cgroup_mems_path[PATH_MAX] = { '\0' };
+		sprintf(cpuset_cgroup_mems_path, "/sys/fs/cgroup/cpuset/%d/cpuset.mems", container->container_id);
+		fd = open(cpuset_cgroup_mems_path, O_RDWR | O_CLOEXEC);
+		write(fd, "0\n", strlen("0\n"));
+		close(fd);
+		char cpuset_cgroup_cpus_path[PATH_MAX] = { '\0' };
+		sprintf(cpuset_cgroup_cpus_path, "/sys/fs/cgroup/cpuset/%d/cpuset.cpus", container->container_id);
+		fd = open(cpuset_cgroup_cpus_path, O_RDWR | O_CLOEXEC);
+		sprintf(buf, "%s\n", container->cpuset);
+		if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
+			warning("{yellow}Set cpu limit failed{clear}\n");
 		}
 		close(fd);
 	}
 	char cpuset_cgroup_procs_path[PATH_MAX] = { '\0' };
 	sprintf(cpuset_cgroup_procs_path, "/sys/fs/cgroup/cpuset/%d/cgroup.procs", container->container_id);
+	// Add pid to container_id cpuset cgroup.
 	fd = open(cpuset_cgroup_procs_path, O_RDWR | O_CLOEXEC);
 	sprintf(buf, "%d\n", pid);
 	write(fd, buf, strlen(buf));
 	close(fd);
-	if (container->cpuset != NULL) {
-		char cpuset_cgroup_cpus_path[PATH_MAX] = { '\0' };
-		sprintf(cpuset_cgroup_cpus_path, "/sys/fs/cgroup/%d/cpus", container->container_id);
-		fd = open(cpuset_cgroup_cpus_path, O_RDWR | O_CLOEXEC);
-		sprintf(buf, "%s\n", container->cpuset);
-		if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
-			warning("\033[33mSet cpu limit failed\033[0m\n");
-		}
-		close(fd);
-	}
 	// Do not keep the apifs mounted.
 	umount2("/sys/fs/cgroup", MNT_DETACH | MNT_FORCE);
 }
 static void set_cgroup_v2(const struct CONTAINER *container)
 {
-	if (container->memory == NULL && container->cpuset == NULL) {
-		return;
-	}
+	/*
+	 * See comment of set_cgroup_v1().
+	 */
 	pid_t pid = getpid();
 	char buf[128] = { '\0' };
 	char cgroup_path[PATH_MAX] = { '\0' };
@@ -165,27 +186,30 @@ static void set_cgroup_v2(const struct CONTAINER *container)
 	usleep(2000);
 	char cgroup_procs_path[PATH_MAX] = { '\0' };
 	sprintf(cgroup_procs_path, "/sys/fs/cgroup/%d/cgroup.procs", container->container_id);
+	// Add pid to container_id cgroup.
 	int fd = open(cgroup_procs_path, O_RDWR | O_CLOEXEC);
 	sprintf(buf, "%d\n", pid);
 	write(fd, buf, strlen(buf));
 	close(fd);
 	if (container->memory != NULL) {
+		// Set memory limit.
 		char cgroup_memlimit_path[PATH_MAX] = { '\0' };
 		sprintf(cgroup_memlimit_path, "/sys/fs/cgroup/%d/memory.high", container->container_id);
 		fd = open(cgroup_memlimit_path, O_RDWR | O_CLOEXEC);
 		sprintf(buf, "%s\n", container->memory);
 		if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
-			warning("\033[33mSet memory limit failed\033[0m\n");
+			warning("{yellow}Set memory limit failed{clear}\n");
 		}
 		close(fd);
 	}
 	if (container->cpuset != NULL) {
+		// Set cpuset limit.
 		char cgroup_cpuset_path[PATH_MAX] = { '\0' };
 		sprintf(cgroup_cpuset_path, "/sys/fs/cgroup/%d/cpuset.cpus", container->container_id);
 		fd = open(cgroup_cpuset_path, O_RDWR | O_CLOEXEC);
 		sprintf(buf, "%s\n", container->cpuset);
 		if (write(fd, buf, strlen(buf)) < 0 && !container->no_warnings) {
-			warning("\033[33mSet cpu limit failed\033[0m\n");
+			warning("{yellow}Set cpu limit failed{clear}\n");
 		}
 		close(fd);
 	}

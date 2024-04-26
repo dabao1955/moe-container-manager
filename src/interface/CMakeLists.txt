@@ -14,7 +14,7 @@ add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-know
 
 
 # add the executable
-add_executable(interface main.cpp)
+add_executable(interface main.cpp function.cpp)
 add_custom_command(
     TARGET interface
     POST_BUILD

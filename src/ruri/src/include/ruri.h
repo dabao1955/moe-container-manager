@@ -44,16 +44,15 @@
 #include <linux/stat.h>
 #include <linux/version.h>
 #include <linux/loop.h>
+#include <sys/mount.h>
 #include <linux/fs.h>
 #include <sys/ioctl.h>
-#include <sys/mount.h>
 #include <sys/syscall.h>
 #include <sys/prctl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #include <sys/types.h>
-#include <sys/un.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -67,6 +66,10 @@
 #include <seccomp.h>
 // This program need to be linked with `-lcap`.
 #include <sys/capability.h>
+#ifndef LIBCAP_MAJOR
+#define LIBCAP_MAJOR 114
+#define LIBCAP_MINOR 514
+#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
 #warning "This program has not been tested on Linux 3.x or earlier."
 #endif
@@ -88,6 +91,7 @@
 #include "elf-magic.h"
 #include "version.h"
 #include "k2v.h"
+#include "cprintf.h"
 // Info of a container to create.
 struct __attribute__((aligned(128))) CONTAINER {
 	// Container directory.
@@ -139,21 +143,21 @@ struct __attribute__((aligned(16))) MAGIC {
 	char *mask;
 };
 // Warnings.
-#define warning(...) fprintf(stderr, ##__VA_ARGS__)
+#define warning(...) cfprintf(stderr, ##__VA_ARGS__)
 // Show error msg and exit.
-#define error(...)                                                                                                            \
-	{                                                                                                                     \
-		fprintf(stderr, ##__VA_ARGS__);                                                                               \
-		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", "  .^.   .^.");                                        \
-		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", "  /⋀\\_ﾉ_/⋀\\");                                      \
-		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", " /ﾉｿﾉ\\ﾉｿ丶)|");                                      \
-		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", " ﾙﾘﾘ >  x )ﾘ");                                       \
-		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", "ﾉノ㇏  ^ ﾉ|ﾉ");                                       \
-		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", "      ⠁⠁");                                           \
-		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", "RURI ERROR MESSAGE");                                 \
-		fprintf(stderr, "\033[1;38;2;254;228;208m%s\033[0m\n", "If you think something is wrong, please report at:"); \
-		fprintf(stderr, "\033[4;1;38;2;254;228;208m%s\033[0m\n", "https://github.com/Moe-hacker/ruri/issues");        \
-		exit(EXIT_FAILURE);                                                                                           \
+#define error(...)                                                                                           \
+	{                                                                                                    \
+		cfprintf(stderr, ##__VA_ARGS__);                                                             \
+		cfprintf(stderr, "{base}%s{clear}\n", "  .^.   .^.");                                        \
+		cfprintf(stderr, "{base}%s{clear}\n", "  /⋀\\_ﾉ_/⋀\\");                                      \
+		cfprintf(stderr, "{base}%s{clear}\n", " /ﾉｿﾉ\\ﾉｿ丶)|");                                      \
+		cfprintf(stderr, "{base}%s{clear}\n", " ﾙﾘﾘ >  x )ﾘ");                                       \
+		cfprintf(stderr, "{base}%s{clear}\n", "ﾉノ㇏  ^ ﾉ|ﾉ");                                       \
+		cfprintf(stderr, "{base}%s{clear}\n", "      ⠁⠁");                                           \
+		cfprintf(stderr, "{base}%s{clear}\n", "RURI ERROR MESSAGE");                                 \
+		cfprintf(stderr, "{base}%s{clear}\n", "If you think something is wrong, please report at:"); \
+		cfprintf(stderr, "\033[4m{base}%s{clear}\n", "https://github.com/Moe-hacker/ruri/issues");   \
+		exit(EXIT_FAILURE);                                                                          \
 	}
 void register_signal(void);
 void setup_seccomp(struct CONTAINER *container);
