@@ -35,7 +35,6 @@ interface.o:
 install:
 	@cp rootfstool/rootfstool out
 	@mv ruri/ruri out
-	@mv nekoasc/nekoasc out
 
 .PHONY: clean
 clean: out
