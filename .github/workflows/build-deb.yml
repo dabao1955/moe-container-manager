@@ -11,13 +11,11 @@ jobs:
     container: debian:bookworm
     runs-on: ubuntu-latest
     steps:
+      - name: Install Build Tools
+        run: apt update && apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config git libseccomp-dev golang lld cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev
+
       - name: Checkout repo
         uses: actions/checkout@v4
-
-      - name: Setup environment
-        run: |
-          apt update
-          apt install -y debhelper build-essential clang dpkg-dev libcap-dev pkg-config git libseccomp-dev golang lld cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev
 
       - name: Build deb
         run: |

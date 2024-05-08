@@ -60,8 +60,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// This program need to be linked with `-lpthread` if the system uses glibc or musl.
-#include <pthread.h>
 // This program need to be linked with `-lseccomp`.
 #include <seccomp.h>
 // This program need to be linked with `-lcap`.
@@ -179,7 +177,7 @@ void run_chroot_container(struct CONTAINER *container);
 void run_rootless_container(struct CONTAINER *container);
 int trymount(const char *source, const char *target, unsigned int mountflags);
 void umount_container(const char *container_dir);
-struct CONTAINER *read_config(struct CONTAINER *container, const char *path);
+void read_config(struct CONTAINER *container, const char *path);
 void set_limit(const struct CONTAINER *container);
 //   ██╗ ██╗  ███████╗   ████╗   ███████╗
 //  ████████╗ ██╔════╝ ██╔═══██╗ ██╔════╝

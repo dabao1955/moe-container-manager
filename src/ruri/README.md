@@ -20,8 +20,6 @@
 -----------------     
 # 中文文档
 [ruri官方文档](https://blog.crack.moe/2024/03/26/ruri-doc/)      
-# About v3.0:
-V3.0 contains some breaking changes, please read the changelog, and help page in `ruri -h` if you are upgrading from v2.x.        
 # WARNING:      
 ```
 * Your warranty is void.
@@ -29,8 +27,8 @@ V3.0 contains some breaking changes, please read the changelog, and help page in
 * You do it at your own risk and take the responsibility upon yourself.
 * This program has no Super Cow Powers.
 ```
-# SECURITY WARNING:
-ruri should always be executed with root privileges(sudo), and do not set SUID or any capability on it!      
+> [!WARNING]
+> ruri should always be executed with root privileges(sudo), and do not set SUID or any capability on it!      
 # Bug reporting:
 > “Bugs will happen, if they don’t happen in hardware, they will happen in software and if they don’t happen in your software and they will happen in somebody else’s software.”      
 > --Torvalds
@@ -42,19 +40,24 @@ If you think something does not work as expected, please [Open a new isssue](htt
 - Simple:      
 The basic usage is very very simple, you can use it just like the command `chroot`.
 - Secure:      
-It uses libcap and libseccomp for security, and most devices in /dev will never be reached in containers by default.
+It uses libcap and libseccomp for security, with other protections.
 - Run Everywhere:      
-Build ruri with `make static`, it will be compiled as a small binary file(~1M), but it can be run anywhere without dependent libraries.      
-# ruri in production:
-[daijin](https://github.com/Moe-hacker/daijin)      
+Build ruri with `./configure -s`, it will be compiled as a small binary file(~1M), but it can be run anywhere without dependent libraries.      
 # Install:      
 ```
 git clone https://github.com/Moe-hacker/ruri
 cd ruri
-sudo make install
+./configure
+make
+sudo cp ruri /usr/bin/ruri
 ```
 # Build options:
-See `make help`.      
+```
+Usage: ./configure [OPTION]...
+    -h, --help          show help
+    -s, --static        compile static binary
+    -d, --dev           compile dev version
+```
 
 # Usage:    
 See `ruri -h`
@@ -77,28 +80,8 @@ sudo ruri -u /tmp/alpine
 ```
 Very simple as you can see.    
 For command line examples, please see `ruri -H`.      
-# About config:
-Since v3.0, ruri can use [k2v](https://github.com/Moe-hacker/libk2v), a new simple config format, to store the config of a container.          
-# About rurienv:
-Since v3.0, ruri removed the daemon, it use a new way to store the info of a running container.         
-ruri will creat `/.rurienv` file into the container, to store runtime info of container.          
-The rurienv file is automatically controled by ruri, please do not edit it.      
-# About tty:      
-The command `tty` in ruri might say that "not a tty".      
-If you need to run some program like `gpg`, please use `script -q -O /dev/null` in container.      
-# About runtime dirs:
-ruri will create /dev/, /sys/ and /proc/ after chroot(2) into container for better security. You can use `-S` option to force it to bind-mount system runtime dirs.      
-# About multi-arch container:
-Yes, you can run multi-arch containers via ruri if your device support.      
-It needs CONFIG_BINFMT_MISC enabled in your kernel config.      
-You need to copy qemu-*-static to your container first.      
-The path of qemu is the absolute path of qemu binary in the chroot container, for example, you have a qemu binary at `/path/to/container/qemu-amd64-static`, use `-a x86_64 -q /qemu-amd64-static` arguments to start the container.
-# About rootless container:
-It requires user namespace enabled in your kernel config.      
-It's a very useless function. Ruri creates a new user namespace and run chroot(2) in it, but without any real privileges, it can not even mount /proc /dev and /sys.       
-Adding CAP_SYS_ADMIN can not fix any problems, so just do not use this function.      
-# About Seccomp:
-The seccomp rule of ruri is based on Docker's default seccomp profile. ruri does not provide the way to change it, but you can edit src/seccomp.c and replace setup_seccomp() with your own config.      
+# FAQ:   
+[FAQ](FAQ.md)      
 # License:
 License of code:      
 - Licensed under the MIT License      

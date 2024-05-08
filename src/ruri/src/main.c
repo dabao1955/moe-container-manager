@@ -85,7 +85,7 @@ static void parse_cgroup_settings(const char *str, struct CONTAINER *container)
 		error("{red}Unknown cgroup option %s\n", str);
 	}
 }
-static struct CONTAINER *parse_args(int argc, char **argv, struct CONTAINER *container)
+static void parse_args(int argc, char **argv, struct CONTAINER *container)
 {
 	/*
 	 * 100% shit-code here.
@@ -107,8 +107,7 @@ static struct CONTAINER *parse_args(int argc, char **argv, struct CONTAINER *con
 	cap_value_t drop_caplist_extra[CAP_LAST_CAP + 1] = { INIT_VALUE };
 	cap_value_t cap = INIT_VALUE;
 	bool privileged = false;
-	container = (struct CONTAINER *)malloc(sizeof(struct CONTAINER));
-	container->enable_seccomp = true;
+	container->enable_seccomp = false;
 	container->no_new_privs = false;
 	container->no_warnings = false;
 	container->enable_unshare = false;
@@ -193,7 +192,7 @@ static struct CONTAINER *parse_args(int argc, char **argv, struct CONTAINER *con
 				error("{red}Please specify a config file !\n{clear}");
 			}
 			index++;
-			container = read_config(container, argv[index]);
+			read_config(container, argv[index]);
 			break;
 		}
 		// Dump config.
@@ -232,8 +231,8 @@ static struct CONTAINER *parse_args(int argc, char **argv, struct CONTAINER *con
 			}
 			container->qemu_path = strdup(argv[index]);
 		}
-		// Disable built-in seccomp profile.
-		else if (strcmp(argv[index], "-s") == 0 || strcmp(argv[index], "--disable-seccomp") == 0) {
+		// Enable built-in seccomp profile.
+		else if (strcmp(argv[index], "-s") == 0 || strcmp(argv[index], "--enable-seccomp") == 0) {
 			container->enable_seccomp = true;
 		}
 		// Run unshare container.
@@ -426,9 +425,9 @@ static struct CONTAINER *parse_args(int argc, char **argv, struct CONTAINER *con
 		remove(output_path);
 		int fd = open(output_path, O_CREAT | O_CLOEXEC | O_RDWR, S_IRUSR | S_IRGRP | S_IROTH | S_IWGRP | S_IWUSR | S_IWOTH);
 		write(fd, config, strlen(config));
+		free(config);
 		exit(EXIT_SUCCESS);
 	}
-	return container;
 }
 // It works on my machine!!!
 int main(int argc, char **argv)
@@ -443,26 +442,13 @@ int main(int argc, char **argv)
 	// Catch coredump signal.
 	register_signal();
 	// Info of container to run.
-	struct CONTAINER *container = NULL;
+	struct CONTAINER *container = (struct CONTAINER *)malloc(sizeof(struct CONTAINER));
 	// Parse arguments.
-	container = parse_args(argc, argv, container);
+	parse_args(argc, argv, container);
 	// Check container and the running environment.
 	check_container(container);
 	// unset $LD_PRELOAD.
 	unsetenv("LD_PRELOAD");
-	// Watch the process, error() when it run failed.
-	if (!container->enable_unshare) {
-		int stat = 0;
-		pid_t pid = fork();
-		if (pid > 0) {
-			waitpid(pid, &stat, 0);
-			if (stat == 0 || stat == 255 || stat == 256) {
-				exit(stat);
-			} else {
-				error("{red}Container exited with %d, what's wrong?{clear}\n", stat);
-			}
-		}
-	}
 	// Run container.
 	if ((container->enable_unshare) && !(container->rootless)) {
 		run_unshare_container(container);

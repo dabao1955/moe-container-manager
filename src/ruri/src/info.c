@@ -28,74 +28,6 @@
  *
  */
 #include "include/ruri.h"
-// As an easter egg.
-void AwA(void)
-{
-	/*
-	 * Nothing is useful at this function, just for fun.
-	 */
-	// Get the size of terminal.
-	struct winsize size;
-	ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
-	u_short col = size.ws_col;
-	if (col % 2 == 1) {
-		col -= 1;
-	}
-	// For centering output.
-	char space[col / 2 + 1];
-	space[0] = '\0';
-	if (col > 60) {
-		col /= 2;
-		col -= 28;
-		memset(space, ' ', col * sizeof(char));
-		space[col] = '\0';
-	} else {
-		strcat(space, "");
-	}
-	cprintf("%s%s\n", space, "{255;255;255}              ██                        ██");
-	cprintf("%s%s\n", space, "{255;255;255}            ██  ██          ██        ██  ██");
-	cprintf("%s%s\n", space, "{255;255;255}            ██    ████        ██    ██      ██");
-	cprintf("%s%s\n", space, "{255;255;255}          ██          ██    ██    ████      ██");
-	cprintf("%s%s\n", space, "{255;255;255}          ██      ██████████████████          ██");
-	cprintf("%s%s\n", space, "{255;255;255}        ██      ██                  ██        ██");
-	cprintf("%s%s\n", space, "{255;255;255}        ██    ██                      ████    ██");
-	cprintf("%s%s\n", space, "{255;255;255}      ████████        ██      ██          ████  ██");
-	cprintf("%s%s\n", space, "{255;255;255}      ██    ██        ██    ██  ██    ██    ██  ██");
-	cprintf("%s%s\n", space, "{255;255;255}    ████      ██    ██  ████  ██    ██  ██    ██████");
-	cprintf("%s%s\n", space, "{255;255;255}    ██        ██  ██    ██      ████  ██  ██  ████████");
-	cprintf("%s%s\n", space, "{255;255;255}    ██      ██  ██                          ████");
-	cprintf("%s%s\n", space, "{255;255;255}    ██        ██                    ██████    ██");
-	cprintf("%s%s\n", space, "{255;255;255}  ████        ██    ████          ██      ██  ██");
-	cprintf("%s%s\n", space, "{255;255;255}  ██          ██        ██          {255;0;0}██  ██{255;255;255}    ██");
-	cprintf("%s%s\n", space, "{255;255;255}  ██          ██          ██          {255;0;0}██{255;255;255}      ██");
-	cprintf("%s%s\n", space, "{255;255;255}  ██          ██    ██████          {255;0;0}██  ██{255;255;255}      ██");
-	cprintf("%s%s\n", space, "{255;255;255}  ████    ██  ██                                ██");
-	cprintf("%s%s\n", space, "{255;255;255}    ████  ██████          ██    ██            ██");
-	cprintf("%s%s\n", space, "{255;255;255}      ██████  ████          ████          ████");
-	cprintf("%s%s\n", space, "{255;255;255}                ████                    ████");
-	cprintf("%s%s\n", space, "{255;255;255}                    ████████████████████");
-	cprintf("%s{clear}\n", "");
-}
-// For `ruri -v`.
-// See https://stackoverflow.com/questions/55641889/access-build-id-at-runtime
-extern char build_id_start;
-extern char build_id_end;
-// Seems it only works on aarch64.
-#ifdef __aarch64__
-static char *get_build_id(void)
-{
-	/*
-	 * Just like its name.
-	 */
-	static char ret[128] = { '\0' };
-	char buf[4] = { '\0' };
-	for (char *s = &build_id_start + 16; s < &build_id_end; s++) {
-		sprintf(buf, "%x", *s);
-		strcat(ret, buf);
-	}
-	return ret;
-}
-#endif
 void show_version_info(void)
 {
 	/*
@@ -113,16 +45,12 @@ void show_version_info(void)
 	cprintf("{base}    <https://mit-license.org>\n");
 	cprintf("{base}Copyright (C) 2022-2024 Moe-hacker\n");
 	cprintf("{base}%s%s%s", "ruri version .....:  ", RURI_VERSION, "\n");
-	cprintf("{base}%s%s%s", "Commit id ........:  ", RURI_COMMIT_ID, "\n");
 	cprintf("{base}%s%d%s%d%s", "libcap ...........:  ", LIBCAP_MAJOR, ".", LIBCAP_MINOR, "\n");
 	cprintf("{base}%s%d%s%d%s%d%s", "libseccomp .......:  ", SCMP_VER_MAJOR, ".", SCMP_VER_MINOR, ".", SCMP_VER_MICRO, "\n");
 	cprintf("{base}%s%d%s%d%s", "libk2v ...........:  ", LIBK2V_MAJOR, ".", LIBK2V_MINOR, "\n");
 	cprintf("{base}%s%d%s%d%s", "cprintf ..........:  ", CPRINTF_MAJOR, ".", CPRINTF_MINOR, "\n");
 	cprintf("{base}%s%s\n", "Compiler version .:  ", __VERSION__);
 	cprintf("{base}%s%s\n", "Build date .......:  ", __TIMESTAMP__);
-#ifdef __aarch64__
-	cprintf("{base}%s%s\n", "Build ID .........:  ", get_build_id());
-#endif
 	cprintf("{base}\nThere is NO WARRANTY, to the extent permitted by law\n");
 	cprintf("{clear}\n");
 }
@@ -143,7 +71,7 @@ void show_helps(void)
 	 * Help page of ruri.
 	 * I think you can understand...
 	 */
-	cprintf("{base}ruri %s %s\n\n", RURI_VERSION, RURI_COMMIT_ID);
+	cprintf("{base}ruri %s\n\n", RURI_VERSION);
 	cprintf("{base}Lightweight, User-friendly Linux-container Implementation\n");
 	cprintf("\n");
 	cprintf("{base}Usage:\n");
@@ -166,7 +94,7 @@ void show_helps(void)
 	cprintf("{base}  -u, --unshare .......................: Enable unshare feature\n");
 	cprintf("{base}  -n, --no-new-privs ..................: Set NO_NEW_PRIVS Flag\n");
 	cprintf("{base}  -N, --no-rurienv ....................: Do not use .rurienv file\n");
-	cprintf("{base}  -s, --disable-seccomp ...............: Disable built-in Seccomp profile\n");
+	cprintf("{base}  -s, --enable-seccomp ................: Enable built-in Seccomp profile\n");
 	cprintf("{base}  -p, --privileged ....................: Run privileged container\n");
 	cprintf("{base}  -r, --rootless ......................: Run rootless container\n");
 	cprintf("{base}  -k, --keep [cap] ....................: Keep the specified cap\n");

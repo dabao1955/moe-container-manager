@@ -22,20 +22,17 @@ ifeq ("$(wildcard out)","")
 endif
 
 .PHONY: all
-all: ruri.o yoshinon.o interface.o libk2v.o install
+all: ruri.o yoshinon.o interface.o install
 ruri.o:
-	@[ -e ruri/ruri ]||($(MAKE) -C ruri static)
+	@[ -e ruri/ruri ]||(cd ruri && mkdir build && cd build && cmake .. && $(MAKE) && make install)
 yoshinon.o:
 	@[ -e yoshinon/yoshinon ]||(cd yoshinon && mkdir build && cd build && cmake .. && $(MAKE))
-libk2v.o:
-	@[ -e libk2v/build/k2sh ]||(cd libk2v && mkdir build && cd build && cmake .. && $(MAKE) && make install)
 interface.o:
 	@[ -e interface/build/interface ]||(cd interface && mkdir build && cd build && cmake .. && $(MAKE) && make install)
 
 install:
 	@cp rootfstool/rootfstool out
-	@mv ruri/ruri out
 
 .PHONY: clean
 clean: out
-	@rm -rf out ruri/ruri yoshinon/build nekoasc/nekoasc nekoasc/out interface/build libk2v/build
+	@rm -rf out ruri/build yoshinon/build interface/build
