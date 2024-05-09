@@ -83,7 +83,7 @@ install: out/share/doc/moe-container-manager/LICENSE
 	@cp -r $(O)/share/doc/* /usr/share/doc/
 	@cp -r $(O)/share/moe-container-manager /usr/share/
 test:
-	@perl --version
+	@out/bin/interface -v
 
 .PHONY: clean
 clean:

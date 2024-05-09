@@ -31,5 +31,5 @@ namespace proj {
 #define MAX_MOUNTPOINTS (128 * 2)
 
 #define warning(...) XLOG_WARN("this is error log record: {}");
-
+#define error(...) XLOG_ERROR("Error: {}");
 #endif

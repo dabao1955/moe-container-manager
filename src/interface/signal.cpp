@@ -8,7 +8,7 @@ namespace projsignal {
             char buf[1024];
             ssize_t bufsize = read(clifd, buf, sizeof(buf));
             XLOG_ERROR("Fatal error, the program has stopped: {}");
-            //cout << "Fatal error, the program has stopped.\n";
+            cout << "Fatal error, the program has stopped.\n";
             exit(127);
     }
 

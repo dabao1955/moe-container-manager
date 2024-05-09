@@ -26,17 +26,16 @@ sub check_rootfstool {
     }
 }
 
-sub check_libk2v {
-    my $mk = "cd && src/libk2v && perl test/test.pl";
+sub check_interface {
+    my $mk = "out/bin/interface";
     my $exit_code = system $mk;
     if ($exit_code != 0) {
         die "Failed to execute $mk. Exit code: $exit_code\n";
     }
   
     my @commands = (
-        "$mk test",
-        "$mk format",
-        "$mk check"
+        "$mk -v",
+        "$mk -h"
     );
   
     for my $cmd (@commands) {
@@ -65,7 +64,7 @@ sub check_sh {
 sub main {
     check_ruri();
     check_rootfstool();
-    check_libk2v();
+    check_interface();
     check_sh();
 }
 
