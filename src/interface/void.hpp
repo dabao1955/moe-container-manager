@@ -1,5 +1,5 @@
-#ifndef FUNCTION_HPP
-#define FUNCTION_HPP
+#ifndef VOID_HPP
+#define VOID_HPP
 
 namespace func {
     void version();
@@ -8,6 +8,10 @@ namespace func {
     void remove();
     void usage();
     void start();
+}
+
+namespace projsignal {
+    void register_signal(void);
 }
 
 #endif

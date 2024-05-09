@@ -1,6 +1,6 @@
 #include "main.hpp"
 #include "log.hpp"
-#include "function.hpp"
+#include "void.hpp"
 
 using namespace proj;
 // New feature from c++17,from List directory name
@@ -61,6 +61,7 @@ namespace func {
 
     void version(){
         cout <<prog_name<<" version "<<prog_version<<endl
+        << "Build date: " << __DATE__ << " " << __TIME__ <<endl
         << "Copyright (C) 2024 dabao1955\n"
         << "License: Apache-2.0\n";
         exit(0);

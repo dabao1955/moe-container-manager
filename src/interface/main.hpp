@@ -1,4 +1,5 @@
 #include "include.hpp"
+#include "log.hpp"
 #include <linux/version.h>
 
 #ifndef MAIN_HPP
@@ -28,5 +29,7 @@ namespace proj {
 #define MAX_COMMANDS (1024)
 #define MAX_ENVS (128 * 2)
 #define MAX_MOUNTPOINTS (128 * 2)
+
+#define warning(...) XLOG_WARN("this is error log record: {}");
 
 #endif

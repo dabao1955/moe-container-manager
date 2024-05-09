@@ -1,9 +1,11 @@
 #include "main.hpp"
-#include "function.hpp"
+#include "void.hpp"
 
 using namespace func;
+using namespace projsignal;
 
 int main(int argc, char *argv[]) {
+    register_signal();
 
     if (argc < 2)  {
         cout << "Error: No inputs.\n"
