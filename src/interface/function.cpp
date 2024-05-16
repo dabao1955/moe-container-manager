@@ -54,7 +54,7 @@ namespace func {
 
         cout << "Installed container list:\n";
         char buf[1024]={0};
-        while (fin >> buf)
+        while (fin.getline(buf, sizeof(buf)))
         {
             cout << buf << endl;
         }
