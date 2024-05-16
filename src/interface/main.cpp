@@ -34,8 +34,14 @@ int main(int argc, char *argv[]) {
                     case 'l':
                         readc();
                         return 0;
-                    case 'r':
+                    case 'd':
                         remove();
+                        return 0;
+                    case 'r':
+                        reg();
+                        return 0;
+                    case 's':
+                        start();
                         return 0;
                     default:
                         cerr<<proj::prog_name<<":error:unrecognition option -:"<<pchar<<endl;

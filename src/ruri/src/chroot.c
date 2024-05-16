@@ -74,7 +74,7 @@ static void init_container(void)
 	 * The device list and permissions are based on common docker container.
 	 */
 	// Check if system runtime files are already created.
-	DIR *direxist = opendir("/sys/kernel");
+	DIR *direxist = opendir("/sys/class/input");
 	if (direxist == NULL) {
 		// Mount proc,sys and dev.
 		mkdir("/sys", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
@@ -284,9 +284,10 @@ void mount_mountpoints(const struct CONTAINER *container)
 		trymount(container->extra_ro_mountpoint[i], mountpoint_dir, MS_RDONLY);
 		free(mountpoint_dir);
 	}
-
-	// '/' should be a mountpoint in container.
-	mount(container->container_dir, container->container_dir, NULL, MS_BIND, NULL);
+	if (!container->rootless) {
+		// '/' should be a mountpoint in container.
+		mount(container->container_dir, container->container_dir, NULL, MS_BIND, NULL);
+	}
 }
 // Run chroot container.
 void run_chroot_container(struct CONTAINER *container)
@@ -305,7 +306,7 @@ void run_chroot_container(struct CONTAINER *container)
 	// container_dir shoud bind-mount before chroot(2),
 	// mount_host_runtime() and store_info() will be called here.
 	char buf[PATH_MAX] = { '\0' };
-	sprintf(buf, "%s/sys/kernel", container->container_dir);
+	sprintf(buf, "%s/sys/class/input", container->container_dir);
 	DIR *direxist = opendir(buf);
 	if (direxist == NULL) {
 		// Mount mountpoints.
@@ -351,6 +352,77 @@ void run_chroot_container(struct CONTAINER *container)
 	symlink("/proc/mounts", "/etc/mtab");
 	// Set up cgroup limit.
 	set_limit(container);
+	// Set up Seccomp BPF.
+	if (container->enable_seccomp) {
+		setup_seccomp(container);
+	}
+	// Drop caps.
+	drop_caps(container);
+	// Set envs.
+	set_envs(container);
+	// Fix a bug that the terminal is frozen.
+	usleep(200000);
+	// Set NO_NEW_PRIVS Flag.
+	// It requires Linux3.5 or later.
+	// It will make sudo unavailable in container.
+	if (container->no_new_privs) {
+		prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+	}
+	// Disallow raising ambient capabilities via the prctl(2) PR_CAP_AMBIENT_RAISE operation.
+	prctl(PR_SET_SECUREBITS, SECBIT_NO_CAP_AMBIENT_RAISE);
+	// We only need 0(stdin), 1(stdout), 2(stderr),
+	// So we close the other fds to avoid security issues.
+	for (int i = 3; i <= 10; i++) {
+		close(i);
+	}
+	// Setup binfmt_misc.
+	if (container->cross_arch != NULL) {
+		setup_binfmt_misc(container);
+	}
+	// Fix console color.
+	cprintf("{clear}");
+	// Execute command in container.
+	// Use exec(3) function because system(3) may be unavailable now.
+	if (execv(container->command[0], container->command) == -1) {
+		// Catch exceptions.
+		error("{red}Failed to execute `%s`\nexecv() returned: %d\nerror reason: %s\nNote: unset $LD_PRELOAD before running ruri might fix this{clear}\n", container->command[0], errno, strerror(errno));
+	}
+}
+// Run chroot container.
+void run_rootless_chroot_container(struct CONTAINER *container)
+{
+	/*
+	 * It's called by run_rootless_container().
+	 * It will chroot(2) to container_dir, and exec(3) init command in container.
+	 */
+	// Ignore SIGTTIN, if we are running in the background, SIGTTIN may kill this process.
+	sigset_t sigs;
+	sigemptyset(&sigs);
+	sigaddset(&sigs, SIGTTIN);
+	sigaddset(&sigs, SIGTTOU);
+	sigprocmask(SIG_BLOCK, &sigs, 0);
+	// Mount mountpoints.
+	mount_mountpoints(container);
+	// Store container info.
+	if (container->use_rurienv) {
+		store_info(container);
+	}
+	// Set default command for exec().
+	if (container->command[0] == NULL) {
+		container->command[0] = "/bin/su";
+		container->command[1] = "-";
+		container->command[2] = NULL;
+	}
+	// Check binary used.
+	check_binary(container);
+	// chroot(2) into container.
+	chdir(container->container_dir);
+	chroot(".");
+	chdir("/");
+	// Fix /etc/mtab.
+	remove("/etc/mtab");
+	unlink("/etc/mtab");
+	symlink("/proc/mounts", "/etc/mtab");
 	// Set up Seccomp BPF.
 	if (container->enable_seccomp) {
 		setup_seccomp(container);

@@ -14,7 +14,9 @@ namespace func {
         << "-c               create new container.\n"
         << "-h               show the program usage.\n"
         << "-l               list the installed container.\n"
-        << "-r               remove installed container.\n"
+        << "-d               remove installed container.\n"
+        << "-r               register a new container.\n"
+        << "-s               start a container.\n"
         << "-v               show the program version.\n\n"
         << "N: this is a unstable app.\n";
         return;
@@ -74,7 +76,7 @@ namespace func {
     }
 
     void create(){
-        cout << "remove a installed container\n";
+        cout << "Create a new container\n";
         // check root account
         if (geteuid() != 0) {
             system("/usr/share/moe-container/create.sh");
@@ -87,6 +89,11 @@ namespace func {
 
     void start(){
         system("/usr/share/moe-container/start.sh");
+        exit(0);
+    }
+
+    void register(){
+        system("/usr/share/moe-container/register.sh");
         exit(0);
     }
 

@@ -26,8 +26,16 @@ else
 fi
 read -p "Name the container >" NAME
 
-#check
-
-if [[ $BACKEND == "ruri" ]]; then
-
+if [[ -e /usr/share/moe-container-manager/containers/${NAME}.conf ]]; then
+  echo -e "\033[31mThe name has already been taken"
+  exit 1
 fi
+if [[ $BACKEND == "ruri" ]]; then
+  sudo LD_PRELOAD= ruri -D -o /usr/share/moe-container-manager/containers/${NAME}.conf $CONTAINER_DIR
+  printf "backend=\"ruri\"\n" | sudo tee -a /usr/share/moe-container-manager/containers/${NAME}.conf 2>&1 >/dev/null
+else
+  printf "backend=\"proot\"\ncontainer_dir=\"${CONTAINER_DIR}\"\n" >/usr/share/moe-container-manager/containers/${NAME}.conf
+fi
+chmod 777 /usr/share/moe-container-manager/containers/*
+echo "Registered container $NAME"
+printf "\033[0m"

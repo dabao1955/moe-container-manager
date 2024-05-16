@@ -28,12 +28,98 @@
  *
  */
 #include "include/ruri.h"
+static void try_unshare(int flags)
+{
+	/*
+	 * Try to use unshare(2).
+	 */
+	if (unshare(flags) == -1) {
+		error("{red}Your device does not support some namespaces needed!\n");
+	}
+}
+static void init_rootless_container(struct CONTAINER *container)
+{
+	chdir(container->container_dir);
+	mkdir("./sys", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	// Note: sys/block will not be mounted.
+	mkdir("./sys/block", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mkdir("./sys/bus", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/sys/bus", "./sys/bus", NULL, MS_BIND, NULL);
+	mkdir("./sys/class", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/sys/class", "./sys/class", NULL, MS_BIND, NULL);
+	// Note: sys/dev will not be mounted.
+	mkdir("./sys/dev", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mkdir("./sys/devices", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/sys/devices", "./sys/devices", NULL, MS_BIND, NULL);
+	mkdir("./sys/firmware", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/sys/firmware", "./sys/firmware", NULL, MS_BIND, NULL);
+	// Note: sys/fs will not be mounted.
+	mkdir("./sys/fs", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mkdir("./sys/kernel", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	// TODO: This will be failed.
+	mount("/sys/kernel", "./sys/kernel", NULL, MS_BIND, NULL);
+	mkdir("./sys/module", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/sys/module", "./sys/module", NULL, MS_BIND, NULL);
+	mkdir("./proc", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("proc", "./proc", "proc", MS_NOSUID | MS_NOEXEC | MS_NODEV, NULL);
+	mkdir("./dev", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("tmpfs", "./dev", "tmpfs", MS_NOSUID, "size=65536k,mode=755");
+	creat("./dev/tty", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/dev/tty", "./dev/tty", NULL, MS_BIND, NULL);
+	creat("./dev/console", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/dev/console", "./dev/console", NULL, MS_BIND, NULL);
+	creat("./dev/null", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/dev/null", "./dev/null", NULL, MS_BIND, NULL);
+	creat("./dev/ptmx", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/dev/ptmx", "./dev/ptmx", NULL, MS_BIND, NULL);
+	creat("./dev/random", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/dev/random", "./dev/random", NULL, MS_BIND, NULL);
+	creat("./dev/urandom", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/dev/urandom", "./dev/urandom", NULL, MS_BIND, NULL);
+	creat("./dev/zero", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("/dev/zero", "./dev/zero", NULL, MS_BIND, NULL);
+	symlink("/proc/self/fd", "./dev/fd");
+	symlink("/proc/self/fd/0", "./dev/stdin");
+	symlink("/proc/self/fd/1", "./dev/stdout");
+	symlink("/proc/self/fd/2", "./dev/stderr");
+	symlink("/dev/null", "./dev/tty0");
+	mkdir("./dev/pts", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("devpts", "./dev/pts", "devpts", 0, "gid=4,mode=620");
+	mkdir("./dev/shm", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	mount("tmpfs", "./dev/shm", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, "mode=1777");
+	mount("./proc/bus", "./proc/bus", NULL, MS_BIND | MS_REC, NULL);
+	mount("./proc/bus", "./proc/bus", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+	mount("./proc/fs", "./proc/fs", NULL, MS_BIND | MS_REC, NULL);
+	mount("./proc/fs", "./proc/fs", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+	mount("./proc/irq", "./proc/irq", NULL, MS_BIND | MS_REC, NULL);
+	mount("./proc/irq", "./proc/irq", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+	mount("./proc/sys", "./proc/sys", NULL, MS_BIND | MS_REC, NULL);
+	mount("./proc/sys", "./proc/sys", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+	mount("./proc/sys-trigger", "./proc/sys-trigger", NULL, MS_BIND | MS_REC, NULL);
+	mount("./proc/sys-trigger", "./proc/sys-trigger", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+	mount("tmpfs", "./proc/asound", "tmpfs", MS_RDONLY, NULL);
+	mount("tmpfs", "./proc/acpi", "tmpfs", MS_RDONLY, NULL);
+	mount("/dev/null", "./proc/kcore", "", MS_BIND, NULL);
+	mount("/dev/null", "./proc/keys", "", MS_BIND, NULL);
+	mount("/dev/null", "./proc/latency_stats", "", MS_BIND, NULL);
+	mount("/dev/null", "./proc/timer_list", "", MS_BIND, NULL);
+	mount("/dev/null", "./proc/timer_stats", "", MS_BIND, NULL);
+	mount("/dev/null", "./proc/sched_debug", "", MS_BIND, NULL);
+	mount("tmpfs", "./proc/scsi", "tmpfs", MS_RDONLY, NULL);
+	mount("tmpfs", "./sys/firmware", "tmpfs", MS_RDONLY, NULL);
+	mount("tmpfs", "./sys/devices/virtual/powercap", "tmpfs", MS_RDONLY, NULL);
+	mount("tmpfs", "./sys/block", "tmpfs", MS_RDONLY, NULL);
+}
 void run_rootless_container(struct CONTAINER *container)
 {
 	uid_t uid = geteuid();
 	gid_t gid = getegid();
-	unshare(CLONE_NEWUSER);
-	unshare(CLONE_NEWNS);
+	// Enable user namespace.
+	try_unshare(CLONE_NEWUSER);
+	// We need to own mount namespace.
+	try_unshare(CLONE_NEWNS);
+	// Seems procfs need pid namespace.
+	try_unshare(CLONE_NEWPID);
 	pid_t pid = fork();
 	if (pid > 0) {
 		int stat = 0;
@@ -60,6 +146,8 @@ void run_rootless_container(struct CONTAINER *container)
 		// Maybe needless.
 		setuid(0);
 		setgid(0);
-		run_chroot_container(container);
+		// Init rootless container.
+		init_rootless_container(container);
+		run_rootless_chroot_container(container);
 	}
 }
