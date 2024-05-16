@@ -92,7 +92,7 @@ namespace func {
         exit(0);
     }
 
-    void register(){
+    void reg(){
         system("/usr/share/moe-container/register.sh");
         exit(0);
     }

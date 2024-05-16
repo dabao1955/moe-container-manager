@@ -24,11 +24,11 @@ endif
 .PHONY: all
 all: ruri.o yoshinon.o interface.o install
 ruri.o:
-	@[ -e ruri/ruri ]||(cd ruri && mkdir build && cd build && cmake .. && $(MAKE) && make install)
+	@[ -e ruri/ruri ]||(cd ruri && mkdir build && cd build && cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` && $(MAKE) && make install)
 yoshinon.o:
 	@[ -e yoshinon/yoshinon ]||(cd yoshinon && mkdir build && cd build && cmake .. && $(MAKE))
 interface.o:
-	@[ -e interface/build/interface ]||(cd interface && mkdir build && cd build && cmake .. && $(MAKE) && make install)
+	@[ -e interface/build/interface ]||(cd interface && mkdir build && cd build && cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` && $(MAKE) && make install)
 
 install:
 	@cp rootfstool/rootfstool out

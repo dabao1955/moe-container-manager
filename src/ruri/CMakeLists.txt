@@ -2,7 +2,7 @@
 
 # set the project name
 project(ruri VERSION 3.1)
-set(CMAKE_CXX_COMPILER "clang")
+set(CMAKE_C_COMPILER "gcc")
 
 # add cxx standard
 add_compile_options("-Wno-unused-result")
@@ -35,5 +35,5 @@ if(CCACHE_FOUND)
 endif(CCACHE_FOUND)
 
 # add cxx flags
-set(CMAKE_EXE_LINKER_FLAGS "-ffunction-sections -fdata-sections -z noexecstack -fPIE -Wall -Wextra -pedantic -fuse-ld=lld -flto -fstack-protector-all -fstack-clash-protection -ffunction-sections -fdata-sections -Wl,--gc-sections")
+set(CMAKE_EXE_LINKER_FLAGS "-ffunction-sections -fdata-sections -z noexecstack -fPIE -Wall -Wextra -pedantic -flto -fstack-protector-all -fstack-clash-protection -ffunction-sections -fdata-sections -Wl,--gc-sections")
 install (TARGETS ruri DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../out)
