@@ -8,6 +8,7 @@ namespace func {
     void remove();
     void usage();
     void start();
+    void reg();
 }
 
 namespace projsignal {
