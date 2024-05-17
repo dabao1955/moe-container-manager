@@ -1,4 +1,3 @@
 out/share/doc/moe-container-manager/ /usr/share/doc/
 out/bin/ /usr/
 out/share/moe-container-manager/ /usr/share/
-out/lib/moe-container-manager/ /usr/lib/

@@ -25,6 +25,9 @@ endif()
 if(NOT EXISTS ${CMAKE_SOURCE_DIR}/out/share)
    file(MAKE_DIRECTORY out/share)
 endif()
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/out/share/moe-container-manager/)
+   file(MAKE_DIRECTORY out/share/moe-container-manager/)
+endif()
 
 add_custom_target(
     doc
@@ -46,6 +49,7 @@ add_custom_target(
 
 add_custom_target(
     install
-    COMMAND cp -r src/out/* out/bin/ && cp LICENSE out/share/doc/moe-container-manager/ && tar -xf src/share/proc.tar.xz -C out/share/proc && cp out/bin/* /usr/bin/ && cp out/share /usr/share/moe-container-manager
+    COMMAND cp -r src/out/* out/bin/ && cp src/share/*.sh out/share/moe-container-manager/ && cp LICENSE out/share/doc/moe-container-manager/ && tar -xf src/share/proc.tar.xz -C out/share/moe-container-manager/proc && cp out/bin/* /usr/bin/ && cp out/share/moe-container-manager/ /usr/share/
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} # Set the working directory for go fmt
+    DEPENDS build
 )
