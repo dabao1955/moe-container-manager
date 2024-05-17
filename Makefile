@@ -23,7 +23,7 @@ ENDCOLOR    = \033[0m
 CC_LOG = @printf '    $(CCCOLOR)CC$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 STRIP_LOG = @printf ' $(STRIPCOLOR)STRIP$(ENDCOLOR) $(BINCOLOR)%b$(ENDCOLOR)\n'
 O = out
-SRCODE = $(MAKE) -C src
+SRCODE = cd src && mkdir build && cd build && cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -GNinja && ninja -j8 && ninja install
 .PHONY: all
 all: show-greetings $(BIN) $(SHARE) build
 show-greetings:
@@ -66,7 +66,7 @@ BIN = $(O)/bin/
 
 SHARE = $(O)/share/moe-container-manager
 
-build: src/Makefile
+build: src/CMakeLists.txt
 	@$(SRCODE)
 	@cp -r src/out/* out/bin/
 	@cp LICENSE out/share/doc/moe-container-manager/

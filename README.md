@@ -36,21 +36,21 @@ moe-container-manager is a port of Linux cli environment that cannot run docker 
 ### for Debian/Ubuntu
 ```
 cd moe-container-manager
-sudo apt build-dep
+sudo apt build-dep .
 make
 make install
 ```
 
 ### for Arch Linux
 ```
-sudo pacman -Syy p7zip golang unzip zip git wget curl nano proot axel pv gawk gettext git gcc g++ make libcap libseccomp go cmake libspdlog
+sudo pacman -Syy p7zip golang unzip zip git wget curl nano proot axel pv gawk gettext git gcc g++ make libcap libseccomp go cmake libspdlog ninja-build
 cd moe-container-manager
 make
 make install
 ```
 
 ### for Other Linux
-install libcap,gcc,libspdlog,golang,libseccomp,cmake and make。
+install libcap,gcc,libspdlog,golang,libseccomp,cmake,ninja-build and make。
 ```
 cd moe-container-manager
 make
@@ -78,3 +78,4 @@ See `interface -h` in interface command.
 This project follows the Apache-2.0 open source license agreement, and its sub-projects adopt its original agreement.
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdabao1955%2Fmoe-container-manager.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdabao1955%2Fmoe-container-manager?ref=badge_large)
+
