@@ -51,10 +51,6 @@ ifeq ("$(wildcard $(SHARE)/doc)","")
 	$(shell mkdir out/share/doc)
 	$(shell mkdir out/share/doc/moe-container-manager)
 endif
-ifeq ("$(wildcard $(LIB))","")
-	$(shell mkdir out/lib)
-	$(shell mkdir $(LIB))
-endif
 ifeq ("$(wildcard $(BIN))","")
 	$(shell mkdir $(BIN))
 endif
@@ -69,7 +65,6 @@ endif
 BIN = $(O)/bin/
 
 SHARE = $(O)/share/moe-container-manager
-LIB = $(O)/lib/moe-container-manager
 
 build: src/Makefile
 	@$(SRCODE)

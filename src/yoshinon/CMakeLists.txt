@@ -1,5 +1,5 @@
 # CMakeLists.txt for the Go project
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.10)
 
 project(yoshinon LANGUAGES NONE)
 
