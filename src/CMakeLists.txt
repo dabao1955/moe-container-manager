@@ -17,10 +17,10 @@ include(yoshinon/yoshinon.cmake)
 include(interface/interface.cmake)
 include(rootfstool/rootfstool.cmake)
 
-if(NOT EXISTS ${CMAKE_SOURCE_DIR}/../out)
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/out)
    file(MAKE_DIRECTORY out)
 else()
-    execute_process(COMMAND rm -rf ../out/*)
+    execute_process(COMMAND rm -rf out/*)
 endif()
 
 #set_property DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
