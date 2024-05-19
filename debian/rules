@@ -8,9 +8,9 @@ export VERBOSE = 1
 # prefix
 #prefix=$(CURDIR)/debian/moe-container-manager/usr
 
-export CC = /bin/clang
-export CXX = /bin/clang++
-export LD = /bin/ld.lld
+export CC = /bin/gcc
+export CXX = /bin/g++
+#export LD = /bin/ld.lld
 
 export DEB_BUILD_ARCH ?= $(shell dpkg-architecture -qDEB_BUILD_ARCH)
 export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
