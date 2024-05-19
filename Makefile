@@ -23,7 +23,7 @@ ENDCOLOR    = \033[0m
 O = out
 
 ifeq ("$(origin VERBOSE)", "command line")
-  BUILD_VERBOSE = $(V)
+  BUILD_VERBOSE = $(VERBOSE)
 endif
 ifndef BUILD_VERBOSE
   BUILD_VERBOSE = 0
