@@ -41,42 +41,24 @@ static void init_rootless_container(struct CONTAINER *container)
 {
 	chdir(container->container_dir);
 	mkdir("./sys", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	// Note: sys/block will not be mounted.
-	mkdir("./sys/block", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	mkdir("./sys/bus", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	mount("/sys/bus", "./sys/bus", NULL, MS_BIND, NULL);
-	mkdir("./sys/class", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	mount("/sys/class", "./sys/class", NULL, MS_BIND, NULL);
-	// Note: sys/dev will not be mounted.
-	mkdir("./sys/dev", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	mkdir("./sys/devices", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	mount("/sys/devices", "./sys/devices", NULL, MS_BIND, NULL);
-	mkdir("./sys/firmware", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	mount("/sys/firmware", "./sys/firmware", NULL, MS_BIND, NULL);
-	// Note: sys/fs will not be mounted.
-	mkdir("./sys/fs", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	mkdir("./sys/kernel", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	// TODO: This will be failed.
-	mount("/sys/kernel", "./sys/kernel", NULL, MS_BIND, NULL);
-	mkdir("./sys/module", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	mount("/sys/module", "./sys/module", NULL, MS_BIND, NULL);
+	mount("/sys", "./sys", NULL, MS_BIND | MS_REC, NULL);
 	mkdir("./proc", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 	mount("proc", "./proc", "proc", MS_NOSUID | MS_NOEXEC | MS_NODEV, NULL);
 	mkdir("./dev", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 	mount("tmpfs", "./dev", "tmpfs", MS_NOSUID, "size=65536k,mode=755");
-	creat("./dev/tty", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	open("./dev/tty", O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 	mount("/dev/tty", "./dev/tty", NULL, MS_BIND, NULL);
-	creat("./dev/console", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	open("./dev/console", O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 	mount("/dev/console", "./dev/console", NULL, MS_BIND, NULL);
-	creat("./dev/null", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	open("./dev/null", O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 	mount("/dev/null", "./dev/null", NULL, MS_BIND, NULL);
-	creat("./dev/ptmx", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	open("./dev/ptmx", O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 	mount("/dev/ptmx", "./dev/ptmx", NULL, MS_BIND, NULL);
-	creat("./dev/random", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	open("./dev/random", O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 	mount("/dev/random", "./dev/random", NULL, MS_BIND, NULL);
-	creat("./dev/urandom", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	open("./dev/urandom", O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 	mount("/dev/urandom", "./dev/urandom", NULL, MS_BIND, NULL);
-	creat("./dev/zero", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
+	open("./dev/zero", O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 	mount("/dev/zero", "./dev/zero", NULL, MS_BIND, NULL);
 	symlink("/proc/self/fd", "./dev/fd");
 	symlink("/proc/self/fd/0", "./dev/stdin");
@@ -146,6 +128,9 @@ void run_rootless_container(struct CONTAINER *container)
 		// Maybe needless.
 		setuid(0);
 		setgid(0);
+		setgroups_fd = open("/proc/self/setgroups", O_RDWR | O_CLOEXEC);
+		write(setgroups_fd, "allow", 5);
+		close(setgroups_fd);
 		// Init rootless container.
 		init_rootless_container(container);
 		run_rootless_chroot_container(container);

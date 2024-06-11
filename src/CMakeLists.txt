@@ -1,4 +1,3 @@
-## Work in progress do not run it
 cmake_minimum_required(VERSION 3.10)
 
 project(moe-container-manager-src)

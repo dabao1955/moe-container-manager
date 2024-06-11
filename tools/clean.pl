@@ -3,7 +3,7 @@
 $fileExist = -e "./.git";
 if ( $fileExist ) {
         system("git clean -dxf");
-    }
-    else {
+        system("git checkout .");
+} else {
         system("rm -rf out && make -C src clean");
-     }
+}

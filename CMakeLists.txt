@@ -18,6 +18,10 @@ else()
     execute_process(COMMAND rm -rf out/*)
 endif()
 
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/src/o)
+   file(MAKE_DIRECTORY src/o)
+endif()
+
 if(NOT EXISTS ${CMAKE_SOURCE_DIR}/out/bin)
    file(MAKE_DIRECTORY out/bin)
 endif()
@@ -41,14 +45,16 @@ add_custom_target(
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} # Set the working directory for go fmt
 )
 
+#add_subdirectory(src)
+
 add_custom_target(
     build
-    COMMAND cd src && cmake . -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` && make -j$(nproc --all)
+    COMMAND cd src && cd o && cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` && make -j$(nproc --all)
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} # Set the working directory for go fmt
 )
 
 add_custom_target(
-    install
+    installbin
     COMMAND cp -r src/out/* out/bin/ && cp src/share/*.sh out/share/moe-container-manager/ && cp LICENSE out/share/doc/moe-container-manager/ && tar -xf src/share/proc.tar.xz -C out/share/moe-container-manager/proc && cp out/bin/* /usr/bin/ && cp out/share/moe-container-manager/ /usr/share/
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} # Set the working directory for go fmt
     DEPENDS build
