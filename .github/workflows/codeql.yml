@@ -62,7 +62,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
     - name: Install Build dep
-      if: matrix.language == 'c-cpp' 
+      if: matrix.language != 'python'
       run: sudo apt-get update && sudo apt-get install libcap-dev libseccomp-dev libspdlog-dev gcc g++ ninja-build -y
 
     # Initializes the CodeQL tools for scanning.
