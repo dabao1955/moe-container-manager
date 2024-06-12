@@ -40,4 +40,4 @@ endif(CCACHE_FOUND)
 
 # add cxx flags
 set(CMAKE_EXE_LINKER_FLAGS "-ffunction-sections -fdata-sections -z now -z noexecstack -fPIE -Wall -Wextra -pedantic -flto")
-install (TARGETS interface DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../out)
+install (TARGETS interface DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../out/bin)

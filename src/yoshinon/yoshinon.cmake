@@ -30,7 +30,7 @@ add_custom_target(
 add_custom_target(
     yoshinon ALL
     COMMAND ${GO_COMPILER} build -ldflags ${LDFLAGS} -o yoshinon main.go
-    COMMAND mv ${CMAKE_SOURCE_DIR}/yoshinon/yoshinon ${CMAKE_SOURCE_DIR}/out/
+    COMMAND mv ${CMAKE_SOURCE_DIR}/yoshinon/yoshinon ${CMAKE_SOURCE_DIR}/../out/bin/
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/yoshinon # Set correct path where main.go is located
     DEPENDS mod_download
 )

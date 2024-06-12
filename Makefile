@@ -25,6 +25,13 @@ BIN = $(O)/bin/
 SHARE = $(O)/share/moe-container-manager/
 O = out
 
+ifeq ("$(origin VERBOSE)", "command line")
+  BUILD_VERBOSE = $(VERBOSE)
+endif
+ifndef BUILD_VERBOSE
+  BUILD_VERBOSE = 0
+endif
+
 ifeq ($(BUILD_VERBOSE),1)
   Q =
   SRCODE = cd src && \
@@ -74,14 +81,6 @@ ifeq ("$(wildcard $(BIN))","")
 	$(shell mkdir $(BIN))
 endif
 
-
-ifeq ("$(origin VERBOSE)", "command line")
-  BUILD_VERBOSE = $(VERBOSE)
-endif
-ifndef BUILD_VERBOSE
-  BUILD_VERBOSE = 0
-endif
-
 DOC = doc
 $(DOC): /usr/bin/w3m
 ifneq ($(shell test -d $(DOC)||echo x),)
@@ -91,7 +90,7 @@ endif
 
 build: src/CMakeLists.txt
 	$(Q)$(SRCODE)
-	$(Q)cp -r src/out/* out/bin/
+
 install: out/share/doc/moe-container-manager/LICENSE
 	$(Q)printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
 	$(Q)cp -r $(O)/bin/* /usr/bin/
@@ -115,6 +114,14 @@ clean:
 help:
 	$(Q)echo "Makefile is not for common user, please use the released .deb files instead."
 	$(Q)echo "(>_) "
+update-ruri: src/ruri
+	$(Q)mkdir -p src/tmp
+	$(Q)mv src/ruri/CMakeLists.txt src/ruri/ruri.cmake src/tmp
+	$(Q)rm -rf src/ruri
+	$(Q)git clone https://github.com/Moe-Hacker/ruri src/ruri
+	$(Q)rm -rf src/ruri/LICENSE src/ruri/.git src/ruri/.github src/ruri/.clang-format src/ruri/.clang-format src/ruri/Makefile src/ruri/configure
+	$(Q)mv src/tmp/* src/ruri/
+	$(Q)rm -rf src/tmp
 
 c-format:
 	$(Q)python3 tools/c-format.py
