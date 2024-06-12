@@ -11,9 +11,9 @@ endif()
 #add_subdirectory(interface)
 #add_subdirectory(rootfstool)
 
-#include(ruri/ruri.cmake)
-#include(yoshinon/yoshinon.cmake)
-#include(interface/interface.cmake)
+include(ruri/ruri.cmake)
+include(yoshinon/yoshinon.cmake)
+include(interface/interface.cmake)
 include(rootfstool/rootfstool.cmake)
 include(share/share.cmake)
 
