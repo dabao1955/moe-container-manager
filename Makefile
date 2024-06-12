@@ -20,14 +20,10 @@ CCCOLOR     = \033[1;38;2;254;228;208m
 STRIPCOLOR  = \033[1;38;2;254;228;208m
 BINCOLOR    = \033[34;1m
 ENDCOLOR    = \033[0m
-O = out
 
-ifeq ("$(origin VERBOSE)", "command line")
-  BUILD_VERBOSE = $(VERBOSE)
-endif
-ifndef BUILD_VERBOSE
-  BUILD_VERBOSE = 0
-endif
+BIN = $(O)/bin/
+SHARE = $(O)/share/moe-container-manager/
+O = out
 
 ifeq ($(BUILD_VERBOSE),1)
   Q =
@@ -61,13 +57,13 @@ show-greetings:
 	$(Q)printf "               \\        \\    /\n"
 	$(Q)printf "                \\        \\  /\n"
 	$(Q)printf "                 \\________\\/\n"
-	$(Q)sleep 1s
+
 ifeq ("$(wildcard out/)","")
 	$(shell mkdir out/)
 endif
 ifeq ("$(wildcard $(SHARE))","")
 	$(shell mkdir out/share)
-	$(shell cp src/share $(SHARE) -R)
+	$(shell mkdir $(SHARE))
 	$(shell mkdir $(SHARE)/proc)
 endif
 ifeq ("$(wildcard $(SHARE)/doc)","")
@@ -78,6 +74,14 @@ ifeq ("$(wildcard $(BIN))","")
 	$(shell mkdir $(BIN))
 endif
 
+
+ifeq ("$(origin VERBOSE)", "command line")
+  BUILD_VERBOSE = $(VERBOSE)
+endif
+ifndef BUILD_VERBOSE
+  BUILD_VERBOSE = 0
+endif
+
 DOC = doc
 $(DOC): /usr/bin/w3m
 ifneq ($(shell test -d $(DOC)||echo x),)
@@ -85,18 +89,11 @@ ifneq ($(shell test -d $(DOC)||echo x),)
 	$(Q)echo you can run <cd doc && make preview> to read docs.
 endif
 
-BIN = $(O)/bin/
-
-SHARE = $(O)/share/moe-container-manager
-
 build: src/CMakeLists.txt
 	$(Q)$(SRCODE)
 	$(Q)cp -r src/out/* out/bin/
-	$(Q)cp LICENSE out/share/doc/moe-container-manager/
-	$(Q)tar -xf src/share/proc.tar.xz -C $(SHARE)/proc
 install: out/share/doc/moe-container-manager/LICENSE
 	$(Q)printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
-	$(Q)rm -rf $(SHARE)/proc.tar.xz
 	$(Q)cp -r $(O)/bin/* /usr/bin/
 	$(Q)cp -r $(O)/share/doc/* /usr/share/doc/
 	$(Q)cp -r $(O)/share/moe-container-manager /usr/share/
