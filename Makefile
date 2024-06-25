@@ -116,10 +116,10 @@ help:
 	$(Q)echo "(>_) "
 update-ruri: src/ruri
 	$(Q)mkdir -p src/tmp
-	$(Q)mv src/ruri/CMakeLists.txt src/ruri/ruri.cmake src/tmp
+	$(Q)mv src/ruri/CMakeLists.txt src/ruri/ruri.cmake src/ruri/config.h.in src/tmp
 	$(Q)rm -rf src/ruri
 	$(Q)git clone https://github.com/Moe-Hacker/ruri src/ruri
-	$(Q)rm -rf src/ruri/LICENSE src/ruri/.git src/ruri/.github src/ruri/.clang-format src/ruri/.clang-format src/ruri/Makefile src/ruri/configure
+	$(Q)rm -rf src/ruri/LICENSE src/ruri/.git src/ruri/.github src/ruri/.clang-format src/ruri/.clang-format src/ruri/Makefile src/ruri/configure src/ruri/src/include/version.h
 	$(Q)mv src/tmp/* src/ruri/
 	$(Q)rm -rf src/tmp
 
