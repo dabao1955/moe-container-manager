@@ -12,7 +12,7 @@ file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/ruri/src/*.c)
 
 set(RURI_VERSION 3.3)
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"  # 源文件路径
+  "${CMAKE_CURRENT_SOURCE_DIR}/ruri/config.h.in"  # 源文件路径
   "${CMAKE_CURRENT_SOURCE_DIR}/ruri/src/include/version.h"     # 目标文件路径
   @ONLY
 )

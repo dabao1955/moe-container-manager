@@ -24,6 +24,11 @@ ENDCOLOR    = \033[0m
 BIN = $(O)/bin/
 SHARE = $(O)/share/moe-container-manager/
 O = out
+PREFIX = /usr/local/
+
+ifeq ("$(origin DESTDIR)", "command line")
+  DESTDIR = $(PREFIX)
+endif
 
 ifeq ("$(origin VERBOSE)", "command line")
   BUILD_VERBOSE = $(VERBOSE)
@@ -93,9 +98,14 @@ build: src/CMakeLists.txt
 
 install: out/share/doc/moe-container-manager/LICENSE
 	$(Q)printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
-	$(Q)cp -r $(O)/bin/* /usr/bin/
-	$(Q)cp -r $(O)/share/doc/* /usr/share/doc/
-	$(Q)cp -r $(O)/share/moe-container-manager /usr/share/
+	$(Q)install -d $(DESTDIR)/bin/
+	$(Q)install -m 755 $(O)/bin/* $(DESTDIR)/bin/
+	$(Q)install -d $(DESTDIR)/share/
+	$(Q)install -d $(DESTDIR)/share/doc
+	$(Q)install -d $(DESTDIR)/share/moe-container-mamager
+	$(Q)install -m 644 -D $(O)/share/doc/* $(DESTDIR)/share/doc
+	$(Q)install -m 755 $(O)/share/moe-container-manager/* $(DESTDIR)/share/moe-container-manager
+
 test:
 	$(Q)out/bin/interface -v
 

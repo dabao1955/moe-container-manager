@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # set the project name
-project(moe-container-manager-interface)
+project(moe-container-manager-interface LANGUAGES CXX VERSION 0.0.1)
 set(CMAKE_CXX_COMPILER "g++")
 
 # add cxx standard
