@@ -105,7 +105,7 @@ install: out/share/doc/moe-container-manager/LICENSE
 	$(Q)install -d $(DESTDIR)/share/doc/moe-container-manager
 	$(Q)install -d $(DESTDIR)/share/moe-container-manager
 	$(Q)cp -r $(O)/share/doc/* $(DESTDIR)/share/doc/moe-container-manager/
-	$(Q)install -m 755 $(O)/share/moe-container-manager/* $(DESTDIR)/share/moe-container-manager/
+	$(Q)cp -r $(O)/share/moe-container-manager/* $(DESTDIR)/share/moe-container-manager/
 test:
 	$(Q)out/bin/interface -v
 
