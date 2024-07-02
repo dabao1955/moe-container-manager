@@ -97,16 +97,15 @@ build: src/CMakeLists.txt
 	$(Q)$(SRCODE)
 
 install: out/share/doc/moe-container-manager/LICENSE
-	$(Q)printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"&&sleep 1s
+	$(Q)printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"
 	$(Q)install -d $(DESTDIR)/bin/
 	$(Q)install -m 755 $(O)/bin/* $(DESTDIR)/bin/
 	$(Q)install -d $(DESTDIR)/share/
 	$(Q)install -d $(DESTDIR)/share/doc
-	$(Q)install -d $(DESTDIR)/share/doc/moe-container-mamager
-	$(Q)install -d $(DESTDIR)/share/moe-container-mamager
+	$(Q)install -d $(DESTDIR)/share/doc/moe-container-manager
+	$(Q)install -d $(DESTDIR)/share/moe-container-manager
 	$(Q)install -m 644 -D $(O)/share/doc/* $(DESTDIR)/share/doc/moe-container-manager/
-	$(Q)install -m 755 $(O)/share/moe-container-manager/* $(DESTDIR)/share/moe-container-manager
-
+	$(Q)install -m 755 $(O)/share/moe-container-manager/* $(DESTDIR)/share/moe-container-manager/
 test:
 	$(Q)out/bin/interface -v
 
