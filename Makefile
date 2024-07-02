@@ -102,8 +102,9 @@ install: out/share/doc/moe-container-manager/LICENSE
 	$(Q)install -m 755 $(O)/bin/* $(DESTDIR)/bin/
 	$(Q)install -d $(DESTDIR)/share/
 	$(Q)install -d $(DESTDIR)/share/doc
+	$(Q)install -d $(DESTDIR)/share/doc/moe-container-mamager
 	$(Q)install -d $(DESTDIR)/share/moe-container-mamager
-	$(Q)install -m 644 -D $(O)/share/doc/* $(DESTDIR)/share/doc
+	$(Q)install -m 644 -D $(O)/share/doc/* $(DESTDIR)/share/doc/moe-container-manager/
 	$(Q)install -m 755 $(O)/share/moe-container-manager/* $(DESTDIR)/share/moe-container-manager
 
 test:
