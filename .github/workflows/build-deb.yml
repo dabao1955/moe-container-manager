@@ -19,6 +19,7 @@ jobs:
 
       - name: Build deb
         run: |
+          	git config --global --add safe.directory /__w/moe-container-manager/moe-container-manager
           dpkg-buildpackage -d -us -uc && cp ../moe-container-manager_* ./out -rv && chmod 755 -R out/*
       - name: Upload builded to artifact
         if: github.event_name == 'push'
