@@ -9,10 +9,15 @@ namespace func {
     void usage();
     void start();
     void reg();
+    void cleanrootfs();
 }
 
 namespace projsignal {
     void register_signal(void);
 }
 
+namespace io {
+    void removedir(const char* filePath);
+    void createdir(const char* filePath);
+}
 #endif

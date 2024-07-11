@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.10)
 # set the project name
 project(moe-container-manager VERSION 0.0.1 LANGUAGES NONE)
 
-include(cmake/platform.cmake)
-include(cmake/folder.cmake)
+include(tools/cmake/platform.cmake)
+include(tools/cmake/folder.cmake)
 add_custom_target(
     doc
     COMMAND make -C docs

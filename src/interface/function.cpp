@@ -3,6 +3,7 @@
 #include "void.hpp"
 
 using namespace proj;
+using namespace io;
 // New feature from c++17,from List directory name
 namespace fs = std::filesystem;
 
@@ -28,7 +29,7 @@ namespace func {
         nif.open("/usr/share/moe-container/container-list.txt", ios::app);
         if (!nif) { // If file can not create,exit 1
             cout << "can not create file." << endl;
-            XLOG_ERROR("this is error log record: {}");
+            XLOG_ERROR("Can not create file: {}");
             exit(0);
         }
         else {
@@ -49,6 +50,7 @@ namespace func {
         fin.open("/usr/share/moe-container/container-list.txt",ios::in);
         if(!fin.is_open()) {
             cerr<<"cannot open the file\n";
+            XLOG_ERROR("Can not list container: {}");
             exit(0);
         }
 
@@ -97,5 +99,14 @@ namespace func {
         system("/usr/share/moe-container/register.sh");
         exit(0);
     }
-
+    void cleanrootfs(){
+        cout <<"Rootfs are downloaded to /usr/share/moe-container-manager/rootfs\n";
+        cout <<"Please press any key to continue.\n";
+        getchar();
+        const char* rootfs = "/usr/share/moe-container-manager/rootfs";
+        removedir(rootfs);
+        createdir(rootfs);
+        XLOG_INFO("Removed downloaded rootfs: {}");
+        exit(0);
+    }
 }

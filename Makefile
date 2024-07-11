@@ -45,9 +45,10 @@ ifeq ($(BUILD_VERBOSE),1)
   Q =
   SRCODE = cd src && \
 	cd build && \
-	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` --debug-trycompile --log-context --debug-output --debug-find -DCMAKE_CXX_FLAGS="-v" -DCMAKE_C_FLAGS="-v" -GNinja && \
+	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -DCMAKE_C_FLAGS="-pipe" -GNinja && \
 	ninja -v -j8 && \
 	ninja -v install
+#cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` --debug-trycompile --log-context --debug-output --debug-find -DCMAKE_CXX_FLAGS="-v" -DCMAKE_C_FLAGS="-v" -GNinja &&
 else
   Q = @
   SRCODE = cd src && \
@@ -133,6 +134,7 @@ update-ruri: src/ruri
 	$(Q)git clone https://github.com/Moe-Hacker/ruri src/ruri
 	$(Q)rm -rf src/ruri/LICENSE src/ruri/.git src/ruri/.github src/ruri/.clang-format src/ruri/.clang-format src/ruri/Makefile src/ruri/configure src/ruri/src/include/version.h
 	$(Q)mv src/tmp/* src/ruri/
+	$(Q)mv src/ruri/src/main.c src/ruri/src/ruri.c
 	$(Q)rm -rf src/tmp
 
 c-format:

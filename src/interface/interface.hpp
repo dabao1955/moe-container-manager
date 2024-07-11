@@ -2,8 +2,8 @@
 #include "log.hpp"
 #include <linux/version.h>
 
-#ifndef MAIN_HPP
-#define MAIN_HPP
+#ifndef INTERFACE_HPP
+#define INTERFACE_HPP
 
 namespace proj {
     #ifndef __linux__

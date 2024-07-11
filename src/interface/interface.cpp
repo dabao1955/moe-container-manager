@@ -1,4 +1,4 @@
-#include "main.hpp"
+#include "interface.hpp"
 #include "void.hpp"
 
 using namespace func;
@@ -42,6 +42,9 @@ int main(int argc, char *argv[]) {
                         return 0;
                     case 's':
                         start();
+                        return 0;
+                    case 'f':
+                        cleanrootfs();
                         return 0;
                     default:
                         cerr<<proj::prog_name<<":Error: Unrecognition option: "<<pchar<<endl;
