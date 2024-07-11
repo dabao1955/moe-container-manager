@@ -37,18 +37,20 @@ ifndef BUILD_VERBOSE
   BUILD_VERBOSE = 0
 endif
 
+ifeq ("$(wildcard src/build)","")
+        $(shell mkdir src/build)
+endif
+
 ifeq ($(BUILD_VERBOSE),1)
   Q =
   SRCODE = cd src && \
-	mkdir build && \
 	cd build && \
-	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -GNinja && \
+	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` --debug-trycompile --log-context --debug-output --debug-find -DCMAKE_CXX_FLAGS="-v" -DCMAKE_C_FLAGS="-v" -GNinja && \
 	ninja -v -j8 && \
 	ninja -v install
 else
   Q = @
   SRCODE = cd src && \
-	mkdir build && \
 	cd build && \
 	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -GNinja && \
 	ninja -j8 && \
@@ -112,7 +114,7 @@ test:
 .PHONY: clean
 clean:
 	$(Q)printf "\033[1;38;2;254;228;208m[+] Clean.\033[0m\n"&&sleep 1s
-	$(Q)rm -rf $(O)
+	$(Q)rm -rf $(O) src/build src/ruri/src/include/version.h
 	$(Q)printf "\033[1;38;2;254;228;208m    .^.   .^.\n"
 	$(Q)printf "    /⋀\\_ﾉ_/⋀\\ \n"
 	$(Q)printf "   /ﾉｿﾉ\\ﾉｿ丶)|\n"

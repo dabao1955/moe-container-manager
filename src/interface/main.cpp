@@ -44,8 +44,7 @@ int main(int argc, char *argv[]) {
                         start();
                         return 0;
                     default:
-                        cerr<<proj::prog_name<<":error:unrecognition option -:"<<pchar<<endl;
-                        usage();
+                        cerr<<proj::prog_name<<":Error: Unrecognition option: "<<pchar<<endl;
                         return -1;
                     }
                 break;

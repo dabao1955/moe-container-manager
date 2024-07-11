@@ -62,9 +62,10 @@ namespace func {
     }
 
     void version(){
-        cout <<prog_name<<" version "<<prog_version<<endl
-        << "Build date: " << __DATE__ << " " << __TIME__ <<endl
-        << "Copyright (C) 2024 dabao1955\n"
+        cout <<prog_name<<" version "<<prog_version<<endl;
+        cout << "Build date: " << __DATE__ <<" "<< __TIME__ <<endl;
+        cout <<"Compiler version: "<<__VERSION__<< endl;
+        cout << "Copyright (C) 2024 dabao1955\n"
         << "License: Apache-2.0\n";
         exit(0);
     }
