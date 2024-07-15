@@ -15,7 +15,10 @@ add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-know
 
 
 # add the executable
-add_executable(interface interface.cpp function.cpp signal.cpp)
+file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/*.cpp)
+add_executable(interface ${SOURCES})
+
+#add strip step after building
 add_custom_command(
     TARGET interface
     POST_BUILD
