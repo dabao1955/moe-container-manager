@@ -19,5 +19,8 @@ namespace projsignal {
 namespace io {
     void removedir(const char* filePath);
     void createdir(const char* filePath);
+    void listfile(const char* filePath);
+    void traversefile(const char* filePath);
 }
+
 #endif

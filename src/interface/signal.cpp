@@ -1,5 +1,7 @@
 #include "include.hpp"
 #include "log.hpp"
+// use for signal.cpp on clang 14
+#include <csignal>
 
 namespace projsignal {
     static void sighandle(int sig){

@@ -7,6 +7,8 @@ project(moe-container-manager VERSION 0.0.1 LANGUAGES NONE)
 
 include(tools/cmake/platform.cmake)
 include(tools/cmake/folder.cmake)
+include(tools/cmake/setting.cmake)
+
 add_custom_target(
     doc
     COMMAND make -C docs

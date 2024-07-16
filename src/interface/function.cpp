@@ -23,44 +23,8 @@ namespace func {
         return;
     }
 
-    void readc(){
-        // If file not found, create it
-        ofstream nif("/usr/share/moe-container/container-list.txt");
-        nif.open("/usr/share/moe-container/container-list.txt", ios::app);
-        if (!nif) { // If file can not create,exit 1
-            cout << "can not create file." << endl;
-            XLOG_ERROR("Can not create file: {}");
-            exit(0);
-        }
-        else {
-            // Set search directory
-            string path = "</usr/share/moe-cintainer-manager/containers/>";
-
-            // List of directory and write directoey name to txt
-            for (const auto & entry : fs::directory_iterator(path)) {
-                nif << entry.path().filename() << '\n';
-                XLOG_WARN("this is warn log record, param: {}");
-            }
-            nif.close();
-            return;
-        }
-
-        // Read and cat txt to output the screen
-        ifstream fin;
-        fin.open("/usr/share/moe-container/container-list.txt",ios::in);
-        if(!fin.is_open()) {
-            cerr<<"cannot open the file\n";
-            XLOG_ERROR("Can not list container: {}");
-            exit(0);
-        }
-
-        cout << "Installed container list:\n";
-        char buf[1024]={0};
-        while (fin.getline(buf, sizeof(buf)))
-        {
-            cout << buf << endl;
-        }
-        fin.close(); // Add this line to close the file.
+    void readc() {
+        listfile("/usr/share/moe-cintainer-manager/containers/");
     }
 
     void version(){

@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: dabao1955 <dabao1955@163.com>
 Build-Depends: debhelper (>= 9),pkg-config, dpkg-dev, gcc, g++, libcap-dev, libseccomp-dev, shfmt, git(>= 2.40), perl(>= 5.31), cmake(>= 3.10), libspdlog-dev, golang( >= 1.18), ninja-build
-Standards-Version: 0.0.1rc2
+Standards-Version: 0.0.1rc3
 Homepage: http://github.com/dabao1955/moe-container-manager
 
 Package: moe-container-manager
