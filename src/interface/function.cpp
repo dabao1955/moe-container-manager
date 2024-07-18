@@ -45,7 +45,7 @@ namespace func {
         cout << "Create a new container\n";
         // check root account
         if (geteuid() != 0) {
-            runsh("/usr/share/moe-container/create.sh", "");
+            runsh("/usr/share/moe-container/create.sh");
         }
         else {
             runsh("/usr/share/moe-container/create.sh", " -r");
@@ -54,12 +54,12 @@ namespace func {
     }
 
     void start(){
-        runsh("/usr/share/moe-container/start.sh", "");
+        runsh("/usr/share/moe-container/start.sh");
         exit(0);
     }
 
     void reg(){
-        runsh("/usr/share/moe-container/register.sh", "");
+        runsh("/usr/share/moe-container/register.sh");
         exit(0);
     }
     void cleanrootfs(){
