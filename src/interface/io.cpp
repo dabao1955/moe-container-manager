@@ -66,7 +66,7 @@ namespace io {
         closedir(dir);
     }
 
-    void runsh(const std::string& filePath, const std::string& args = "") {
+    void runsh(const std::string& filePath, const std::string& args) {
         // check filePath string
         if (filePath.find(' ') != std::string::npos) {
             std::cerr << "Error: filePath should not contain spaces or additional arguments." << std::endl;
