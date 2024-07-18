@@ -1,5 +1,4 @@
 #include "interface.hpp"
-#include "log.hpp"
 #include "void.hpp"
 
 using namespace proj;
@@ -38,7 +37,7 @@ namespace func {
 
     void remove(){
         cout << "remove a installed container\n";
-        system("/usr/share/moe-container/remove.sh");
+        runsh("/usr/share/moe-container/remove.sh");
         exit(0);
     }
 
@@ -46,21 +45,21 @@ namespace func {
         cout << "Create a new container\n";
         // check root account
         if (geteuid() != 0) {
-            system("/usr/share/moe-container/create.sh");
+            runsh("/usr/share/moe-container/create.sh");
         }
         else {
-            system("/usr/share/moe-container/create.sh -r");
+            runsh("/usr/share/moe-container/create.sh", " -r");
         }
          exit(0);
     }
 
     void start(){
-        system("/usr/share/moe-container/start.sh");
+        runsh("/usr/share/moe-container/start.sh");
         exit(0);
     }
 
     void reg(){
-        system("/usr/share/moe-container/register.sh");
+        runsh("/usr/share/moe-container/register.sh");
         exit(0);
     }
     void cleanrootfs(){
@@ -70,7 +69,6 @@ namespace func {
         const char* rootfs = "/usr/share/moe-container-manager/rootfs";
         removedir(rootfs);
         createdir(rootfs);
-        XLOG_INFO("Removed downloaded rootfs: {}");
         exit(0);
     }
 }
