@@ -67,10 +67,10 @@ namespace io {
     }
 
     void runsh(const std::string& filePath, const std::string& args = "") {
-        // check filePath strings
+        // check filePath string
         if (filePath.find(' ') != std::string::npos) {
             std::cerr << "Error: filePath should not contain spaces or additional arguments." << std::endl;
-            XLOG_ERROR(filePath,"should not contain spaces or additional arguments.");
+            XLOG_ERROR(filePath, "should not contain spaces or additional arguments.");
             exit(-1);
         }
 
@@ -78,9 +78,9 @@ namespace io {
         char *buff = nullptr;
 
         buff = (char*)malloc(20);
-        if(buff == nullptr) {
+        if (buff == nullptr) {
             perror("malloc:");
-             XLOG_ERROR(filePath,"execute failed by malloc");
+            XLOG_ERROR(filePath, "execute failed by malloc");
             exit(-1);
         }
         memset(buff, 0, 20);
@@ -88,18 +88,17 @@ namespace io {
         fp = popen(filePath.c_str(), args.c_str());
         if (fp == nullptr) {
             perror("popen error:");
-            XLOG_ERROR(filePath,"execute failed by popen error");
+            XLOG_ERROR(filePath, "execute failed by popen error");
             free(buff);
             exit(-1);
         }
 
         if (fgets(buff, 20, fp) != nullptr) {
             std::cout << "Output: " << buff << std::endl;
-        }
-        else {
+        } else {
             perror("fgets error:");
-            XLOG_ERROR(filePath,"execute failed by fgets error");
-       }
+            XLOG_ERROR(filePath, "execute failed by fgets error");
+        }
 
         pclose(fp);
         free(buff);
