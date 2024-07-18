@@ -13,6 +13,15 @@ add_compile_options("-std=c++17")
 add_compile_options("-pipe")
 add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang -fstack-protector-all")
 
+option(DUBUG_MODE)
+
+if (DEFINED DUBUG_MODE)
+    message(WARNING "Warning: debug mode is enabled.")
+    set(CMAKE_BUILD_TYPE Debug)
+    add_compile_options("-Wpedantic")
+else()
+    set(CMAKE_BUILD_TYPE Release)
+endif()
 
 # add the executable
 file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/*.cpp)

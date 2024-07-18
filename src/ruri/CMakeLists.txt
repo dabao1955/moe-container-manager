@@ -18,6 +18,16 @@ configure_file(
   @ONLY
 )
 
+option(DUBUG_MODE)
+
+if (DEFINED DUBUG_MODE)
+    message(WARNING "Warning: debug mode is enabled.")
+    set(CMAKE_BUILD_TYPE Debug)
+    add_compile_options("-Wpedantic")
+else()
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 # add the executable
 add_executable(ruri ${SOURCES})
 add_custom_command(

@@ -11,6 +11,16 @@ project(moe-container-manager-src)
 #add_subdirectory(interface)
 #add_subdirectory(rootfstool)
 
+option(DEBUG_MODE on)
+
+if (DEFINED DEBUG_MODE)
+    message(WARNING "Warning: debug mode is enabled.")
+    set(CMAKE_BUILD_TYPE Debug)
+    add_compile_options("-Wpedantic")
+else()
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 include(ruri/ruri.cmake)
 include(yoshinon/yoshinon.cmake)
 include(interface/interface.cmake)

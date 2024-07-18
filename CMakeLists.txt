@@ -25,7 +25,7 @@ add_custom_target(
 
 add_custom_target(
     build
-    COMMAND cd src && cd o && cmake .. -GNinja -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` && ninja 
+    COMMAND cd src && cd o && cmake .. -GNinja -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -DDEBUG_MODE=on && ninja 
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} # Set the working directory for go fmt
 )
 
