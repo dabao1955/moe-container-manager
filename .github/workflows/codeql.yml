@@ -65,8 +65,7 @@ jobs:
       if: matrix.language != 'python'
       run: |
         sudo apt-get update && sudo apt-get install libcap-dev libseccomp-dev libspdlog-dev gcc g++ ninja-build -y
-        rm -rf Makefile
-        mv tools/build.sh .
+        mv tools/Makefile .
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
