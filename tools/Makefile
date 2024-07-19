@@ -1,3 +1,24 @@
+#Warning: this Makefile only used on CodeQL
+O = out
+BIN = $(O)/bin/
+SHARE = $(O)/share/moe-container-manager/
+
+ifeq ("$(wildcard out/)","")
+        $(shell mkdir out/)
+endif
+ifeq ("$(wildcard $(SHARE))","")
+        $(shell mkdir out/share)
+        $(shell mkdir $(SHARE))
+        $(shell mkdir $(SHARE)/proc)
+endif
+ifeq ("$(wildcard $(SHARE)/doc)","")
+        $(shell mkdir out/share/doc)
+        $(shell mkdir out/share/doc/moe-container-manager)
+endif
+ifeq ("$(wildcard $(BIN))","")
+        $(shell mkdir $(BIN))
+endif
+
 ifeq ("$(wildcard src/build)","")
         $(shell mkdir src/build)
 endif
