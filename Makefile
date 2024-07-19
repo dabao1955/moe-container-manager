@@ -25,10 +25,7 @@ BIN = $(O)/bin/
 SHARE = $(O)/share/moe-container-manager/
 O = out
 PREFIX = /usr/local/
-
-ifeq ("$(origin DESTDIR)", "command line")
-  DESTDIR = $(PREFIX)
-endif
+DESTDIR = $(PREFIX)
 
 ifeq ("$(origin VERBOSE)", "command line")
   BUILD_VERBOSE = $(VERBOSE)
@@ -53,7 +50,7 @@ else
   Q = @
   SRCODE = cd src && \
 	cd build && \
-	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -GNinja && \
+	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -GNinja -GNinja -DDEBUG_MODE=off && \
 	ninja -j8 && \
 	ninja install
 endif

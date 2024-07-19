@@ -5,7 +5,6 @@ project(ruri VERSION 3.3 LANGUAGES C)
 
 # add cxx standard
 add_compile_options("-Wno-unused-result")
-add_compile_options("-O2")
 add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang -fstack-protector-all")
 
 file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/ruri/src/*.c)

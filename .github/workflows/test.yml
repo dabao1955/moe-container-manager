@@ -1,0 +1,40 @@
+name: Build test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        include:
+          - verbose: "0"
+            type: off
+          - verbose: "1"
+            type: on
+    container: debian:bookworm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Build Tools
+        run: apt update && apt install -y debhelper dpkg-dev libcap-dev pkg-config git libseccomp-dev golang cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev gcc g++ ninja-build
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          git config --global --add safe.directory /__w/moe-container-manager/moe-container-manager
+          if [ ${{ matrix.verbose }} = 1 ]; then
+              make VERBOSE=${{ matrix.verbose }}
+          else
+              make
+          fi
+          make install VERBOSE=${{ matrix.verbose }}
+      - name: Run tests
+        run: |
+          interface -v
+          ruri -v
+          rootfstool v
