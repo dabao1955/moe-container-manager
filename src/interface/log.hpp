@@ -114,7 +114,7 @@ private:
 		spdlog::drop_all(); // must do this
 	}
 
-	void* operator new(size_t size) noexcept{
+	void* operator new(size_t) noexcept{
             return nullptr;
 	}
 

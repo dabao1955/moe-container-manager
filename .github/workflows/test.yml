@@ -15,20 +15,19 @@ jobs:
             type: off
           - verbose: "1"
             type: on
-    container: debian:bookworm
     runs-on: ubuntu-latest
+    container: debian:sid
     steps:
       - name: Install Build Tools
-        run: apt update && apt install -y debhelper dpkg-dev libcap-dev pkg-config git libseccomp-dev golang cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev gcc g++ ninja-build
+        run:  apt update &&  apt install -y debhelper dpkg-dev libcap-dev pkg-config git libseccomp-dev golang cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev gcc g++ ninja-build
 
       - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Build
         run: |
-          git config --global --add safe.directory /__w/moe-container-manager/moe-container-manager
           if [ ${{ matrix.verbose }} = 1 ]; then
-              make VERBOSE=${{ matrix.verbose }}
+              make VERBOSE=1
           else
               make
           fi
@@ -38,3 +37,21 @@ jobs:
           interface -v
           ruri -v
           rootfstool v
+
+  lint:
+    runs-on: ubuntu-latest
+    container: debian:sid
+    strategy:
+      matrix:
+        include:
+          - tools: "interface"
+          - tools: "ruri"
+    steps:
+      - name: Install Build Tools
+        run:  apt update &&  apt install -y debhelper dpkg-dev libcap-dev pkg-config git libseccomp-dev golang cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev gcc g++ ninja-build
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: cd src/${{ matrix.tools }} && cmake . -GNinja && ninja -j8 -v

@@ -3,11 +3,14 @@
 # set the project name
 project(ruri VERSION 3.3 LANGUAGES C)
 set(CMAKE_C_COMPILER "gcc")
+set(CMAKE_BUILD_TYPE Debug)
 
 # add cxx standard
 add_compile_options("-Wno-unused-result")
-add_compile_options("-O2")
-add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang -fstack-protector-all")
+add_compile_options("-Wall")
+add_compile_options("-Wextra")
+add_compile_options("-pedantic")
+add_compile_options("-Wpedantic")
 
 file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/src/*.c)
 
@@ -15,27 +18,7 @@ set(RURI_VERSION 3.3)
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/include/version.h"
-  @ONLY
-)
-
-option(DUBUG_MODE)
-
-if (DEFINED DUBUG_MODE)
-    message(WARNING "Warning: debug mode is enabled.")
-    set(CMAKE_BUILD_TYPE Debug)
-    add_compile_options("-Wpedantic")
-else()
-    set(CMAKE_BUILD_TYPE Release)
-endif()
-
-# add the executable
-add_executable(ruri ${SOURCES})
-add_custom_command(
-    TARGET ruri
-    POST_BUILD
-    COMMAND strip ruri
-    VERBATIM
-    )
+  @ONLY)
 
 # on linux clang 14
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -52,5 +35,4 @@ if(CCACHE_FOUND)
 endif(CCACHE_FOUND)
 
 # add cxx flags
-set(CMAKE_EXE_LINKER_FLAGS "-ffunction-sections -fdata-sections -z noexecstack -fPIE -Wall -Wextra -pedantic -flto -fstack-protector-all -fstack-clash-protection -ffunction-sections -fdata-sections -Wl,--gc-sections")
 install (TARGETS ruri DESTINATION /usr/bin/)

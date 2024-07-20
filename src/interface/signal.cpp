@@ -8,7 +8,7 @@ namespace projsignal {
             signal(sig, SIG_DFL);
             int clifd = open("/proc/self/cmdline", O_RDONLY | O_CLOEXEC);
             char buf[1024];
-            ssize_t bufsize = read(clifd, buf, sizeof(buf));
+            ssize_t bufsize __attribute__((unused)) = read(clifd, buf, sizeof(buf));
             XLOG_ERROR("Fatal error, the program has stopped: {}");
             cout << "Fatal error, the program has stopped.\n";
             exit(127);
