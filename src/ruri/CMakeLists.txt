@@ -1,11 +1,11 @@
- cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10)
 
-# set the project name
+# Set the project name
 project(ruri VERSION 3.3 LANGUAGES C)
 set(CMAKE_C_COMPILER "gcc")
 set(CMAKE_BUILD_TYPE Debug)
 
-# add cxx standard
+# Add compile options
 add_compile_options("-Wno-unused-result")
 add_compile_options("-Wall")
 add_compile_options("-Wextra")
@@ -20,7 +20,10 @@ configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/src/include/version.h"
   @ONLY)
 
-# on linux clang 14
+# Define the target before linking libraries
+add_executable(ruri ${SOURCES})
+
+# On Linux, link with cap and seccomp libraries
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     find_library(LCAP cap)
     find_library(LSECCOMP seccomp)
@@ -34,5 +37,6 @@ if(CCACHE_FOUND)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 endif(CCACHE_FOUND)
 
-# add cxx flags
-install (TARGETS ruri DESTINATION /usr/bin/)
+# Install the target
+install(TARGETS ruri DESTINATION /usr/bin/)
+
