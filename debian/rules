@@ -20,6 +20,3 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 override_dh_auto_configure:
 	dh_auto_configure -- DEFINES+="VERSION=$(DEB_VERSION_UPSTREAM)"
-
-override_dh_auto_build:
-	dh_auto_build -- VERBOSE=1
