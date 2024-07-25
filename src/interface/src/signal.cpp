@@ -1,5 +1,5 @@
-#include "include.hpp"
-#include "log.hpp"
+#include <baseheaders>
+#include <log>
 // use for signal.cpp on clang 14
 #include <csignal>
 

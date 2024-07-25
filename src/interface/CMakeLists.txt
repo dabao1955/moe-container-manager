@@ -16,8 +16,10 @@ add_compile_options("-pedantic")
 add_compile_options("-Wall")
 add_compile_options("-pipe")
 
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
 # add the executable
-file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/*.cpp)
+file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 add_executable(interface ${SOURCES})
 
 # on linux clang 14

@@ -16,7 +16,9 @@ add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-know
 
 
 # add the executable
-file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/interface/*.cpp)
+file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/interface/src/*.cpp)
+
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # add the executable
 add_executable(interface ${SOURCES})
