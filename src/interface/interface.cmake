@@ -12,7 +12,7 @@ add_compile_options("-fstack-clash-protection")
 add_compile_options("-fstack-protector-all")
 add_compile_options("-std=c++17")
 add_compile_options("-pipe")
-add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang")
+add_compile_options("-enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang")
 
 
 # add the executable
