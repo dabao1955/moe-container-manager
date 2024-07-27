@@ -1,4 +1,4 @@
-#include <baseheaders>
+#include <baseheaders.hpp>
 #include <memory>
 #include <time.h>
 #include <chrono>
@@ -8,8 +8,8 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/rotating_file_sink.h"
 
-#ifndef LOG
-#define LOG
+#ifndef LOG_HPP
+#define LOG_HPP
 
 static inline int NowDateToInt()
 {

@@ -1,5 +1,5 @@
-#ifndef INCLUDE_HPP
-#define INCLUDE_HPP
+#ifndef BASEHEADERS_HPP
+#define BASEHEADERS_HPP
 
 #include <iostream>
 #include <cstdlib>
