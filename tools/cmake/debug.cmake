@@ -1,0 +1,12 @@
+option(DEBUG_MODE "Enable debugging" ON)
+
+if (DEBUG_MODE)
+    message(WARNING "Warning: debug mode is enabled.")
+    set(CMAKE_BUILD_TYPE Debug)
+    add_compile_options("-Wpedantic")
+    add_compile_options("-pedantic")
+    add_compile_options("-Wextra")
+else()
+    set(CMAKE_BUILD_TYPE Release)
+    add_compile_options("-Oz")
+endif()

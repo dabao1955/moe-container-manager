@@ -1,0 +1,8 @@
+find_package(Perl)
+find_package(Python)
+if(NOT PERL_FOUND)
+    message(FATAL_ERROR "Cannot build test suites without Perl")
+endif()
+if(NOT PYTHON_FOUND)
+    message(FATAL_ERROR "Cannot build test suites without Python")
+endif()

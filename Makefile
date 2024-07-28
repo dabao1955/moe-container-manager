@@ -34,14 +34,14 @@ ifndef BUILD_VERBOSE
   BUILD_VERBOSE = 0
 endif
 
-ifeq ("$(wildcard src/build)","")
-        $(shell mkdir src/build)
+ifeq ("$(wildcard src/out)","")
+        $(shell mkdir src/out)
 endif
 
 ifeq ($(BUILD_VERBOSE),1)
   Q =
   SRCODE = cd src && \
-	cd build && \
+	cd out && \
 	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -DCMAKE_C_FLAGS="-pipe" -GNinja -DDEBUG_MODE=on && \
 	ninja -v -j8 && \
 	ninja -v install
@@ -49,7 +49,7 @@ ifeq ($(BUILD_VERBOSE),1)
 else
   Q = @
   SRCODE = cd src && \
-	cd build && \
+	cd out && \
 	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -GNinja -GNinja -DDEBUG_MODE=off && \
 	ninja -j8 && \
 	ninja install
