@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.10)
 project(moe-container-manager VERSION 0.0.1)
 
 include(ruri/ruri.cmake)
-#include(yoshinon/yoshinon.cmake)
+include(yoshinon/yoshinon.cmake)
 include(interface/interface.cmake)
 include(rootfstool/rootfstool.cmake)
 include(share/share.cmake)
