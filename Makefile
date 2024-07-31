@@ -106,6 +106,10 @@ install: out/share/doc/moe-container-manager/LICENSE
 	$(Q)install -d $(DESTDIR)/share/moe-container-manager
 	$(Q)cp -r $(O)/share/doc/* $(DESTDIR)/share/doc/moe-container-manager/
 	$(Q)cp -r $(O)/share/moe-container-manager/* $(DESTDIR)/share/moe-container-manager/
+	$(Q)(if [ -d "$(O)/lib" ]; then \
+		install -d $(DESTDIR)/lib; \
+		cp $(O)/lib/* $(DESTDIR)/lib/; \
+	fi)
 test:
 	$(Q)out/bin/interface -v
 

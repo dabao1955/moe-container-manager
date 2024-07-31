@@ -20,4 +20,6 @@ include(../tools/cmake/setting.cmake)
 include(../tools/cmake/platform.cmake)
 include(../tools/cmake/debug.cmake)
 include(../tools/cmake/findpackage.cmake)
+include(../tools/cmake/folder.cmake)
+
 
