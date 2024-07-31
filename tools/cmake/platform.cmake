@@ -1,5 +1,3 @@
-if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-   message(FATAL_ERROR "Please build it on Linux environment!")
-elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
-   message(FATAL_ERROR "Please build it on Linux environment!")
-endif()
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+   message(FATAL_ERROR "Unsupported platform: ${CMAKE_SYSTEM_NAME}")
+endif

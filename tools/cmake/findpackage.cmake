@@ -1,3 +1,6 @@
+include(CheckIncludeFileCXX)
+include(CheckIncludeFile)
+
 find_package(Perl)
 find_package(Python)
 if(NOT PERL_FOUND)
@@ -5,4 +8,11 @@ if(NOT PERL_FOUND)
 endif()
 if(NOT PYTHON_FOUND)
     message(FATAL_ERROR "Cannot build test suites without Python")
+endif()
+
+if(RURI_LIB)
+    find_package(PkgConfig)
+    if(NOT PKG_CONFIG_FOUND)
+        message(WARNING "pkg-config not found, library detection might be limited")
+    endif()
 endif()
