@@ -1,5 +1,5 @@
 #include "interface.hpp"
-#include "void.hpp"
+#include <void.hpp>
 
 using namespace proj;
 using namespace io;
