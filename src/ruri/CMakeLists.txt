@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-project(ruri VERSION 3.3 LANGUAGES C)
+project(ruri VERSION 3.4 LANGUAGES C)
 set(CMAKE_C_COMPILER "gcc")
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -14,7 +14,7 @@ add_compile_options("-Wpedantic")
 
 file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/src/*.c)
 
-set(RURI_VERSION 3.3)
+set(RURI_VERSION 3.4)
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/include/version.h"
