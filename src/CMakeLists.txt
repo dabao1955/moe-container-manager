@@ -1,7 +1,3 @@
-if(EXISTS ruri)
-   message(FATAL_ERROR "Please do not execute the cmake command at the root of the project!")
-endif()
-
 cmake_minimum_required(VERSION 3.10)
 
 project(moe-container-manager 
