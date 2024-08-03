@@ -16,3 +16,18 @@ if(RURI_LIB)
         message(WARNING "pkg-config not found, library detection might be limited")
     endif()
 endif()
+
+check_include_file("linux/version.h" VERSION_H_FOUND)
+check_include_file("unistd.h" UNISTD_H_FOUND)
+check_include_file("time.h" TIME_H_FOUND)
+check_include_file("dirent.h" DIRENT_H_FOUND)
+
+
+if(CMAKE_GENERATOR STREQUAL "Ninja")
+    execute_process(COMMAND ninja --version OUTPUT_VARIABLE NINJA_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+    message(STATUS "Selecting build system Ninja (version ${NINJA_VERSION})")
+else()
+    execute_process(COMMAND make --version OUTPUT_VARIABLE MAKE_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+    message(STATUS "Selecting build system GNU make (version ${MAKE_VERSION})")
+endif()
+
