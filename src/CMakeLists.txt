@@ -7,6 +7,8 @@ project(moe-container-manager
 
 set(PROJECT_LICENSE "Apache 2.0 license")
 
+include(../tools/cmake/debug.cmake)
+include(../tools/cmake/findpackage.cmake)
 include(ruri/ruri.cmake)
 include(yoshinon/yoshinon.cmake)
 include(interface/interface.cmake)
@@ -14,8 +16,4 @@ include(rootfstool/rootfstool.cmake)
 include(share/share.cmake)
 include(../tools/cmake/setting.cmake)
 include(../tools/cmake/platform.cmake)
-include(../tools/cmake/debug.cmake)
-include(../tools/cmake/findpackage.cmake)
 include(../tools/cmake/folder.cmake)
-
-
