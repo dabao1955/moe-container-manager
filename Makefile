@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 CCCOLOR     = \033[1;38;2;254;228;208m
 STRIPCOLOR  = \033[1;38;2;254;228;208m
 BINCOLOR    = \033[34;1m
