@@ -1,7 +1,4 @@
-if(${CMAKE_VERSION} VERSION_GREATER "3.14.99" AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
-    cmake_policy(SET CMP0091 NEW)
-endif()
+set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 include(CheckCXXCompilerFlag)
 set(FLAGS_TO_CHECK
@@ -25,4 +22,5 @@ endforeach()
 if(UNSUPPORTED_FLAGS)
     message(FATAL_ERROR "ERROR: The following CXX flags are not supported: ${UNSUPPORTED_FLAGS}")
 endif()
+
 

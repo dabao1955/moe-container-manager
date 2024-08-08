@@ -20,10 +20,12 @@ configure_file(
 
 option(RURI_LIB "Build ruri with a systen library" OFF)
 if (RURI_LIB)
+    set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
     add_library(ruri SHARED ${SOURCES})
     install (TARGETS ruri DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../../out/lib/)
 else ()
 # add the executable
+    set(CMAKE_POSITION_INDEPENDENT_CODE FALSE)
     add_executable(ruri ${SOURCES})
     add_custom_command(
         TARGET ruri
