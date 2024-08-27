@@ -4,16 +4,16 @@
 using namespace func;
 using namespace projsignal;
 
-int main(int argc, char *argv[]) {
+void interface(int argc, char *argv[]) {
     register_signal();
 
     if (argc < 2)  {
         cout << "Error: No inputs.\n"
         << "Please use 'interface -h' to learn how to use.\n";
-        return -1;
+        exit(1);
     } else if (argc > 4){
         cout << "Error: Too many inputs.\n";
-        return -2;
+        exit(2);
     }
 
    // Main options
@@ -24,34 +24,39 @@ int main(int argc, char *argv[]) {
                 switch(pchar[1]){
                     case 'v':
                         version();
-                        return 0;
+                        exit(0);
                     case 'h':
                         usage();
-                        return 0;
+                        exit(0);
                     case 'c':
                         create();
-                        return 0;
+                        exit(0);
                     case 'l':
                         readc();
-                        return 0;
+                        exit(0);
                     case 'd':
                         remove();
-                        return 0;
+                        exit(0);
                     case 'r':
                         reg();
-                        return 0;
+                        exit(0);
                     case 's':
                         start();
-                        return 0;
+                        exit(0);
                     case 'f':
                         cleanrootfs();
-                        return 0;
+                        exit(0);
                     default:
                         cerr<<proj::prog_name<<":Error: Unrecognition option: "<<pchar<<endl;
-                        return -1;
+                        exit(254);
                     }
                 break;
             }
         }
     }
+}
+
+int main(int argc, char *argv[]) {
+    interface(argc, argv);
+    return 0;
 }

@@ -1,4 +1,5 @@
 option(DEBUG_MODE "Enable debugging" ON)
+option(MOE_LIB "Build ruri and interface with a systen library" OFF)
 
 if (DEBUG_MODE)
     message(WARNING "Warning: debug mode is enabled.")

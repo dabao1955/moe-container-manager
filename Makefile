@@ -39,18 +39,28 @@ endif
 
 ifeq ($(BUILD_VERBOSE),1)
   Q =
-  SRCODE = cd src && \
-	cd out && \
-	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -DCMAKE_C_FLAGS="-pipe" -GNinja -DDEBUG_MODE=on && \
-	ninja -v -j8 && \
-	ninja -v install
+  D = on
+  N = -v
 else
   Q = @
-  SRCODE = cd src && \
-	cd out && \
-	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -GNinja -GNinja -DDEBUG_MODE=off && \
-	ninja -j8 && \
-	ninja install
+  D =
+  N =
+endif
+
+ifeq ("$(origin LIB)", "command line")
+  BUILD_LIB = $(LIB)
+endif
+ifndef BUILD_LIB
+  BUILD_LIB = 0
+endif
+
+ifeq ($(BUILD_LIB),1)
+  L = on
+  LINK = mv out/bin/ruri-runlib out/bin/ruri \
+	mv out/bin/interface-runlib out/bin/interface
+else
+  L = off
+  LINK = echo "LINK is disabled"
 endif
 
 .PHONY: all
@@ -84,6 +94,11 @@ ifeq ("$(wildcard $(BIN))","")
 	$(shell mkdir $(BIN))
 endif
 
+BUILD = cd src/out && \
+	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -DCMAKE_C_FLAGS="-pipe" -GNinja -DDEBUG_MODE=$(D) -DMOE_LIB=$(L) && \
+	ninja $(N) -j8 && \
+	ninja install
+
 DOC = doc
 $(DOC): /usr/bin/w3m
 ifneq ($(shell test -d $(DOC)||echo x),)
@@ -92,7 +107,8 @@ ifneq ($(shell test -d $(DOC)||echo x),)
 endif
 
 build: src/CMakeLists.txt
-	$(Q)$(SRCODE)
+	$(Q)$(BUILD)
+	$(Q)$(LINK)
 
 install: out/share/doc/moe-container-manager/LICENSE
 	$(Q)printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"

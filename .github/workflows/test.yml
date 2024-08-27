@@ -29,7 +29,7 @@ jobs:
           if [ ${{ matrix.verbose }} = 1 ]; then
               make VERBOSE=1
           else
-              make
+              make LIB=1
           fi
           make install VERBOSE=${{ matrix.verbose }}
       - name: Run tests
@@ -37,21 +37,3 @@ jobs:
           interface -v
           ruri -v
           rootfstool v
-
-  lint:
-    runs-on: ubuntu-latest
-    container: debian:sid
-    strategy:
-      matrix:
-        include:
-          - tools: "interface"
-          - tools: "ruri"
-    steps:
-      - name: Install Build Tools
-        run:  apt update &&  apt install -y debhelper dpkg-dev libcap-dev pkg-config git libseccomp-dev golang cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev gcc g++ ninja-build python3
-
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Build
-        run: cd src/${{ matrix.tools }} && cmake . -GNinja && ninja -j8 -v

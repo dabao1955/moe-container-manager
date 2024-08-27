@@ -1,0 +1,53 @@
+From a49d0b78d1ee6eccde85da8d99a85f05ae058ae9 Mon Sep 17 00:00:00 2001
+From: dabao1955 <dabao1955@163.com>
+Date: Sat, 31 Aug 2024 22:46:32 +0800
+Subject: [PATCH] Fix clang
+
+---
+ src/interface/CMakeLists.txt |  1 -
+ src/ruri/CMakeLists.txt      |  2 +-
+ tools/0001-Fix-clang.patch   | 25 -------------------------
+ tools/cmake/setting.cmake    |  1 -
+ 4 files changed, 1 insertion(+), 28 deletions(-)
+ delete mode 100644 tools/0001-Fix-clang.patch
+
+diff --git a/src/interface/CMakeLists.txt b/src/interface/CMakeLists.txt
+index 4f9f8c2..10d6e85 100644
+--- a/src/interface/CMakeLists.txt
++++ b/src/interface/CMakeLists.txt
+@@ -12,7 +12,6 @@ add_compile_options("-fstack-clash-protection")
+ add_compile_options("-fstack-protector-all")
+ add_compile_options("-std=c++17")
+ add_compile_options("-pipe")
+-add_compile_options("-enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang")
+ 
+ 
+ # add the executable
+diff --git a/src/ruri/CMakeLists.txt b/src/ruri/CMakeLists.txt
+index d96144c..2fd61bf 100644
+--- a/src/ruri/CMakeLists.txt
++++ b/src/ruri/CMakeLists.txt
+@@ -7,7 +7,7 @@ project(ruri VERSION 3.4 LANGUAGES C)
+ add_compile_options("-Wno-unused-result")
+ add_compile_options("-Wall")
+ add_compile_options("-pipe")
+-add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang -fstack-protector-all")
++add_compile_options("-D_FORTIFY_SOURCE=3 -fstack-protector-all")
+ 
+ file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/ruri/src/*.c)
+ 
+diff --git a/tools/cmake/setting.cmake b/tools/cmake/setting.cmake
+index 2aba581..bb8d792 100644
+--- a/tools/cmake/setting.cmake
++++ b/tools/cmake/setting.cmake
+@@ -2,7 +2,6 @@ set(CMAKE_COLOR_DIAGNOSTICS ON)
+ 
+ include(CheckCXXCompilerFlag)
+ set(FLAGS_TO_CHECK
+-    "-enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang"
+     "-fdata-sections"
+     "-ffunction-sections"
+     "-fstack-clash-protection"
+-- 
+2.46.0
+

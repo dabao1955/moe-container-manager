@@ -7,7 +7,7 @@
 #include <ctime>
 #include <string>
 #include <fstream>
-#include <string>
+#include <cstring>
 #include <vector>
 #include <filesystem>
 #include <unistd.h>

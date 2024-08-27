@@ -421,7 +421,7 @@ static void parse_args(int argc, char **argv, struct CONTAINER *container)
 	}
 }
 // It works on my machine!!!
-int main(int argc, char **argv)
+void ruri(int argc, char **argv)
 {
 	/*
 	 * Pogram starts here.
@@ -448,7 +448,12 @@ int main(int argc, char **argv)
 	} else {
 		run_chroot_container(container);
 	}
+}
+
+int main(int argc, char **argv) {
+	ruri(argc, argv);
 	return 0;
+
 }
 //  ██╗ ██╗  ███████╗   ████╗   ███████╗
 // ████████╗ ██╔════╝ ██╔═══██╗ ██╔════╝
