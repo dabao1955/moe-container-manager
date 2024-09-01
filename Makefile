@@ -56,7 +56,7 @@ endif
 
 ifeq ($(BUILD_LIB),1)
   L = on
-  LINK = mv out/bin/ruri-runlib out/bin/ruri \
+  LINK = mv out/bin/ruri-runlib out/bin/ruri && \
 	mv out/bin/interface-runlib out/bin/interface
 else
   L = off
@@ -124,6 +124,7 @@ install: out/share/doc/moe-container-manager/LICENSE
 	$(Q)(if [ -d "$(O)/lib" ]; then \
 		install -d $(DESTDIR)/lib; \
 		cp $(O)/lib/* $(DESTDIR)/lib/; \
+		ldconfig; \
 	fi)
 test:
 	$(Q)out/bin/interface -v
