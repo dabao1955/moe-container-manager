@@ -38,7 +38,7 @@ set(LDFLAGS "-s -w -X main.Commit_id=${COMMIT_ID}")
 add_custom_target(
     mod_download ALL
     COMMAND ${GO_COMPILER} mod download
-    COMMENT Downloading go building dependence
+    COMMENT "Downloading GO building dependence"
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/yoshinon # Set the working directory for go mod download
 )
 
@@ -46,7 +46,7 @@ add_custom_target(
     yoshinon ALL
     COMMAND ${GO_COMPILER} build -ldflags ${LDFLAGS} -o yoshinon main.go
     COMMAND mv ${CMAKE_SOURCE_DIR}/yoshinon/yoshinon ${CMAKE_SOURCE_DIR}/../out/bin/
-    COMMENT Built target yoshinon
+    COMMENT "Built target yoshinon"
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/yoshinon # Set correct path where main.go is located
     DEPENDS mod_download
 )
