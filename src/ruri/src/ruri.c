@@ -39,7 +39,7 @@ static void check_container(const struct CONTAINER *container)
 	 */
 	// Check if container directory is given.
 	if (container->container_dir == NULL) {
-		error("{red}Error: container directory is not set QwQ\n");
+		error("{red}Error: container directory is not set or does not exist QwQ\n");
 	}
 	// Refuse to use `/` for container directory.
 	if (strcmp(container->container_dir, "/") == 0) {
@@ -49,12 +49,6 @@ static void check_container(const struct CONTAINER *container)
 	if (getuid() != 0 && !(container->rootless)) {
 		error("{red}Error: this program should be run with root privileges QwQ\n");
 	}
-	// Check if container directory exists.
-	DIR *direxist = opendir(container->container_dir);
-	if (direxist == NULL) {
-		error("{red}Error: container directory does not exist QwQ\n");
-	}
-	closedir(direxist);
 	// --arch and --qemu-path should be set at the same time.
 	if ((container->cross_arch == NULL) ^ (container->qemu_path == NULL)) {
 		error("{red}Error: --arch and --qemu-path should be set at the same time QwQ\n");
@@ -128,6 +122,8 @@ static void parse_args(int argc, char **argv, struct CONTAINER *container)
 	container->ro_root = false;
 	container->cpuset = NULL;
 	container->memory = NULL;
+	// For using qemu binary outside the container.
+	char *qemu_path = NULL;
 	// Use the time for container_id.
 	time_t tm = time(NULL);
 	container->container_id = (int)(tm % 86400);
@@ -232,7 +228,12 @@ static void parse_args(int argc, char **argv, struct CONTAINER *container)
 			if (index == argc - 1) {
 				error("{red}Please specify the path of qemu binary\n{clear}");
 			}
-			container->qemu_path = strdup(argv[index]);
+			qemu_path = realpath(argv[index], NULL);
+			if (qemu_path != NULL) {
+				container->qemu_path = "/qemu-ruri";
+			} else {
+				container->qemu_path = strdup(argv[index]);
+			}
 		}
 		// Enable built-in seccomp profile.
 		else if (strcmp(argv[index], "-s") == 0 || strcmp(argv[index], "--enable-seccomp") == 0) {
@@ -364,13 +365,11 @@ static void parse_args(int argc, char **argv, struct CONTAINER *container)
 				error("{red}Missing argument\n");
 			}
 		}
-		// A very shit way to judge that this is a dir...
-		else if ((strchr(argv[index], '/') && strcmp(strchr(argv[index], '/'), argv[index]) == 0) || (strchr(argv[index], '.') && strcmp(strchr(argv[index], '.'), argv[index]) == 0)) {
-			// Get the absolute path of container.
-			container->container_dir = realpath(argv[index], NULL);
-			if (container->container_dir == NULL) {
-				error("{red}CONTAINER_DIR %s does not exist{clear}\n", argv[index]);
-			}
+		// If this argument is CONTAINER_DIR.
+		else if (({
+				 container->container_dir = realpath(argv[index], NULL);
+				 container->container_dir;
+			 }) != NULL) {
 			index++;
 			// Arguments after container_dir will be read as init command.
 			if (argv[index]) {
@@ -393,24 +392,31 @@ static void parse_args(int argc, char **argv, struct CONTAINER *container)
 			error("{red}Error: unknown option `%s`{clear}\n", argv[index]);
 		}
 	}
+	// Copy qemu binary into container.
+	if (qemu_path != NULL) {
+		char target[PATH_MAX] = { '\0' };
+		sprintf(target, "%s/qemu-ruri", container->container_dir);
+		int sourcefd = open(qemu_path, O_RDONLY | O_CLOEXEC);
+		int targetfd = open(target, O_WRONLY | O_CREAT | O_CLOEXEC, S_IRGRP | S_IXGRP | S_IWGRP | S_IWUSR | S_IRUSR | S_IXUSR | S_IWOTH | S_IXOTH | S_IROTH);
+		struct stat stat_buf;
+		fstat(sourcefd, &stat_buf);
+		off_t offset = 0;
+		sendfile(targetfd, sourcefd, &offset, stat_buf.st_size);
+		close(targetfd);
+		close(sourcefd);
+	}
 	// Get the capabilities to drop.
 	build_caplist(container->drop_caplist, privileged, drop_caplist_extra, keep_caplist_extra);
 	// Dump config.
 	if (dump_config) {
 		// Check if container directory is given.
 		if (container->container_dir == NULL) {
-			error("{red}Error: container directory is not set QwQ\n");
+			error("{red}Error: container directory is not set or does not exist QwQ\n");
 		}
 		// Refuse to use `/` for container directory.
 		if (strcmp(container->container_dir, "/") == 0) {
 			error("{red}Error: `/` is not allowed to use as a container directory QwQ\n");
 		}
-		// Check if container directory exists.
-		DIR *direxist = opendir(container->container_dir);
-		if (direxist == NULL) {
-			error("{red}Error: container directory does not exist QwQ\n");
-		}
-		closedir(direxist);
 		char *config = container_info_to_k2v(container);
 		if (output_path == NULL) {
 			cprintf("%s", config);
@@ -421,6 +427,7 @@ static void parse_args(int argc, char **argv, struct CONTAINER *container)
 		int fd = open(output_path, O_CREAT | O_CLOEXEC | O_RDWR, S_IRUSR | S_IRGRP | S_IROTH | S_IWGRP | S_IWUSR | S_IWOTH);
 		write(fd, config, strlen(config));
 		free(config);
+		close(fd);
 		exit(EXIT_SUCCESS);
 	}
 }
@@ -455,9 +462,8 @@ void ruri(int argc, char **argv)
 }
 
 int main(int argc, char **argv) {
-	ruri(argc, argv);
-	return 0;
-
+        ruri(argc, argv);
+        return 0;
 }
 //  ██╗ ██╗  ███████╗   ████╗   ███████╗
 // ████████╗ ██╔════╝ ██╔═══██╗ ██╔════╝

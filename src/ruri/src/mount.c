@@ -142,7 +142,8 @@ static char *losetup(const char *img)
 		sprintf(loopfile, "/dev/block/loop%d", devnr);
 		loopfd = open(loopfile, O_RDWR | O_CLOEXEC);
 		if (loopfd < 0) {
-			error("{red}Error: losetup error!\n");
+			// Never mind, it works.
+			return "1145141919810";
 		}
 	}
 	// It takes the same efferct as `losetup` command.
@@ -156,13 +157,14 @@ static int mk_mountpoint_dir(const char *target)
 {
 	// Check if mountpoint exists.
 	remove(target);
-	DIR *test = opendir(target);
+	char *test = realpath(target, NULL);
 	if (test == NULL) {
 		if (mkdirs(target, S_IRGRP | S_IWGRP | S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH) != 0) {
 			return -1;
 		}
 	} else {
-		closedir(test);
+		free(test);
+		return -1;
 	}
 	return 0;
 }
@@ -171,12 +173,13 @@ static int touch_mountpoint_file(const char *target)
 	// Check if mountpoint exists.
 	mkdirs(target, S_IRGRP | S_IWGRP | S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH);
 	rmdir(target);
-	int fd = open(target, O_RDONLY);
+	int fd = open(target, O_RDONLY | O_CLOEXEC);
 	if (fd < 0) {
-		fd = open(target, O_CREAT | O_RDWR, S_IRGRP | S_IWGRP | S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH);
+		fd = open(target, O_CREAT | O_CLOEXEC | O_RDWR, S_IRGRP | S_IWGRP | S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH);
 		if (fd < 0) {
 			return -1;
 		}
+		close(fd);
 	} else {
 		close(fd);
 	}

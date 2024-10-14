@@ -142,11 +142,11 @@ clean:
 	$(Q)printf "\033[1;38;2;254;228;208m[*] Cleaned Up.\033[0m\n"
 
 help:
-	$(Q)echo "Makefile is not for common user, please use the released .deb files instead."
-	$(Q)echo "(>_) "
+	@echo "Makefile is not for common user, please use the released .deb files instead."
+	@echo "(>_) "
 update-ruri: src/ruri
 	$(Q)mkdir -p src/tmp
-	$(Q)mv src/ruri/CMakeLists.txt src/ruri/ruri.cmake src/ruri/config.h.in src/tmp
+	$(Q)mv src/ruri/CMakeLists.txt src/ruri/config.h.in src/tmp
 	$(Q)rm -rf src/ruri
 	$(Q)git clone https://github.com/Moe-Hacker/ruri src/ruri
 	$(Q)rm -rf src/ruri/LICENSE src/ruri/.git src/ruri/.github src/ruri/.clang-format src/ruri/.clang-format src/ruri/Makefile src/ruri/configure src/ruri/src/include/version.h

@@ -6,6 +6,8 @@
 <p align="center">「 须臾水面明月出，沧江万顷瑠璃寒 」</p>
 
 -----------------     
+# Get support:      
+Feel free to discuss at https://t.me/ruri_daijin_support     
 # Download:    
 You can get ruri binary (statically linked) for arm64, armv7, riscv64, i386 and x86_64 devices in [Release](https://github.com/Moe-hacker/ruri/releases/).      
 # 中文文档
@@ -30,7 +32,7 @@ If you think something does not work as expected, please [Open a new isssue](htt
 - Simple:      
 The basic usage is very very simple, you can use it just like the command `chroot`.
 - Secure:      
-Ruri focus on security, with many protections.
+Ruri focus on security, with many built-in protections.
 - Run Everywhere:      
 The binary is very small, only about 1M, and you can also use `upx` to make it less than 500k, so it can be run anywhere even if the storage is tight.
 # Build:      

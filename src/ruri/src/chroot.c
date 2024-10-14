@@ -33,7 +33,7 @@ static bool su_biany_exist(char *container_dir)
 	// Check if /bin/su exists in container.
 	char su_path[PATH_MAX] = { '\0' };
 	sprintf(su_path, "%s/bin/su", container_dir);
-	int fd = open(su_path, O_RDONLY);
+	int fd = open(su_path, O_RDONLY | O_CLOEXEC);
 	if (fd < 0) {
 		return false;
 	}
@@ -72,10 +72,6 @@ static void check_binary(const struct CONTAINER *container)
 			umount_container(container->container_dir);
 			error("{red}Please check if path of QEMU is correct QwQ\n");
 		}
-		if (S_ISDIR(qemu_binary_stat.st_mode)) {
-			umount_container(container->container_dir);
-			error("{red}QEMU path can not be a directory QwQ\n");
-		}
 	}
 }
 // Run after chroot(2), called by run_chroot_container().
@@ -86,8 +82,8 @@ static void init_container(void)
 	 * The device list and permissions are based on common docker container.
 	 */
 	// Check if system runtime files are already created.
-	DIR *direxist = opendir("/sys/class/input");
-	if (direxist == NULL) {
+	char *test = realpath("/sys/class/input", NULL);
+	if (test == NULL) {
 		// Mount proc,sys and dev.
 		mkdir("/sys", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 		mkdir("/proc", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
@@ -152,10 +148,8 @@ static void init_container(void)
 		mount("tmpfs", "/sys/firmware", "tmpfs", MS_RDONLY, NULL);
 		mount("tmpfs", "/sys/devices/virtual/powercap", "tmpfs", MS_RDONLY, NULL);
 		mount("tmpfs", "/sys/block", "tmpfs", MS_RDONLY, NULL);
-	}
-	// Avoid running closedir(NULL), we put it to else branch.
-	else {
-		closedir(direxist);
+	} else {
+		free(test);
 	}
 }
 // Run before chroot(2), so that init_container() will not take effect.
@@ -214,13 +208,14 @@ static void drop_caps(const struct CONTAINER *container)
 	}
 	// Clear CapInh.
 	// hrdp and datap are two pointers, so we malloc() to apply the memory for it first.
-	cap_user_header_t hrdp = (cap_user_header_t)malloc(sizeof *hrdp);
-	cap_user_data_t datap = (cap_user_data_t)malloc(sizeof *datap);
+	cap_user_header_t hrdp = (cap_user_header_t)malloc(sizeof(typeof(*hrdp)));
+	cap_user_data_t datap = (cap_user_data_t)malloc(sizeof(typeof(*datap)));
 	hrdp->pid = getpid();
 	hrdp->version = _LINUX_CAPABILITY_VERSION_3;
-	syscall(SYS_capget, hrdp, datap);
+	capget(hrdp, datap);
 	datap->inheritable = 0;
-	syscall(SYS_capset, hrdp, datap);
+	capset(hrdp, datap);
+	// free(2) hrdp and datap here might cause ASAN error.
 	free(hrdp);
 	free(datap);
 }
@@ -250,12 +245,13 @@ static void setup_binfmt_misc(const struct CONTAINER *container)
 	struct MAGIC *magic = get_magic(container->cross_arch);
 	// Umount container if we get an error.
 	if (magic == NULL) {
+		warning("{red}Error: unknown architecture or same architecture as host: %s\n\nSupported architectures: aarch64, alpha, arm, armeb, cris, hexagon, hppa, i386, loongarch64, m68k, microblaze, mips, mips64, mips64el, mipsel, mipsn32, mipsn32el, ppc, ppc64, ppc64le, riscv32, riscv64, s390x, sh4, sh4eb, sparc, sparc32plus, sparc64, x86_64, xtensa, xtensaeb{clear}\n", container->cross_arch);
 		umount_container(container->container_dir);
-		error("{red}Error: unknown architecture or same architecture as host: %s\n\nSupported architectures: aarch64, alpha, arm, armeb, cris, hexagon, hppa, i386, loongarch64, m68k, microblaze, mips, mips64, mips64el, mipsel, mipsn32, mipsn32el, ppc, ppc64, ppc64le, riscv32, riscv64, s390x, sh4, sh4eb, sparc, sparc32plus, sparc64, x86_64, xtensa, xtensaeb{clear}\n", container->cross_arch);
+		error(" ");
 	}
 	char buf[1024] = { '\0' };
 	// Format: ":name:type:offset:magic:mask:interpreter:flags".
-	sprintf(buf, ":%s%s:M:0:%s:%s:%s:PCF", "ruri-", container->cross_arch, magic->magic, magic->mask, container->qemu_path);
+	sprintf(buf, ":%s%d:M:0:%s:%s:%s:PCF", "ruri-", container->container_id, magic->magic, magic->mask, container->qemu_path);
 	// Just to make clang-tidy happy.
 	free(magic);
 	// This needs CONFIG_BINFMT_MISC enabled in your kernel.
@@ -319,8 +315,8 @@ void run_chroot_container(struct CONTAINER *container)
 	// mount_host_runtime() and store_info() will be called here.
 	char buf[PATH_MAX] = { '\0' };
 	sprintf(buf, "%s/sys/class/input", container->container_dir);
-	DIR *direxist = opendir(buf);
-	if (direxist == NULL) {
+	char *test = realpath(buf, NULL);
+	if (test == NULL) {
 		// Mount mountpoints.
 		mount_mountpoints(container);
 		// Store container info.
@@ -336,9 +332,9 @@ void run_chroot_container(struct CONTAINER *container)
 			mount_host_runtime(container);
 		}
 	}
-	// Avoid running closedir(NULL), we put it to else branch.
+	// If container already mounted, sync the config.
 	else {
-		closedir(direxist);
+		free(test);
 		// Read container info.
 		if (container->use_rurienv) {
 			read_info(container, container->container_dir);
