@@ -478,7 +478,7 @@ void ruri(int argc, char **argv)
 		// Common chroot container.
 		run_chroot_container(container);
 	}
-	return 0;
+	return;
 }
 
 int main(int argc, char **argv) {
