@@ -33,7 +33,7 @@ void show_version_info(void)
 	/*
 	 * Just show version info and license.
 	 * Version info is defined in macro RURI_VERSION.
-	 * RURI_COMMIT_ID is defined in Makefile.
+	 * RURI_COMMIT_ID is defined as -D option of compiler.
 	 */
 	cprintf("\n");
 	cprintf("{base}      ●●●●  ●   ● ●●●●   ●●●\n");
@@ -41,12 +41,20 @@ void show_version_info(void)
 	cprintf("{base}      ●●●●  ●   ● ●●●●    ●\n");
 	cprintf("{base}      ●  ●  ●   ● ●  ●    ●\n");
 	cprintf("{base}      ●   ●  ●●●  ●   ●  ●●●\n");
+	cprintf("{base}    Revamp, Until Reach Ideal\n");
 	cprintf("{base}  Licensed under the MIT License\n");
 	cprintf("{base}    <https://mit-license.org>\n");
-	cprintf("{base}Copyright (C) 2022-2024 Moe-hacker\n");
+	cprintf("{base}Copyright (C) 2022-2024 Moe-hacker\n\n");
 	cprintf("{base}%s%s%s", "ruri version .....:  ", RURI_VERSION, "\n");
+#if defined(RURI_COMMIT_ID)
+	cprintf("{base}%s%s%s", "ruri commit id ...:  ", RURI_COMMIT_ID, "\n");
+#endif
+#if defined(LIBCAP_MAJOR) && defined(LIBCAP_MINOR)
 	cprintf("{base}%s%d%s%d%s", "libcap ...........:  ", LIBCAP_MAJOR, ".", LIBCAP_MINOR, "\n");
+#endif
+#if defined(SCMP_VER_MAJOR) && defined(SCMP_VER_MINOR) && defined(SCMP_VER_MICRO)
 	cprintf("{base}%s%d%s%d%s%d%s", "libseccomp .......:  ", SCMP_VER_MAJOR, ".", SCMP_VER_MINOR, ".", SCMP_VER_MICRO, "\n");
+#endif
 	cprintf("{base}%s%d%s%d%s", "libk2v ...........:  ", LIBK2V_MAJOR, ".", LIBK2V_MINOR, "\n");
 	cprintf("{base}%s%d%s%d%s", "cprintf ..........:  ", CPRINTF_MAJOR, ".", CPRINTF_MINOR, "\n");
 	cprintf("{base}%s%s\n", "Compiler version .:  ", __VERSION__);
@@ -96,23 +104,24 @@ void show_helps(void)
 	cprintf("{base}  -N, --no-rurienv ............................: Do not use .rurienv file\n");
 	cprintf("{base}  -s, --enable-seccomp ........................: Enable built-in Seccomp profile\n");
 	cprintf("{base}  -p, --privileged ............................: Run privileged container\n");
-	cprintf("{base}  -r, --rootless ..............................: Run rootless container (WIP)\n");
-	cprintf("{base}  -k, --keep [cap] ............................: Keep the specified capability\n");
+	cprintf("{base}  -r, --rootless ..............................: Run rootless container\n");
+	cprintf("{base}  -k, --keep [cap] ............................: Keep the specified capability(**)\n");
 	cprintf("{base}  -d, --drop [cap] ............................: Drop the specified capability\n");
-	cprintf("{base}  -e, --env [env] [value] .....................: Set environment variables to its value (**)\n");
-	cprintf("{base}  -m, --mount [dir/dev/img/file] [target] .....: Mount dir/block-device/image/file to target (***)\n");
+	cprintf("{base}  -e, --env [env] [value] .....................: Set environment variables to its value (***)\n");
+	cprintf("{base}  -m, --mount [dir/dev/img/file] [target] .....: Mount dir/block-device/image/file to target (****)\n");
 	cprintf("{base}  -M, --ro-mount [dir/dev/img/file] [target] ..: Mount dir/block-device/image/file as read-only\n");
 	cprintf("{base}  -S, --host-runtime ..........................: Bind-mount /dev/, /sys/ and /proc/ from host\n");
 	cprintf("{base}  -R, --read-only .............................: Mount / as read-only\n");
-	cprintf("{base}  -l, --limit [cpuset=cpu/memory=mem] .........: Set cpuset/memory limit(****)\n");
+	cprintf("{base}  -l, --limit [cpuset=cpu/memory=mem] .........: Set cpuset/memory limit(*****)\n");
 	cprintf("{base}  -w, --no-warnings ...........................: Disable warnings\n");
 	cprintf("\n");
 	cprintf("{base}Note:\n");
-	cprintf("{base}(*)   :  `-a` option also need `-q` is set\n");
-	cprintf("{base}(**)  : Will not work if [COMMAND [ARGS]...] is like `/bin/su -`\n");
-	cprintf("{base}(***) : You can use `-m [source] /` to mount a block device as root\n");
-	cprintf("{base}(****): Each `-l` option can only set one of the cpuset/memory limits\n");
-	cprintf("{base}        for example: `ruri -l memory=1M -l cpuset=1 /test`\n");
+	cprintf("{base}(*)    : `-a` option also need `-q` is set\n");
+	cprintf("{base}(**)   : cap can both be value or name (e.j. cap_chown == 0)\n");
+	cprintf("{base}(***)  : Will not work if [COMMAND [ARGS]...] is like `/bin/su -`\n");
+	cprintf("{base}(****) : You can use `-m [source] /` to mount a block device as root\n");
+	cprintf("{base}(*****): Each `-l` option can only set one of the cpuset/memory limits\n");
+	cprintf("{base}         for example: `ruri -l memory=1M -l cpuset=1 /test`\n");
 	cprintf("{base}{clear}\n");
 }
 // For `ruri -H`.

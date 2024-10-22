@@ -61,15 +61,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pwd.h>
 // This program need to be linked with `-lseccomp`.
 #include <seccomp.h>
 // This program need to be linked with `-lcap`.
 #include <sys/capability.h>
-#ifndef LIBCAP_MAJOR
-#define LIBCAP_MAJOR 114
-#define LIBCAP_MINOR 514
-#endif
+// We redefine CAP_LAST_CAP to 114,
+// because for kernel in the fulture, there may be more capabilities than today.
 #undef CAP_LAST_CAP
 #define CAP_LAST_CAP 114
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
@@ -144,6 +141,15 @@ struct __attribute__((aligned(16))) MAGIC {
 	char *magic;
 	char *mask;
 };
+// For get_idmap().
+struct __attribute__((aligned(32))) ID_MAP {
+	uid_t uid;
+	uid_t uid_lower;
+	uid_t uid_count;
+	gid_t gid;
+	gid_t gid_lower;
+	gid_t gid_count;
+};
 // Warnings.
 #define warning(...) cfprintf(stderr, ##__VA_ARGS__)
 // Show error msg and exit.
@@ -161,6 +167,7 @@ struct __attribute__((aligned(16))) MAGIC {
 		cfprintf(stderr, "\033[4m{base}%s{clear}\n", "https://github.com/Moe-hacker/ruri/issues");   \
 		exit(EXIT_FAILURE);                                                                          \
 	}
+// Shared functions.
 void register_signal(void);
 void setup_seccomp(const struct CONTAINER *container);
 void show_version_info(void);
@@ -184,6 +191,7 @@ int trymount(const char *source, const char *target, unsigned int mountflags);
 void umount_container(const char *container_dir);
 void read_config(struct CONTAINER *container, const char *path);
 void set_limit(const struct CONTAINER *container);
+struct ID_MAP get_idmap(uid_t uid, gid_t gid);
 //   ██╗ ██╗  ███████╗   ████╗   ███████╗
 //  ████████╗ ██╔════╝ ██╔═══██╗ ██╔════╝
 //  ╚██╔═██╔╝ █████╗   ██║   ██║ █████╗
