@@ -19,7 +19,7 @@ jobs:
     container: debian:sid
     steps:
       - name: Install Build Tools
-        run:  apt update &&  apt install -y debhelper dpkg-dev libcap-dev pkg-config git libseccomp-dev golang cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev gcc g++ ninja-build python3
+        run:  apt update &&  apt install -y debhelper dpkg-dev libcap-dev pkg-config git libseccomp-dev golang cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev gcc g++ ninja-build python3 clang-tidy
 
       - name: Checkout repo
         uses: actions/checkout@v4
