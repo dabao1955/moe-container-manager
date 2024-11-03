@@ -12,7 +12,7 @@ add_custom_target(
 
 add_custom_target(
     share ALL
-    COMMAND cp share/*.sh ${CMAKE_SOURCE_DIR}/../out/share/moe-container-manager/
+    COMMAND cp share/*.sh ${CMAKE_SOURCE_DIR}/../out/share/moe-container-manager/ && chmod 755 ${CMAKE_SOURCE_DIR}/../out/share/moe-container-manager/*.sh
     COMMENT "Copying necessary shell scripts"
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} # Set correct path where main.go is located
     DEPENDS copyright

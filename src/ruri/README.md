@@ -8,7 +8,13 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14021121.svg)](https://doi.org/10.5281/zenodo.14021121)
 -----------------     
 # Download:    
-You can get ruri binary (statically linked) for arm64, armv7, riscv64, i386 and x86_64 devices in [Release](https://github.com/Moe-hacker/ruri/releases/).      
+You can get ruri binary (statically linked) for arm64, armv7, armhf, riscv64, i386, loong64, s390x, ppc64le and x86_64 devices in [Release](https://github.com/Moe-hacker/ruri/releases/).      
+Or you can run the following command to download ruri automatically:      
+```sh
+wget https://github.com/Moe-hacker/ruri/raw/refs/heads/main/getruri.sh
+bash getruri.sh -s
+```
+This will automatically download ruri binary to `./ruri`.      
 # 中文文档
 [中文文档](doc/README_zh.md)      
 # WARNING:      
@@ -33,7 +39,8 @@ The basic usage is very very simple, you can use it just like the command `chroo
 - Secure:      
 Ruri focus on security, with many built-in protections.
 - Run Everywhere:      
-The binary is very small, only about 1M, and you can also use `upx` to make it less than 500k, so it can be run anywhere even if the storage is tight.
+ruri officially supports multipe platforms: arm64, armv7, armhf, riscv64, i386, loong64, s390x, ppc64le and x86_64.         
+The ruri binary is very small, only about 1M, and you can also use `upx` to make it less than 500k, so it can be run anywhere even if the storage is tight.                
 # Container Security:  
 See [Enhance Container Security](doc/Security.md).      
 # Build:      
@@ -51,9 +58,22 @@ Usage: ./configure [OPTION]...
     -s, --static        compile static binary
     -d, --dev           compile dev version
 ```
-
+## Build Debian package: 
+Debian do not like static binary, so in debian package, ruri is dynamically linked.      
+You can run:       
+```sh
+apt update
+apt build-dep . -y
+dpkg-buildpackage -b -us -uc -d
+```
+This will bulid the debian package.      
+# Integration:
+ruri is ready to integrate into other projects, with the MIT License, it is compatiblte to be redistribute with almost all license, or commercial/closed source.      
+See [Integration](doc/Integration.md) for a guide to integrate ruri into your projects.    
 # Usage:    
 See [USAGE](doc/USAGE.md)      
+# FAQ:   
+[FAQ](doc/FAQ.md)      
 # Quick start(with rootfstool):
 ## Download and unpack a rootfs:
 ```
@@ -94,8 +114,6 @@ For command line examples, please see `ruri -H`.
 # Umount the container:
   sudo ruri -U /tmp/alpine
 ```
-# FAQ:   
-[FAQ](doc/FAQ.md)      
 # License:
 License of code:      
 - Licensed under the MIT License      

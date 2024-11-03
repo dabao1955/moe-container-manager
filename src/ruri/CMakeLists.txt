@@ -1,7 +1,7 @@
  cmake_minimum_required(VERSION 3.10)
 
 # set the project name
-project(ruri VERSION 3.6 LANGUAGES C)
+project(ruri VERSION 3.7 LANGUAGES C)
 
 # add cxx standard
 add_compile_options("-Wno-unused-result")
@@ -15,7 +15,7 @@ else()
     file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/src/*.c ${CMAKE_SOURCE_DIR}/src/easteregg/*.c)
 endif()
 
-set(RURI_VERSION 3.6)
+set(RURI_VERSION 3.7)
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"  # 源文件路径
   "${CMAKE_CURRENT_SOURCE_DIR}/src/include/version.h"     # 目标文件路径

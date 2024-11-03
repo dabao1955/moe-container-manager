@@ -2,3 +2,4 @@
 
 set -e
 test -f /usr/bin/moe-container-manager || ln -s /usr/bin/interface /usr/bin/moe-container-manager
+ldconfig

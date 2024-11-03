@@ -49,5 +49,5 @@ jobs:
         uses: actions/upload-artifact@v4
 
         with:
-          name: moe-container-manager_0.0.1rc0_amd64.deb.zip
+          name: ruri
           path: src/ruri_*

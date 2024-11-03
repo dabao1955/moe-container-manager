@@ -142,10 +142,15 @@ static void init_container(void)
 		mount("/dev/null", "/proc/timer_list", "", MS_BIND, NULL);
 		mount("/dev/null", "/proc/timer_stats", "", MS_BIND, NULL);
 		mount("/dev/null", "/proc/sched_debug", "", MS_BIND, NULL);
+		mount("/dev/null", "/proc/sysrq-trigger", "", MS_BIND, NULL);
 		mount("tmpfs", "/proc/scsi", "tmpfs", MS_RDONLY, NULL);
 		mount("tmpfs", "/sys/firmware", "tmpfs", MS_RDONLY, NULL);
 		mount("tmpfs", "/sys/devices/virtual/powercap", "tmpfs", MS_RDONLY, NULL);
 		mount("tmpfs", "/sys/block", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "/sys/kernel/debug", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "/sys/module", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "/sys/class/net", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "/sys/fs/cgroup", "tmpfs", MS_RDONLY, NULL);
 	} else {
 		free(test);
 	}
@@ -374,7 +379,7 @@ void run_chroot_container(struct CONTAINER *_Nonnull container)
 			mount(container->container_dir, container->container_dir, NULL, MS_BIND | MS_REMOUNT | MS_RDONLY, NULL);
 		}
 		// If `-S` option is set, bind-mount /dev/, /sys/ and /proc/ from host.
-		if (container->mount_host_runtime) {
+		if (container->mount_host_runtime && !container->just_chroot) {
 			mount_host_runtime(container);
 		}
 	}
@@ -412,7 +417,9 @@ void run_chroot_container(struct CONTAINER *_Nonnull container)
 		}
 	}
 	// Mount/create system runtime dir/files.
-	init_container();
+	if (!container->just_chroot) {
+		init_container();
+	}
 	// Fix /etc/mtab.
 	remove("/etc/mtab");
 	unlink("/etc/mtab");

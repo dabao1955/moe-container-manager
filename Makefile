@@ -15,59 +15,85 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-CCCOLOR     = \033[1;38;2;254;228;208m
-STRIPCOLOR  = \033[1;38;2;254;228;208m
-BINCOLOR    = \033[34;1m
-ENDCOLOR    = \033[0m
+# Colors and Formatting
+COLOR     = \033[1;38;2;254;228;208m
+BINCOLOR  = \033[34;1m
+ENDCOLOR  = \033[0m
 
-BIN = $(O)/bin/
-SHARE = $(O)/share/moe-container-manager/
-O = out
-PREFIX = /usr/local/
-DESTDIR = $(PREFIX)
+# Directory Paths
+O          = out
+BIN        = $(O)/bin
+SHARE      = $(O)/share/moe-container-manager
+PREFIX     = /usr/
+DESTDIR    = $(PREFIX)
 
-ifeq ("$(origin VERBOSE)", "command line")
-  BUILD_VERBOSE = $(VERBOSE)
-endif
-ifndef BUILD_VERBOSE
-  BUILD_VERBOSE = 0
-endif
+# Build Configurations
+CORES      = $(shell nproc)  # Auto-detect number of cores
+CC = $(shell which gcc)
+CXX = $(shell which g++)
+VERBOSE ?= 0
+LIB ?= 0
+Q           = $(if $(filter 1,$(VERBOSE)),, @)
+N           = $(if $(filter 1,$(VERBOSE)),-v,)
+D           = $(if $(filter 1,$(VERBOSE)),on,)
+L           = $(if $(filter 1,$(LIB)),on,off)
+LINK        = $(if $(filter 1,$(LIB)), \
+                mv out/bin/ruri-runlib out/bin/ruri && mv out/bin/interface-runlib out/bin/interface, \
+                echo "LINK is disabled")
 
-ifeq ("$(wildcard src/out)","")
-        $(shell mkdir src/out)
-endif
 
-ifeq ($(BUILD_VERBOSE),1)
-  Q =
-  D = on
-  N = -v
-else
-  Q = @
-  D =
-  N =
-endif
+# CMake and Ninja Build Flags
+CMAKE_FLAGS = -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX) -DCMAKE_C_FLAGS="-pipe" -GNinja
+NINJA_FLAGS = -j$(CORES) $(N)
 
-ifeq ("$(origin LIB)", "command line")
-  BUILD_LIB = $(LIB)
-endif
-ifndef BUILD_LIB
-  BUILD_LIB = 0
-endif
+# Directory Creation Function
+define make-dirs
+	$(shell mkdir -p $1)
+endef
 
-ifeq ($(BUILD_LIB),1)
-  L = on
-  LINK = mv out/bin/ruri-runlib out/bin/ruri && \
-	mv out/bin/interface-runlib out/bin/interface
-else
-  L = off
-  LINK = echo "LINK is disabled"
-endif
+# Main Build Command
+BUILD = cd src/out && cmake .. $(CMAKE_FLAGS) -DDEBUG_MODE=$(D) -DMOE_LIB=$(L) && ninja $(NINJA_FLAGS) && ninja install
 
-.PHONY: all
+# Install Directories
+INSTALL_BIN_DIR = $(DESTDIR)/bin
+INSTALL_SHARE_DIR = $(DESTDIR)/share/moe-container-manager
+INSTALL_DOC_DIR = $(INSTALL_SHARE_DIR)/../doc/moe-container-manager
+
+# Default Target
+.PHONY: all show-greetings clean distclean help install build update-ruri c-format shell-format
 all: show-greetings $(BIN) $(SHARE) build
+
+install: out
+	$(Q)printf "$(COLOR)[+] Install.\n"
+	$(Q)install -d $(INSTALL_BIN_DIR) $(INSTALL_SHARE_DIR) $(INSTALL_DOC_DIR)
+	$(Q)install -m 755 $(O)/bin/* $(INSTALL_BIN_DIR)
+	$(Q)cp -r $(O)/share/moe-container-manager/* $(INSTALL_SHARE_DIR)
+	$(Q)(if [ -d "$(O)/lib" ]; then \
+		install -d $(DESTDIR)/lib; \
+		cp $(O)/lib/* $(DESTDIR)/lib/; \
+		ldconfig; \
+	fi)
+
+.PHONY: clean distclean
+
+clean:
+	$(Q)printf "$(COLOR)[+] Clean.\n"
+	$(Q)rm -rf $(O) src/out src/ruri/src/include/version.h
+	$(Q)printf "$(COLOR)    .^.   .^.\n"
+	$(Q)printf "    /⋀\\_ﾉ_/⋀\\ \n"
+	$(Q)printf "   /ﾉｿﾉ\\ﾉｿ丶)|\n"
+	$(Q)printf "  |ﾙﾘﾘ >   )ﾘ\n"
+	$(Q)printf "  ﾉノ㇏ Ｖ ﾉ|ﾉ\n"
+	$(Q)printf "        ⠁⠁$(ENDCOLOR)\n"
+	$(Q)printf "$(COLOR)[*] Cleaned Up.\n"
+
+distclean:
+	$(Q)printf "$(COLOR)[+] Distclean.\n"
+	$(Q)perl tools/clean.pl
+
 show-greetings:
+	$(Q)printf "$(CCCOLOR)"
 	$(Q)echo Starting Build ...
-	$(Q)printf "\033[1;38;2;254;228;208m"
 	$(Q)printf "                  _________\n"
 	$(Q)printf "                 /        /\\ \n"
 	$(Q)printf "                /        /  \\ \n"
@@ -78,87 +104,45 @@ show-greetings:
 	$(Q)printf "                \\        \\  /\n"
 	$(Q)printf "                 \\________\\/\n"
 
-ifeq ("$(wildcard out/)","")
-	$(shell mkdir out/)
-endif
-ifeq ("$(wildcard $(SHARE))","")
-	$(shell mkdir out/share)
-	$(shell mkdir $(SHARE))
-	$(shell mkdir $(SHARE)/proc)
-endif
-ifeq ("$(wildcard $(SHARE)/doc)","")
-	$(shell mkdir out/share/doc)
-	$(shell mkdir out/share/doc/moe-container-manager)
-endif
-ifeq ("$(wildcard $(BIN))","")
-	$(shell mkdir $(BIN))
-endif
+# Directory Creation
+$(call make-dirs, src/out out/share/doc/moe-container-manager out/share/moe-container-manager/proc out/bin out/share out/share/moe-container-manager)
 
-BUILD = cd src/out && \
-	cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` -DCMAKE_C_FLAGS="-pipe" -GNinja -DDEBUG_MODE=$(D) -DMOE_LIB=$(L) && \
-	ninja $(N) -j8 && \
-	ninja install
-
-DOC = doc
-$(DOC): /usr/bin/w3m
-ifneq ($(shell test -d $(DOC)||echo x),)
-	$(Q)$(MAKE) -C doc
-	$(Q)echo you can run <cd doc && make preview> to read docs.
-endif
-
+# Build Rules
 build: src/CMakeLists.txt
 	$(Q)$(BUILD)
-	$(Q)$(LINK)
 
-install: out/share/doc/moe-container-manager/LICENSE
-	$(Q)printf "\033[1;38;2;254;228;208m[+] Install.\033[0m\n"
-	$(Q)install -d $(DESTDIR)/bin/
-	$(Q)install -m 755 $(O)/bin/* $(DESTDIR)/bin/
-	$(Q)install -d $(DESTDIR)/share/
-	$(Q)install -d $(DESTDIR)/share/doc
-	$(Q)install -d $(DESTDIR)/share/doc/moe-container-manager
-	$(Q)install -d $(DESTDIR)/share/moe-container-manager
-	$(Q)cp -r $(O)/share/doc/* $(DESTDIR)/share/doc/moe-container-manager/
-	$(Q)cp -r $(O)/share/moe-container-manager/* $(DESTDIR)/share/moe-container-manager/
-	$(Q)chmod 755 $(DESTDIR)/share/moe-container-manager/*.sh
-	$(Q)(if [ -d "$(O)/lib" ]; then \
-		install -d $(DESTDIR)/lib; \
-		cp $(O)/lib/* $(DESTDIR)/lib/; \
-		ldconfig; \
-	fi)
+# Documentation Build
+DOC = doc
+$(DOC): /usr/bin/w3m
+	ifneq ($(shell test -d $(DOC)||echo x),)
+		$(Q)$(MAKE) -C doc
+		$(Q)echo "To read docs, run <cd doc && make preview>."
+	endif
+
+# Run Tests
 test:
 	$(Q)out/bin/interface -v
 
-.PHONY: clean
-clean:
-	$(Q)printf "\033[1;38;2;254;228;208m[+] Clean.\033[0m\n"&&sleep 1s
-	$(Q)rm -rf $(O) src/build src/ruri/src/include/version.h
-	$(Q)printf "\033[1;38;2;254;228;208m    .^.   .^.\n"
-	$(Q)printf "    /⋀\\_ﾉ_/⋀\\ \n"
-	$(Q)printf "   /ﾉｿﾉ\\ﾉｿ丶)|\n"
-	$(Q)printf "  |ﾙﾘﾘ >   )ﾘ\n"
-	$(Q)printf "  ﾉノ㇏ Ｖ ﾉ|ﾉ\n"
-	$(Q)printf "        ⠁⠁\n"
-	$(Q)printf "\033[1;38;2;254;228;208m[*] Cleaned Up.\033[0m\n"
-
+# Help
 help:
-	@echo "Makefile is not for common user, please use the released .deb files instead."
+	@echo "Makefile is for advanced usage only. Use the released .deb files instead."
+	@echo "Targets:"
+	@echo "  all       - Build everything"
+	@echo "  install   - Install the binaries and documentation"
+	@echo "  clean     - Clean up the build artifacts"
+	@echo "  distclean - Perform a deep clean, removing all build directories"
+	@echo "  update-ruri - Update the ruri source from the remote repository"
+	@echo "  test      - Run tests on the built binaries"
+	@echo
 	@echo "(>_) "
-update-ruri: src/ruri
+
+update-ruri:
 	$(Q)mkdir -p src/tmp
 	$(Q)mv src/ruri/CMakeLists.txt src/ruri/config.h.in src/ruri/debian/rules src/tmp
 	$(Q)rm -rf src/ruri
 	$(Q)git clone https://github.com/Moe-Hacker/ruri src/ruri
 	$(Q)rm -rf src/ruri/LICENSE src/ruri/.git src/ruri/.github src/ruri/.clang-format src/ruri/.clang-format src/ruri/Makefile src/ruri/configure src/ruri/src/include/version.h
 	$(Q)mv src/tmp/* src/ruri/
+	$(Q)mv src/ruri/rules src/ruri/debian
 	$(Q)mv src/ruri/src/main.c src/ruri/src/ruri.c
 	$(Q)rm -rf src/tmp
-
-c-format:
-	$(Q)python3 tools/c-format.py
-shell-format:
-	$(Q)python3 tools/shell-format.py
-
-.PHONY: distclean
-distclean:
-	$(Q)perl tools/clean.pl
