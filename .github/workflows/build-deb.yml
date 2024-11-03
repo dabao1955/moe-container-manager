@@ -28,3 +28,26 @@ jobs:
         with:
           name: moe-container-manager_0.0.1rc0_amd64.deb.zip
           path: out/moe*
+
+  build-ruri-amd64:
+    container: debian:bookworm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Build Tools
+        run: apt update && apt install -y debhelper dpkg-dev libcap-dev pkg-config git libseccomp-dev cmake libpthreadpool0 libpthreadpool-dev gcc
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build deb
+        run: |
+          cd src/ruri
+          git config --global --add safe.directory /__w/moe-container-manager/moe-container-manager
+          dpkg-buildpackage -d -us -uc -b
+      - name: Upload builded to artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+
+        with:
+          name: moe-container-manager_0.0.1rc0_amd64.deb.zip
+          path: src/ruri_*

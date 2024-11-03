@@ -5,13 +5,12 @@
 
 <p align="center">「 须臾水面明月出，沧江万顷瑠璃寒 」</p>
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14021121.svg)](https://doi.org/10.5281/zenodo.14021121)
 -----------------     
-# Get support:      
-Feel free to discuss at https://t.me/ruri_daijin_support     
 # Download:    
 You can get ruri binary (statically linked) for arm64, armv7, riscv64, i386 and x86_64 devices in [Release](https://github.com/Moe-hacker/ruri/releases/).      
 # 中文文档
-[中文文档](/README_zh.md)      
+[中文文档](doc/README_zh.md)      
 # WARNING:      
 > [!WARNING]
 > ruri should always be executed with root privileges(sudo), and do not set SUID or any capability on it!      
@@ -35,6 +34,8 @@ The basic usage is very very simple, you can use it just like the command `chroo
 Ruri focus on security, with many built-in protections.
 - Run Everywhere:      
 The binary is very small, only about 1M, and you can also use `upx` to make it less than 500k, so it can be run anywhere even if the storage is tight.
+# Container Security:  
+See [Enhance Container Security](doc/Security.md).      
 # Build:      
 ```
 git clone https://github.com/Moe-hacker/ruri
@@ -52,52 +53,7 @@ Usage: ./configure [OPTION]...
 ```
 
 # Usage:    
-```
-ruri 3.3
-
-Lightweight, User-friendly Linux-container Implementation
-
-Usage:
-  ruri [OPTIONS]...
-  ruri [ARGS]... [CONTAINER_DIRECTORY]... [COMMAND [ARGS]...]
-
-OPTIONS:
-  -v, --version ...............................: Show version info
-  -V, --version-code ..........................: Show version code
-  -h, --help ..................................: Show helps
-  -H, --show-examples .........................: Show commandline examples
-  -U, --umount [container_dir] ................: Umount a container
-
-ARGS:
-  -D, --dump-config ...........................: Dump the config
-  -o, --output [config file] ..................: Set output file of `-D` option
-  -c, --config [config file] ..................: Use config file
-  -a, --arch [arch] ...........................: Simulate architecture via binfmt_misc/QEMU (*)
-  -q, --qemu-path [path] ......................: Specify the path of QEMU
-  -u, --unshare ...............................: Enable unshare feature
-  -n, --no-new-privs ..........................: Set NO_NEW_PRIVS flag
-  -N, --no-rurienv ............................: Do not use .rurienv file
-  -s, --enable-seccomp ........................: Enable built-in Seccomp profile
-  -p, --privileged ............................: Run privileged container
-  -r, --rootless ..............................: Run rootless container
-  -k, --keep [cap] ............................: Keep the specified capability(**)
-  -d, --drop [cap] ............................: Drop the specified capability
-  -e, --env [env] [value] .....................: Set environment variables to its value (***)
-  -m, --mount [dir/dev/img/file] [target] .....: Mount dir/block-device/image/file to target (****)
-  -M, --ro-mount [dir/dev/img/file] [target] ..: Mount dir/block-device/image/file as read-only
-  -S, --host-runtime ..........................: Bind-mount /dev/, /sys/ and /proc/ from host
-  -R, --read-only .............................: Mount / as read-only
-  -l, --limit [cpuset=cpu/memory=mem] .........: Set cpuset/memory limit(*****)
-  -w, --no-warnings ...........................: Disable warnings
-
-Note:
-(*)    : `-a` option also need `-q` is set
-(**)   : cap can both be value or name (e.j. cap_chown == 0)
-(***)  : Will not work if [COMMAND [ARGS]...] is like `/bin/su -`
-(****) : You can use `-m [source] /` to mount a block device as root
-(*****): Each `-l` option can only set one of the cpuset/memory limits
-         for example: `ruri -l memory=1M -l cpuset=1 /test`
-```
+See [USAGE](doc/USAGE.md)      
 # Quick start(with rootfstool):
 ## Download and unpack a rootfs:
 ```
@@ -139,7 +95,7 @@ For command line examples, please see `ruri -H`.
   sudo ruri -U /tmp/alpine
 ```
 # FAQ:   
-[FAQ](FAQ.md)      
+[FAQ](doc/FAQ.md)      
 # License:
 License of code:      
 - Licensed under the MIT License      

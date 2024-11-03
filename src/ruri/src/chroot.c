@@ -28,7 +28,7 @@
  *
  */
 #include "include/ruri.h"
-static bool su_biany_exist(char *container_dir)
+static bool su_biany_exist(char *_Nonnull container_dir)
 {
 	/*
 	 * Check if /bin/su exists in container.
@@ -43,25 +43,15 @@ static bool su_biany_exist(char *container_dir)
 	close(fd);
 	return true;
 }
-static void check_binary(const struct CONTAINER *container)
+static void check_binary(const struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * Check for binaries we need for starting the container.
 	 */
-	// Check if command binary exists and is not a directory.
-	char init_binary[PATH_MAX];
-	strcpy(init_binary, container->container_dir);
-	strcat(init_binary, container->command[0]);
-	struct stat init_binary_stat;
-	// lstat(3) will return -1 while the init_binary does not exist.
-	if (lstat(init_binary, &init_binary_stat) != 0) {
-		umount_container(container->container_dir);
-		error("{red}Please check if CONTAINER_DIRECTORY and [COMMAND [ARG]...] are correct QwQ\n");
-	}
-	if (S_ISDIR(init_binary_stat.st_mode)) {
-		umount_container(container->container_dir);
-		error("{red}COMMAND can not be a directory QwQ\n");
-	}
+	/*
+	 * Since ruri use execvp() instead of execv(),
+	 * we will not check for init binary here now.
+	 */
 	// Check QEMU path.
 	if (container->cross_arch != NULL) {
 		if (container->qemu_path == NULL) {
@@ -161,7 +151,7 @@ static void init_container(void)
 	}
 }
 // Run before chroot(2), so that init_container() will not take effect.
-static void mount_host_runtime(const struct CONTAINER *container)
+static void mount_host_runtime(const struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * It's unsafe to mount /dev, /proc and /sys from the host.
@@ -199,7 +189,7 @@ static void mount_host_runtime(const struct CONTAINER *container)
 }
 // Drop capabilities.
 // Use libcap.
-static void drop_caps(const struct CONTAINER *container)
+static void drop_caps(const struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * Drop CapBnd and CapAmb as the config in container->drop_caplist[].
@@ -232,15 +222,17 @@ static void drop_caps(const struct CONTAINER *container)
 	capget(hrdp, datap);
 	datap->inheritable = 0;
 	capset(hrdp, datap);
-	// free(2) hrdp and datap here might cause ASAN error.
-	// I think it's because the kernel will write to the memory directly,
-	// but I don't know the behavior of ASAN to allocate memory, maybe after this,
-	// ASAN can not recognize the memory is allocated by it.
+// free(2) hrdp and datap here might cause ASAN error.
+// I think it's because the kernel will write to the memory directly,
+// but I don't know the behavior of ASAN to allocate memory, maybe after this,
+// ASAN can not recognize the memory is allocated by it.
+#ifndef RURI_DEBUG
 	free(hrdp);
 	free(datap);
+#endif
 }
 // Set envs.
-static void set_envs(const struct CONTAINER *container)
+static void set_envs(const struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * A very useless feature, I hope it works as expected.
@@ -260,7 +252,7 @@ static void set_envs(const struct CONTAINER *container)
 	}
 }
 // Run after init_container().
-static void setup_binfmt_misc(const struct CONTAINER *container)
+static void setup_binfmt_misc(const struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * For running multi-arch container.
@@ -290,7 +282,7 @@ static void setup_binfmt_misc(const struct CONTAINER *container)
 }
 // Mount other mountpoints.
 // Run before chroot(2).
-static void mount_mountpoints(const struct CONTAINER *container)
+static void mount_mountpoints(const struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * Mount extra_mountpoint and extra_ro_mountpoint.
@@ -326,8 +318,31 @@ static void mount_mountpoints(const struct CONTAINER *container)
 		free(mountpoint_dir);
 	}
 }
+// Try to use pivot_root(2).
+static int try_pivot_root(const struct CONTAINER *_Nonnull container)
+{
+	/*
+	 * Try to use pivot_root(2) to change the root directory.
+	 * If pivot_root(2) is not available, return -1.
+	 */
+	log("{base}ns pid: %d", container->ns_pid);
+	if (container->ns_pid > 0) {
+		log("{base}Using setns(2) to change root directory.");
+		chdir("/");
+		return 0;
+	}
+	chdir(container->container_dir);
+	if (syscall(SYS_pivot_root, ".", ".") == -1) {
+		log("{base}pivot_root(2) failed, using chroot(2) instead.");
+		return -1;
+	}
+	chdir("/");
+	umount2(".", MNT_DETACH);
+	log("{base}pivot_root(2) success.");
+	return 0;
+}
 // Run chroot container.
-void run_chroot_container(struct CONTAINER *container)
+void run_chroot_container(struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * It's called by main() and run_unshare_container().
@@ -385,9 +400,17 @@ void run_chroot_container(struct CONTAINER *container)
 	// Check binary used.
 	check_binary(container);
 	// chroot(2) into container.
-	chdir(container->container_dir);
-	chroot(".");
-	chdir("/");
+	if (!container->enable_unshare) {
+		chdir(container->container_dir);
+		chroot(".");
+		chdir("/");
+	} else {
+		if (try_pivot_root(container) == -1) {
+			chdir(container->container_dir);
+			chroot(".");
+			chdir("/");
+		}
+	}
 	// Mount/create system runtime dir/files.
 	init_container();
 	// Fix /etc/mtab.
@@ -428,13 +451,13 @@ void run_chroot_container(struct CONTAINER *container)
 	cprintf("{clear}");
 	// Execute command in container.
 	// Use exec(3) function because system(3) may be unavailable now.
-	if (execv(container->command[0], container->command) == -1) {
+	if (execvp(container->command[0], container->command) == -1) {
 		// Catch exceptions.
 		error("{red}Failed to execute `%s`\nexecv() returned: %d\nerror reason: %s\nNote: unset $LD_PRELOAD before running ruri might fix this{clear}\n", container->command[0], errno, strerror(errno));
 	}
 }
 // Run chroot container.
-void run_rootless_chroot_container(struct CONTAINER *container)
+void run_rootless_chroot_container(struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * It's called by run_rootless_container().
@@ -454,6 +477,10 @@ void run_rootless_chroot_container(struct CONTAINER *container)
 	if (container->use_rurienv) {
 		store_info(container);
 	}
+	// If `-R` option is set, make / read-only.
+	if (container->ro_root) {
+		mount(container->container_dir, container->container_dir, NULL, MS_BIND | MS_REMOUNT | MS_RDONLY, NULL);
+	}
 	// Set default command for exec().
 	if (container->command[0] == NULL) {
 		if (su_biany_exist(container->container_dir)) {
@@ -468,9 +495,11 @@ void run_rootless_chroot_container(struct CONTAINER *container)
 	// Check binary used.
 	check_binary(container);
 	// chroot(2) into container.
-	chdir(container->container_dir);
-	chroot(".");
-	chdir("/");
+	if (try_pivot_root(container) == -1) {
+		chdir(container->container_dir);
+		chroot(".");
+		chdir("/");
+	}
 	// Fix /etc/mtab.
 	remove("/etc/mtab");
 	unlink("/etc/mtab");
@@ -506,7 +535,7 @@ void run_rootless_chroot_container(struct CONTAINER *container)
 	cprintf("{clear}");
 	// Execute command in container.
 	// Use exec(3) function because system(3) may be unavailable now.
-	if (execv(container->command[0], container->command) == -1) {
+	if (execvp(container->command[0], container->command) == -1) {
 		// Catch exceptions.
 		error("{red}Failed to execute `%s`\nexecv() returned: %d\nerror reason: %s\nNote: unset $LD_PRELOAD before running ruri might fix this{clear}\n", container->command[0], errno, strerror(errno));
 	}

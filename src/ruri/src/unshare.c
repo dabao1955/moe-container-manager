@@ -29,7 +29,7 @@
  */
 #include "include/ruri.h"
 // For run_unshare_container().
-static pid_t init_unshare_container(struct CONTAINER *container)
+static pid_t init_unshare_container(struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * Use unshare(2) to create new namespaces and fork(2) to join them.
@@ -86,7 +86,7 @@ static pid_t init_unshare_container(struct CONTAINER *container)
 	return unshare_pid;
 }
 // For run_unshare_container().
-static pid_t join_ns(struct CONTAINER *container)
+static pid_t join_ns(struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * Use setns(2) to enter existing namespaces.
@@ -107,13 +107,6 @@ static pid_t join_ns(struct CONTAINER *container)
 	sprintf(uts_ns_file, "%s%d%s", "/proc/", container->ns_pid, "/ns/uts");
 	// Enter namespaces via setns(2).
 	int ns_fd = INIT_VALUE;
-	ns_fd = open(mount_ns_file, O_RDONLY | O_CLOEXEC);
-	if (ns_fd < 0 && !container->no_warnings) {
-		warning("{yellow}Warning: seems that mount namespace is not supported on this device QwQ{clear}\n");
-	} else {
-		setns(ns_fd, 0);
-		close(ns_fd);
-	}
 	ns_fd = open(pid_ns_file, O_RDONLY | O_CLOEXEC);
 	if (ns_fd < 0 && !container->no_warnings) {
 		warning("{yellow}Warning: seems that pid namespace is not supported on this device QwQ{clear}\n");
@@ -149,6 +142,13 @@ static pid_t join_ns(struct CONTAINER *container)
 		setns(ns_fd, 0);
 		close(ns_fd);
 	}
+	ns_fd = open(mount_ns_file, O_RDONLY | O_CLOEXEC);
+	if (ns_fd < 0 && !container->no_warnings) {
+		warning("{yellow}Warning: seems that mount namespace is not supported on this device QwQ{clear}\n");
+	} else {
+		setns(ns_fd, 0);
+		close(ns_fd);
+	}
 	// Close fds after fork().
 	unshare(CLONE_FILES);
 	// Fork itself into namespace.
@@ -169,7 +169,7 @@ static pid_t join_ns(struct CONTAINER *container)
 	return unshare_pid;
 }
 // Run unshare container.
-void run_unshare_container(struct CONTAINER *container)
+void run_unshare_container(struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * We first read /.rurienv file to get container config.
@@ -179,13 +179,14 @@ void run_unshare_container(struct CONTAINER *container)
 	pid_t unshare_pid = INIT_VALUE;
 	// unshare(2) itself into new namespaces.
 	if (container->use_rurienv) {
-		read_info(container, container->container_dir);
+		container = read_info(container, container->container_dir);
 	}
 	if (container->ns_pid < 0) {
 		unshare_pid = init_unshare_container(container);
 	} else {
 		unshare_pid = join_ns(container);
 	}
+	log("{base}ns pid: %d", container->ns_pid);
 	// Check if we have joined the container's namespaces.
 	if (unshare_pid == 0) {
 		run_chroot_container(container);

@@ -146,7 +146,7 @@ help:
 	@echo "(>_) "
 update-ruri: src/ruri
 	$(Q)mkdir -p src/tmp
-	$(Q)mv src/ruri/CMakeLists.txt src/ruri/config.h.in src/tmp
+	$(Q)mv src/ruri/CMakeLists.txt src/ruri/config.h.in src/ruri/debian/rules src/tmp
 	$(Q)rm -rf src/ruri
 	$(Q)git clone https://github.com/Moe-Hacker/ruri src/ruri
 	$(Q)rm -rf src/ruri/LICENSE src/ruri/.git src/ruri/.github src/ruri/.clang-format src/ruri/.clang-format src/ruri/Makefile src/ruri/configure src/ruri/src/include/version.h

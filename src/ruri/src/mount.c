@@ -29,7 +29,7 @@
  */
 #include "include/ruri.h"
 // Return the same value as mkdir().
-static int mkdirs(const char *dir, mode_t mode)
+static int mkdirs(const char *_Nonnull dir, mode_t mode)
 {
 	/*
 	 * A very simple implementation of mkdir -p.
@@ -60,7 +60,7 @@ static int mkdirs(const char *dir, mode_t mode)
 	return ret;
 }
 // Mount disk device.
-static int mount_device(const char *source, const char *target, unsigned long mountflags)
+static int mount_device(const char *_Nonnull source, const char *_Nonnull target, unsigned long mountflags)
 {
 	/*
 	 * /proc/filesystems format just like:
@@ -125,7 +125,7 @@ static int mount_device(const char *source, const char *target, unsigned long mo
 	return ret;
 }
 // Same as `losetup` command.
-static char *losetup(const char *img)
+static char *losetup(const char *_Nonnull img)
 {
 	/*
 	 * We return the loopfile we get for losetup,
@@ -157,9 +157,10 @@ static char *losetup(const char *img)
 	ioctl(loopfd, LOOP_SET_FD, imgfd);
 	close(loopfd);
 	close(imgfd);
+	log("{base}losetup {cyan}%s{base} ==> {cyan}%s{base}\n", img, loopfile);
 	return loopfile;
 }
-static int mk_mountpoint_dir(const char *target)
+static int mk_mountpoint_dir(const char *_Nonnull target)
 {
 	/*
 	 * Just to mkdir(target).
@@ -179,7 +180,7 @@ static int mk_mountpoint_dir(const char *target)
 	}
 	return 0;
 }
-static int touch_mountpoint_file(const char *target)
+static int touch_mountpoint_file(const char *_Nonnull target)
 {
 	/*
 	 * Create a common file at target.
@@ -203,7 +204,7 @@ static int touch_mountpoint_file(const char *target)
 	return 0;
 }
 // Mount dev/dir/img to target.
-int trymount(const char *source, const char *target, unsigned int mountflags)
+int trymount(const char *_Nonnull source, const char *_Nonnull target, unsigned int mountflags)
 {
 	/*
 	 * This function is designed to mount a device/dir/image/file to target.
@@ -220,13 +221,16 @@ int trymount(const char *source, const char *target, unsigned int mountflags)
 	// umount target before mount(2), to avoid `device or resource busy`.
 	umount2(target, MNT_DETACH | MNT_FORCE);
 	int ret = 0;
+	log("{base}Mounting {cyan}%s{base} to {cyan}%s{base} with flags {cyan}%d{base}\n", source, target, mountflags);
 	struct stat dev_stat;
 	// If source does not exist, just return -1 as error.
 	if (lstat(source, &dev_stat) != 0) {
+		log("{red}Error: {base}Source {cyan}%s{base} does not exist.\n", source);
 		return -1;
 	}
 	// Bind-mount dir.
 	if (S_ISDIR(dev_stat.st_mode)) {
+		log("{base}Bind-mounting {cyan}%s{base} to {cyan}%s{base}\n", source, target);
 		if (mk_mountpoint_dir(target) != 0) {
 			return -1;
 		}
@@ -236,6 +240,7 @@ int trymount(const char *source, const char *target, unsigned int mountflags)
 	}
 	// Block device.
 	else if (S_ISBLK(dev_stat.st_mode)) {
+		log("{base}Mounting block device {cyan}%s{base} to {cyan}%s{base}\n", source, target);
 		if (mk_mountpoint_dir(target) != 0) {
 			return -1;
 		}
@@ -250,12 +255,14 @@ int trymount(const char *source, const char *target, unsigned int mountflags)
 		if (mk_mountpoint_dir(target) != 0) {
 			return -1;
 		}
+		log("{base}Mounting as image file {cyan}%s{base} to {cyan}%s{base}\n", source, target);
 		ret = mount_device(losetup(source), target, mountflags);
 		// Common file.
 		if (ret != 0) {
 			if (touch_mountpoint_file(target) != 0) {
 				return -1;
 			}
+			log("{base}Bind-mounting as common file {cyan}%s{base} to {cyan}%s{base}\n", source, target);
 			mount(source, target, NULL, mountflags | MS_BIND, NULL);
 			ret = mount(source, target, NULL, mountflags | MS_BIND | MS_REMOUNT, NULL);
 		}
@@ -265,11 +272,13 @@ int trymount(const char *source, const char *target, unsigned int mountflags)
 		if (touch_mountpoint_file(target) != 0) {
 			return -1;
 		}
+		log("{base}Bind-mounting {cyan}%s{base} to {cyan}%s{base}\n", source, target);
 		mount(source, target, NULL, mountflags | MS_BIND, NULL);
 		ret = mount(source, target, NULL, mountflags | MS_BIND | MS_REMOUNT, NULL);
 	}
 	// We do not support to mount other type of files.
 	else {
+		log("{red}Error: {base}Unsupported file type.\n");
 		ret = -1;
 	}
 	return ret;

@@ -1,0 +1,6 @@
+#!/usr/bin/make -f
+%:
+	dh $@ --parallel
+
+override_dh_auto_install:
+	cp obj*/ruri . && dh_install

@@ -32,7 +32,7 @@
  * This file defines the actions of the animation.
  * All the functions have the same arguments.
  */
-void face(__useconds_t inr, unsigned int keep)
+void face(useconds_t inr, unsigned int keep)
 {
 	struct ACTION *action = NULL;
 	action = add_action(action, -17, -9,
@@ -61,7 +61,7 @@ void face(__useconds_t inr, unsigned int keep)
 	play_action(action, inr, keep);
 	free_action(action);
 }
-void mouth(__useconds_t inr, unsigned int keep)
+void mouth(useconds_t inr, unsigned int keep)
 {
 	struct ACTION *action = NULL;
 	action = add_action(action, 9, 8,
@@ -83,144 +83,109 @@ void mouth(__useconds_t inr, unsigned int keep)
 	play_action(action, inr, keep);
 	free_action(action);
 }
-void ahoge(__useconds_t inr, unsigned int keep)
+void ahoge(useconds_t inr, unsigned int keep)
 {
 	struct ACTION *action = NULL;
-	action = add_action(action, 10, -8,
-			    "██\n"
+	action = add_action(action, 6, -8,
+			    "      ██\n"
+			    "     ██\n"
+			    "    ██\n");
+	action = add_action(action, 6, -8,
+			    "        ██\n"
+			    "      ██\n"
+			    "    ██\n");
+	action = add_action(action, 6, -8,
+			    "      ██\n"
+			    "     ██\n"
+			    "    ██\n");
+	action = add_action(action, 6, -8,
 			    "  ██\n"
-			    "██\n");
-	action = add_action(action, 10, -8,
-			    " ██\n"
-			    "  ██\n"
-			    "██\n");
-	action = add_action(action, 10, -8,
 			    "   ██\n"
-			    "  ██\n"
-			    "██\n");
-	action = add_action(action, 10, -8,
-			    "    ██\n"
-			    "  ██\n"
-			    "██\n");
-	action = add_action(action, 10, -8,
-			    "  ██\n"
-			    " ██\n"
-			    "██\n");
-	action = add_action(action, 10, -8,
+			    "    ██\n");
+	action = add_action(action, 6, -8,
 			    "██\n"
-			    " ██\n"
-			    "██\n");
+			    "  ██\n"
+			    "    ██\n");
+	action = add_action(action, 6, -8,
+			    "  ██\n"
+			    "   ██\n"
+			    "    ██\n");
 	play_action(action, inr, keep);
-	playback_action(action, inr, keep);
 	free_action(action);
 }
-void blink_lefteye(__useconds_t inr, unsigned int keep)
+void blink_lefteye(useconds_t inr, unsigned int keep)
 {
 	struct ACTION *action = NULL;
-	action = add_action(action, 1, 3,
+	action = add_action(action, 1, 2,
 			    "  ██████ \n"
 			    "██      ██\n"
 			    "  ██████\n"
 			    "  ██  ██\n"
 			    "  ██████\n");
-	action = add_action(action, 1, 3,
+	action = add_action(action, 1, 2,
 			    "\n"
 			    "  ██████ \n"
 			    "██      ██\n"
 			    "  ██  ██\n"
 			    "  ██████\n");
-	action = add_action(action, 1, 3,
+	action = add_action(action, 1, 2,
 			    "\n\n"
 			    "  ██████ \n"
 			    "██      ██\n"
 			    "  ██████\n");
-	action = add_action(action, 1, 3,
+	action = add_action(action, 1, 2,
 			    "\n\n\n"
 			    "  ██████ \n"
 			    "██████████\n");
-	action = add_action(action, 1, 3,
+	action = add_action(action, 1, 2,
 			    "\n\n"
 			    "   ████\n"
 			    "       ██\n"
 			    "  █████\n");
-	action = add_action(action, 1, 3,
+	action = add_action(action, 1, 2,
 			    "\n"
 			    "  ████\n"
 			    "      ██\n"
 			    "        ██\n"
 			    "  ██████\n");
 	play_action(action, inr, keep);
-	playback_action(action, inr, keep);
 	free_action(action);
 }
-void blink_righteye(__useconds_t inr, unsigned int keep)
+void blink_righteye(useconds_t inr, unsigned int keep)
 {
 	struct ACTION *action = NULL;
-	action = add_action(action, 16, 3,
+	action = add_action(action, 16, 2,
 			    "  ██████ \n"
 			    "██      ██\n"
 			    "  \033[31m██  ██\n"
 			    "    ██  \n"
 			    "  ██  ██\n");
-	action = add_action(action, 16, 3,
+	action = add_action(action, 16, 2,
 			    "\n"
 			    "  ██████ \n"
 			    "██\033[31m██  ██\033[0m██\n"
 			    "    \033[31m██\n"
 			    "  ██  ██\n");
-	action = add_action(action, 16, 3,
+	action = add_action(action, 16, 2,
 			    "\n\n"
 			    "  ██████ \n"
 			    "██  \033[31m██\033[0m  ██\n"
 			    "  \033[31m██  ██\n");
-	action = add_action(action, 16, 3,
+	action = add_action(action, 16, 2,
 			    "\n\n\n"
 			    "  ██████  \n"
 			    "██\033[31m██  ██\033[0m██ \n");
-	action = add_action(action, 16, 3,
+	action = add_action(action, 16, 2,
 			    "\n\n"
 			    "  ████\n"
 			    "██\n"
 			    "  █████\n");
-	action = add_action(action, 16, 3,
+	action = add_action(action, 16, 2,
 			    "\n"
 			    "    ████\n"
 			    "  ██\n"
 			    "██\n"
 			    "  ██████\n");
 	play_action(action, inr, keep);
-	playback_action(action, inr, keep);
-	free_action(action);
-}
-void close_and_open_righteye(__useconds_t inr, unsigned int keep)
-{
-	struct ACTION *action = NULL;
-	action = add_action(action, 16, 3,
-			    "  ██████ \n"
-			    "██      ██\n"
-			    "  \033[31m██  ██\n"
-			    "    ██  \n"
-			    "  ██  ██\n");
-	action = add_action(action, 16, 3,
-			    "\n"
-			    "  ██████ \n"
-			    "██\033[31m██  ██\033[0m██\n"
-			    "    \033[31m██\n"
-			    "  ██  ██\n");
-	action = add_action(action, 16, 3,
-			    "\n\n"
-			    "  ██████ \n"
-			    "██  \033[31m██\033[0m  ██\n"
-			    "  \033[31m██  ██\n");
-	action = add_action(action, 16, 3,
-			    "\n\n\n"
-			    "  ██████  \n"
-			    "██\033[31m██  ██\033[0m██ \n");
-	action = add_action(action, 16, 3,
-			    "\n\n\n"
-			    "\n"
-			    "  ██████  \n");
-	play_action(action, inr, keep);
-	playback_action(action, inr, keep);
 	free_action(action);
 }

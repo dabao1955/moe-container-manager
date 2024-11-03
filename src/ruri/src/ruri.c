@@ -29,7 +29,7 @@
  */
 #include "include/ruri.h"
 // Do some checks before chroot(2),called by main().
-static void check_container(const struct CONTAINER *container)
+static void check_container(const struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * It's called by main() to check if container config is correct.
@@ -54,7 +54,7 @@ static void check_container(const struct CONTAINER *container)
 		error("{red}Error: --arch and --qemu-path should be set at the same time QwQ\n");
 	}
 }
-static void parse_cgroup_settings(const char *str, struct CONTAINER *container)
+static void parse_cgroup_settings(const char *_Nonnull str, struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * Parse and set cgroup limit.
@@ -84,7 +84,7 @@ static void parse_cgroup_settings(const char *str, struct CONTAINER *container)
 		error("{red}Unknown cgroup option %s\n", str);
 	}
 }
-static void parse_args(int argc, char **argv, struct CONTAINER *container)
+static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * 100% shit-code here.
@@ -100,6 +100,7 @@ static void parse_args(int argc, char **argv, struct CONTAINER *container)
 		exit(EXIT_FAILURE);
 	}
 	// Init configs.
+	bool fork_exec = false;
 	bool dump_config = false;
 	char *output_path = NULL;
 	cap_value_t keep_caplist_extra[CAP_LAST_CAP + 1] = { INIT_VALUE };
@@ -186,6 +187,16 @@ static void parse_args(int argc, char **argv, struct CONTAINER *container)
 			}
 			exit(EXIT_FAILURE);
 		}
+		// Show process status of a container.
+		if (strcmp(argv[index], "-P") == 0 || strcmp(argv[index], "--ps") == 0) {
+			index += 1;
+			if (argv[index] != NULL) {
+				char *container_dir = realpath(argv[index], NULL);
+				container_ps(container_dir);
+				exit(EXIT_SUCCESS);
+			}
+			exit(EXIT_FAILURE);
+		}
 		/**** For running a container ****/
 		// Just make clang-tidy happy.
 		if (argv[index] == NULL) {
@@ -211,6 +222,10 @@ static void parse_args(int argc, char **argv, struct CONTAINER *container)
 				error("{red}Please specify the output file\n{clear}");
 			}
 			output_path = argv[index];
+		}
+		// Fork to exec.
+		else if (strcmp(argv[index], "-f") == 0 || strcmp(argv[index], "--fork") == 0) {
+			fork_exec = true;
 		}
 		// Set no_new_privs bit.
 		else if (strcmp(argv[index], "-n") == 0 || strcmp(argv[index], "--no-new-privs") == 0) {
@@ -446,6 +461,15 @@ static void parse_args(int argc, char **argv, struct CONTAINER *container)
 		close(fd);
 		exit(EXIT_SUCCESS);
 	}
+	// Fork before running chroot container.
+	// So the chroot container can have a parent process called ruri.
+	if (fork_exec && !container->enable_unshare && !container->rootless) {
+		pid_t pid = fork();
+		if (pid > 0) {
+			waitpid(pid, NULL, 0);
+			exit(EXIT_SUCCESS);
+		}
+	}
 }
 // It works on my machine!!!
 void ruri(int argc, char **argv)
@@ -467,6 +491,10 @@ void ruri(int argc, char **argv)
 	check_container(container);
 	// unset $LD_PRELOAD.
 	unsetenv("LD_PRELOAD");
+	// Log.
+	char *info = container_info_to_k2v(container);
+	log("{base}Container config:{cyan}\n%s", info);
+	free(info);
 	// Run container.
 	if ((container->enable_unshare) && !(container->rootless)) {
 		// Unshare container.
