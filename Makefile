@@ -37,9 +37,10 @@ Q           = $(if $(filter 1,$(VERBOSE)),, @)
 N           = $(if $(filter 1,$(VERBOSE)),-v,)
 D           = $(if $(filter 1,$(VERBOSE)),on,)
 L           = $(if $(filter 1,$(LIB)),on,off)
+
 LINK        = $(if $(filter 1,$(LIB)), \
-                mv out/bin/ruri-runlib out/bin/ruri && mv out/bin/interface-runlib out/bin/interface, \
-                echo "LINK is disabled")
+              mv out/bin/ruri-runlib out/bin/ruri && mv out/bin/interface-runlib out/bin/interface, \
+              echo "LINK is disabled")
 
 
 # CMake and Ninja Build Flags
