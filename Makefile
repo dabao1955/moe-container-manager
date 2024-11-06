@@ -64,6 +64,7 @@ INSTALL_DOC_DIR = $(INSTALL_SHARE_DIR)/../doc/moe-container-manager
 all: show-greetings $(BIN) $(SHARE) build
 
 install: out
+	$(Q)$(LINK)
 	$(Q)printf "$(COLOR)[+] Install.\n"
 	$(Q)install -d $(INSTALL_BIN_DIR) $(INSTALL_SHARE_DIR) $(INSTALL_DOC_DIR)
 	$(Q)install -m 755 $(O)/bin/* $(INSTALL_BIN_DIR)
