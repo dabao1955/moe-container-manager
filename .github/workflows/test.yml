@@ -31,7 +31,11 @@ jobs:
           else
               make LIB=1
           fi
-          make install VERBOSE=${{ matrix.verbose }}
+          if [ ${{ matrix.verbose }} = 1 ]; then
+              make VERBOSE=1 install
+          else
+              make LIB=1 install
+          fi
       - name: Run tests
         run: |
           interface -v
