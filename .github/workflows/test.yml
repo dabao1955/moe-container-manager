@@ -8,36 +8,37 @@ on:
 
 jobs:
   test:
-    strategy:
-      matrix:
-        include:
-          - verbose: "0"
-            type: off
-          - verbose: "1"
-            type: on
     runs-on: ubuntu-latest
     container: debian:sid
     steps:
       - name: Install Build Tools
-        run:  apt update &&  apt install -y debhelper dpkg-dev libcap-dev pkg-config git libseccomp-dev golang cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev gcc g++ ninja-build python3 clang-tidy
+        run:  apt update &&  apt install -y debhelper dpkg-dev libcap-dev pkg-config git libseccomp-dev golang cmake libpthreadpool0 libpthreadpool-dev shfmt perl libspdlog-dev gcc g++ ninja-build python3 wget
 
       - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Build
         run: |
-          if [ ${{ matrix.verbose }} = 1 ]; then
-              make VERBOSE=1
-          else
-              make LIB=1
-          fi
-          if [ ${{ matrix.verbose }} = 1 ]; then
-              make VERBOSE=1 install
-          else
-              make LIB=1 install
-          fi
+          make VERBOSE=1 LIB=1 -j8
+          make LIB=1 VERBOSE=1 install
+
       - name: Run tests
         run: |
           interface -v
           ruri -v
           rootfstool v
+
+  ruri_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Build Tools
+        run:  sudo apt update && sudo apt install -y debhelper dpkg-dev libcap-dev pkg-config git libseccomp-dev cmake libpthreadpool0 libpthreadpool-dev gcc g++ wget curl libc6-dev binutils qemu-user-static uidmap
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Build
+        run: cd src/ruri/test && cmake . && make VERBOSE=1 V=1 -j8
+
+      - name: Build
+        run: cd src/ruri/test && ctest
+

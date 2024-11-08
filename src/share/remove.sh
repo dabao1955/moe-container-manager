@@ -13,6 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+function check_if_succeed() {
+  if [[ $1 -ne 0 ]]; then
+    yoshinon --msgbox --cursorcolor "114;5;14" --title "MANAGER-$VERSION" "MANAGER got an error" 12 25
+    exit 1
+  fi
+}
+
 chmod 777 /usr/share/moe-container-manager/containers/*
 if [[ $(ls /usr/share/moe-container-manager/containers/) == "" ]]; then
   echo -e "\033[31mNo container found\033[0m" >&2
@@ -23,7 +30,8 @@ for i in $(ls /usr/share/moe-container-manager/containers/); do
   arg+="[$j] ${i%%.conf} "
   j=$((j + 1))
 done
-num=$(yoshinon --menu --cursorcolor "114;5;14" --title "DAIJIN-$VERSION" "Choose the container" 12 33 4 $arg)
+num=$(yoshinon --menu --cursorcolor "114;5;14" --title "MANAGER-$VERSION" "Choose the container" 12 44 4 $arg)
+check_if_succeed $?
 num=$(echo $num | cut -d "[" -f 2 | cut -d "]" -f 1)
 CONFIG_FILE=/usr/share/moe-container-manager/containers/$(echo $(ls /usr/share/moe-container-manager/containers/) | cut -d " " -f $num)
 source ${CONFIG_FILE}

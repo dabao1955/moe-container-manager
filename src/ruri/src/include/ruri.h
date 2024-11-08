@@ -37,7 +37,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <time.h>
 #include <linux/limits.h>
 #include <linux/sched.h>
 #include <linux/securebits.h>
@@ -55,6 +54,8 @@
 #include <sys/types.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
+#include <time.h>
+#include <signal.h>
 #include <unistd.h>
 #include <sched.h>
 #include <stdio.h>
@@ -90,8 +91,8 @@
 #define INIT_VALUE (-114)
 // Limitations.
 #define MAX_COMMANDS (1024)
-#define MAX_ENVS (128 * 2)
-#define MAX_MOUNTPOINTS (128 * 2)
+#define MAX_ENVS (512 * 2)
+#define MAX_MOUNTPOINTS (512 * 2)
 // Include other headers.
 #include "elf-magic.h"
 #include "version.h"
@@ -141,6 +142,8 @@ struct __attribute__((aligned(128))) CONTAINER {
 	int container_id;
 	// Do not create runtime directory.
 	bool just_chroot;
+	// Work directory.
+	char *_Nullable work_dir;
 };
 // For get_magic().
 #define magicof(x) (x##_magic)

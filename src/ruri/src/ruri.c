@@ -124,11 +124,8 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 	container->ro_root = false;
 	container->cpuset = NULL;
 	container->memory = NULL;
-	// For using qemu binary outside the container.
-	// This is the path of qemu binary in host,
-	// and we will copy it into container as /qemu-ruri.
-	// And after that, we will use /qemu-ruri as container->qemu_path.
-	char *qemu_path = NULL;
+	container->work_dir = NULL;
+	container->just_chroot = false;
 	// Use the time now for container_id.
 	time_t tm = time(NULL);
 	// We need a int value for container_id, so use long%86400.
@@ -182,6 +179,9 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 			index += 1;
 			if (argv[index] != NULL) {
 				char *container_dir = realpath(argv[index], NULL);
+				if (container_dir == NULL) {
+					error("{red}Container directory does not exist QwQ\n");
+				}
 				umount_container(container_dir);
 				exit(EXIT_SUCCESS);
 			}
@@ -192,6 +192,9 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 			index += 1;
 			if (argv[index] != NULL) {
 				char *container_dir = realpath(argv[index], NULL);
+				if (container_dir == NULL) {
+					error("{red}Container directory does not exist QwQ\n");
+				}
 				container_ps(container_dir);
 				exit(EXIT_SUCCESS);
 			}
@@ -249,15 +252,7 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 			if (index == argc - 1) {
 				error("{red}Please specify the path of qemu binary\n{clear}");
 			}
-			// Auto recognize if qemu_path is in host or in container.
-			qemu_path = realpath(argv[index], NULL);
-			if (qemu_path != NULL) {
-				// If qemu_path is in host, we will copy it into container,
-				// and use /qemu-ruri as container->qemu_path.
-				container->qemu_path = "/qemu-ruri";
-			} else {
-				container->qemu_path = strdup(argv[index]);
-			}
+			container->qemu_path = strdup(argv[index]);
 		}
 		// Enable built-in seccomp profile.
 		else if (strcmp(argv[index], "-s") == 0 || strcmp(argv[index], "--enable-seccomp") == 0) {
@@ -300,6 +295,15 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 				error("{red}Unknown cgroup option\n");
 			}
 		}
+		// Work dir.
+		else if (strcmp(argv[index], "-W") == 0 || strcmp(argv[index], "--work-dir") == 0) {
+			index++;
+			if (index < argc) {
+				container->work_dir = strdup(argv[index]);
+			} else {
+				error("{red}Unknown work directory\n");
+			}
+		}
 		// Set extra env.
 		else if (strcmp(argv[index], "-e") == 0 || strcmp(argv[index], "--env") == 0) {
 			index++;
@@ -312,7 +316,7 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 						container->env[i + 2] = NULL;
 						break;
 					}
-					// Max 128 envs.
+					// Max 512 envs.
 					if (i == (MAX_ENVS - 1)) {
 						error("{red}Too many envs QwQ\n");
 					}
@@ -328,12 +332,15 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 				for (int i = 0; i < MAX_MOUNTPOINTS; i++) {
 					if (container->extra_mountpoint[i] == NULL) {
 						container->extra_mountpoint[i] = realpath(argv[index], NULL);
+						if (container->extra_mountpoint[i] == NULL) {
+							error("{red}mountpoint does not exist QwQ\n");
+						}
 						index++;
 						container->extra_mountpoint[i + 1] = strdup(argv[index]);
 						container->extra_mountpoint[i + 2] = NULL;
 						break;
 					}
-					// Max 128 mountpoints.
+					// Max 512 mountpoints.
 					if (i == (MAX_MOUNTPOINTS - 1)) {
 						error("{red}Too many mountpoints QwQ\n");
 					}
@@ -349,12 +356,15 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 				for (int i = 0; i < MAX_MOUNTPOINTS; i++) {
 					if (container->extra_ro_mountpoint[i] == NULL) {
 						container->extra_ro_mountpoint[i] = realpath(argv[index], NULL);
+						if (container->extra_ro_mountpoint[i] == NULL) {
+							error("{red}mountpoint does not exist QwQ\n");
+						}
 						index++;
 						container->extra_ro_mountpoint[i + 1] = strdup(argv[index]);
 						container->extra_ro_mountpoint[i + 2] = NULL;
 						break;
 					}
-					// Max 128 mountpoints.
+					// Max 512 mountpoints.
 					if (i == (MAX_MOUNTPOINTS - 1)) {
 						error("{red}Too many mountpoints QwQ\n");
 					}
@@ -424,28 +434,6 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 			show_helps();
 			error("{red}Error: unknown option `%s`{clear}\n", argv[index]);
 		}
-	}
-	// Copy qemu binary into container.
-	if (qemu_path != NULL) {
-		char target[PATH_MAX] = { '\0' };
-		sprintf(target, "%s/qemu-ruri", container->container_dir);
-		int sourcefd = open(qemu_path, O_RDONLY | O_CLOEXEC);
-		if (sourcefd < 0) {
-			error("{red}Error: failed to open qemu binary QwQ\n");
-		}
-		int targetfd = open(target, O_WRONLY | O_CREAT | O_CLOEXEC, S_IRGRP | S_IXGRP | S_IWGRP | S_IWUSR | S_IRUSR | S_IXUSR | S_IWOTH | S_IXOTH | S_IROTH);
-		if (targetfd < 0) {
-			error("{red}Error: failed to create qemu binary in container QwQ\n");
-		}
-		struct stat stat_buf;
-		fstat(sourcefd, &stat_buf);
-		off_t offset = 0;
-		// In linux, I think it's more safe to use sendfile(2) to copy files,
-		// because it does not need a buffer.
-		// !NOTE: Linux version under 2.6.33 does not support sendfile(2) for copying files.
-		sendfile(targetfd, sourcefd, &offset, (size_t)stat_buf.st_size);
-		close(targetfd);
-		close(sourcefd);
 	}
 	// Build the caplist to drop.
 	build_caplist(container->drop_caplist, privileged, drop_caplist_extra, keep_caplist_extra);

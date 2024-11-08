@@ -13,9 +13,9 @@ cd ..
 mkdir ${TMPDIR}
 check_if_succeed $?
 export TMPDIR=$(realpath ${TMPDIR})
-./configure -d
+cmake .
 check_if_succeed $?
-make
+make -j8 VERBOSE=1 V=1
 check_if_succeed $?
 mv ruri ${TMPDIR}
 check_if_succeed $?
@@ -36,19 +36,17 @@ git clone https://github.com/moe-hacker/rootfstool
 check_if_succeed $?
 rootfstool/rootfstool d -d alpine -v edge
 check_if_succeed $?
-rm -rf rootfstool
-check_if_succeed $?
 pass_subtest
 
 export SUBTEST_NO=4
 export SUBTEST_DESCRIPTION="Create test.img as rootfs"
 show_subtest_description
 if [[ -e /tmp/test ]]; then
-  rm /tmp/test
+    rm /tmp/test
 fi
 if [[ -d /tmp/test ]]; then
-  ./ruri -U /tmp/test
-  rm -rf /tmp/test
+    ./ruri -U /tmp/test
+    rm -rf /tmp/test
 fi
 dd if=/dev/zero of=test.img bs=1M count=256
 check_if_succeed $?
@@ -93,4 +91,29 @@ check_if_succeed $?
 tar -xf rootfs.tar.xz -C test
 check_if_succeed $?
 pass_subtest
+
+export SUBTEST_NO=7
+export SUBTEST_DESCRIPTION="Create ./aarch64 as aarch64 rootfs"
+show_subtest_description
+mkdir aarch64
+check_if_succeed $?
+rm rootfs.tar.xz || true
+rootfstool/rootfstool d -d alpine -v edge -a arm64
+check_if_succeed $?
+tar -xf rootfs.tar.xz -C aarch64
+check_if_succeed $?
+pass_subtest
+
+export SUBTEST_NO=8
+export SUBTEST_DESCRIPTION="Create ./armhf as armhf rootfs"
+show_subtest_description
+mkdir armhf
+check_if_succeed $?
+rm rootfs.tar.xz || true
+rootfstool/rootfstool d -d alpine -v edge -a armhf
+check_if_succeed $?
+tar -xf rootfs.tar.xz -C armhf
+check_if_succeed $?
+pass_subtest
+
 pass_test

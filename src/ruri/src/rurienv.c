@@ -101,6 +101,12 @@ static char *build_container_info(const struct CONTAINER *_Nonnull container)
 	// Just chroot.
 	ret = k2v_add_comment(ret, "Just chroot, do not create runtime dirs.");
 	ret = k2v_add_config(bool, ret, "just_chroot", container->just_chroot);
+	// work_dir.
+	ret = k2v_add_comment(ret, "Work directory.");
+	ret = k2v_add_config(char, ret, "work_dir", container->work_dir);
+	// no_warnings
+	ret = k2v_add_comment(ret, "Do not show warnings.");
+	ret = k2v_add_config(bool, ret, "no_warnings", container->no_warnings);
 	// extra_mountpoint.
 	for (int i = 0; true; i++) {
 		if (container->extra_mountpoint[i] == NULL) {
@@ -219,10 +225,10 @@ struct CONTAINER *read_info(struct CONTAINER *_Nullable container, const char *_
 	if (container == NULL) {
 		// For umount_container().
 		container = (struct CONTAINER *)malloc(sizeof(struct CONTAINER));
-		int mlen = k2v_get_key(char_array, "extra_mountpoint", buf, container->extra_mountpoint);
+		int mlen = k2v_get_key(char_array, "extra_mountpoint", buf, container->extra_mountpoint, MAX_MOUNTPOINTS);
 		container->extra_mountpoint[mlen] = NULL;
 		container->extra_mountpoint[mlen + 1] = NULL;
-		mlen = k2v_get_key(char_array, "extra_ro_mountpoint", buf, container->extra_ro_mountpoint);
+		mlen = k2v_get_key(char_array, "extra_ro_mountpoint", buf, container->extra_ro_mountpoint, MAX_MOUNTPOINTS);
 		container->extra_ro_mountpoint[mlen] = NULL;
 		container->extra_ro_mountpoint[mlen + 1] = NULL;
 		// For container_ps() and umount_container().
@@ -244,7 +250,7 @@ struct CONTAINER *read_info(struct CONTAINER *_Nullable container, const char *_
 		log("{base}pid %d is not a ruri process.\n", k2v_get_key(int, "ns_pid", buf));
 		// Unset immutable flag of .rurienv.
 		fd = open(file, O_RDONLY | O_CLOEXEC);
-		if (fd < 0) {
+		if (fd < 0 && !container->no_warnings) {
 			warning("{yellow}Open .rurienv failed{clear}\n");
 		}
 		int attr = 0;
@@ -258,7 +264,7 @@ struct CONTAINER *read_info(struct CONTAINER *_Nullable container, const char *_
 	}
 	// Get capabilities to drop.
 	char *drop_caplist[CAP_LAST_CAP + 1] = { NULL };
-	int caplen = k2v_get_key(char_array, "drop_caplist", buf, drop_caplist);
+	int caplen = k2v_get_key(char_array, "drop_caplist", buf, drop_caplist, CAP_LAST_CAP);
 	drop_caplist[caplen] = NULL;
 	for (int i = 0; true; i++) {
 		if (drop_caplist[i] == NULL) {
@@ -280,17 +286,26 @@ struct CONTAINER *read_info(struct CONTAINER *_Nullable container, const char *_
 	container->container_id = k2v_get_key(int, "container_id", buf);
 	// Get just_chroot.
 	container->just_chroot = k2v_get_key(bool, "just_chroot", buf);
+	// Get work_dir.
+	container->work_dir = k2v_get_key(char, "work_dir", buf);
+	// Get no_warnings.
+	container->no_warnings = k2v_get_key(bool, "no_warnings", buf);
 	// Get env.
-	int envlen = k2v_get_key(char_array, "env", buf, container->env);
+	int envlen = k2v_get_key(char_array, "env", buf, container->env, MAX_ENVS);
 	container->env[envlen] = NULL;
 	container->env[envlen + 1] = NULL;
 	// Get extra_mountpoint.
-	int mlen = k2v_get_key(char_array, "extra_mountpoint", buf, container->extra_mountpoint);
+	int mlen = k2v_get_key(char_array, "extra_mountpoint", buf, container->extra_mountpoint, MAX_MOUNTPOINTS);
 	container->extra_mountpoint[mlen] = NULL;
 	container->extra_mountpoint[mlen + 1] = NULL;
 	// Get extra_ro_mountpoint.
-	mlen = k2v_get_key(char_array, "extra_ro_mountpoint", buf, container->extra_ro_mountpoint);
+	mlen = k2v_get_key(char_array, "extra_ro_mountpoint", buf, container->extra_ro_mountpoint, MAX_MOUNTPOINTS);
 	container->extra_ro_mountpoint[mlen] = NULL;
 	container->extra_ro_mountpoint[mlen + 1] = NULL;
+	// Qemu will only be set when initializing container.
+	free(container->cross_arch);
+	free(container->qemu_path);
+	container->qemu_path = NULL;
+	container->cross_arch = NULL;
 	return container;
 }

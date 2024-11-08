@@ -13,28 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-# You need to set the following variable(s)
-# before running this script:
-#
-# $CONFIG_FILE = $1
-
-export CONFIG_FILE=$1
-[[ -e ${CONFIG_FILE} ]] || exec echo -e "\033[31mError: cannot find config file.\033[0m" >&2
-exit 1
-TMPFILE=$(mktemp)
-k2sh ${CONFIG_FILE} >${TMPFILE}
-source ${tmp}
-rm ${TMPFILE}
-if [[ ${backend} == "ruri" ]]; then
-    exec /usr/share/moe-container-manager/ruri_start.sh
-elif [[ ${backend} == "proot" ]]; then
-    export CONTAINER_DIR=${container_dir}
-    export MOUNT_SDCARD=${mount_sdcard}
-    export CROSS_ARCH=${cross_arch}
-    export EXTRA_ARGS=${extra_args}
-    exec /usr/share/moe-container-manager/proot_start.sh
-else
-    echo -e "\033[31mIncorrect config\033[0m" >&2
+function check_if_succeed() {
+  if [[ $1 -ne 0 ]]; then
+    yoshinon --msgbox --cursorcolor "114;5;14" --title "MANAGER-$VERSION" "MANAGER got an error" 12 25
     exit 1
+  fi
+}
+chmod 777 /usr/moe-container-manager/containers/*
+if [[ $(ls /usr/moe-container-manager/containers/) == "" ]]; then
+  echo -e "\033[31mNo container found\033[0m" >&2
+  exit 1
+fi
+j=1
+for i in $(ls /usr/moe-container-manager/containers/); do
+  arg+="[$j] ${i%%.conf} "
+  j=$((j + 1))
+done
+num=$(yoshinon --menu --cursorcolor "114;5;14" --title "MANAGER-$VERSION" "Choose the container" 12 44 4 $arg)
+check_if_succeed $?
+num=$(echo $num | cut -d "[" -f 2 | cut -d "]" -f 1)
+CONFIG_FILE=/usr/moe-container-manager/containers/$(echo $(ls /usr/moe-container-manager/containers/) | cut -d " " -f $num)
+source ${CONFIG_FILE}
+if [[ ${backend} == "ruri" ]]; then
+  sudo LD_PRELOAD= ruri -c ${CONFIG_FILE}
+elif [[ ${backend} == "proot" ]]; then
+  /usr/share/MANAGER/proot_start.sh -r $container_dir -e "$extra_args"
+else
+  echo -e "\033[31mIncorrect config\033[0m" >&2
+  exit 1
 fi
