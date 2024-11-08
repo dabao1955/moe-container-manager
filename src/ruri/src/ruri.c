@@ -486,7 +486,7 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 	}
 }
 // It works on my machine!!!
-int main(int argc, char **argv)
+void ruri(int argc, char **argv)
 {
 	/*
 	 * Pogram starts here!
