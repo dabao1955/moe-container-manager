@@ -49,7 +49,7 @@ static void check_container(const struct CONTAINER *_Nonnull container)
 	if (getuid() != 0 && !(container->rootless)) {
 		error("{red}Error: this program should be run with root privileges QwQ\n");
 	}
-	// --arch and --qemu-path should be set at the same time.
+	// `--arch` and `--qemu-path` should be set at the same time.
 	if ((container->cross_arch == NULL) ^ (container->qemu_path == NULL)) {
 		error("{red}Error: --arch and --qemu-path should be set at the same time QwQ\n");
 	}
@@ -97,7 +97,7 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 	if (argc <= 1) {
 		cfprintf(stderr, "{red}Error: too few arguments QwQ{clear}\n");
 		show_helps();
-		exit(EXIT_FAILURE);
+		exit(114);
 	}
 	// Init configs.
 	bool fork_exec = false;
@@ -185,7 +185,7 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 				umount_container(container_dir);
 				exit(EXIT_SUCCESS);
 			}
-			exit(EXIT_FAILURE);
+			exit(114);
 		}
 		// Show process status of a container.
 		if (strcmp(argv[index], "-P") == 0 || strcmp(argv[index], "--ps") == 0) {
@@ -195,7 +195,7 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 				container_ps(container_dir);
 				exit(EXIT_SUCCESS);
 			}
-			exit(EXIT_FAILURE);
+			exit(114);
 		}
 		/**** For running a container ****/
 		// Just make clang-tidy happy.
@@ -374,6 +374,7 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 					add_to_caplist(keep_caplist_extra, atoi(argv[index]));
 				} else if (cap_from_name(argv[index], &cap) == 0) {
 					add_to_caplist(keep_caplist_extra, cap);
+					log("{base}Keep capability: %s\n", argv[index]);
 				} else {
 					error("{red}or: unknown capability `%s`\nQwQ{clear}\n", argv[index]);
 				}
@@ -429,7 +430,13 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 		char target[PATH_MAX] = { '\0' };
 		sprintf(target, "%s/qemu-ruri", container->container_dir);
 		int sourcefd = open(qemu_path, O_RDONLY | O_CLOEXEC);
+		if (sourcefd < 0) {
+			error("{red}Error: failed to open qemu binary QwQ\n");
+		}
 		int targetfd = open(target, O_WRONLY | O_CREAT | O_CLOEXEC, S_IRGRP | S_IXGRP | S_IWGRP | S_IWUSR | S_IRUSR | S_IXUSR | S_IWOTH | S_IXOTH | S_IROTH);
+		if (targetfd < 0) {
+			error("{red}Error: failed to create qemu binary in container QwQ\n");
+		}
 		struct stat stat_buf;
 		fstat(sourcefd, &stat_buf);
 		off_t offset = 0;
@@ -460,6 +467,9 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 		unlink(output_path);
 		remove(output_path);
 		int fd = open(output_path, O_CREAT | O_CLOEXEC | O_RDWR, S_IRUSR | S_IRGRP | S_IROTH | S_IWGRP | S_IWUSR | S_IWOTH);
+		if (fd < 0) {
+			error("{red}Error: failed to open output file QwQ\n");
+		}
 		write(fd, config, strlen(config));
 		free(config);
 		close(fd);
@@ -476,7 +486,7 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 	}
 }
 // It works on my machine!!!
-void ruri(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	/*
 	 * Pogram starts here!
@@ -517,7 +527,6 @@ int main(int argc, char **argv) {
         ruri(argc, argv);
         return 0;
 }
-
 //  ██╗ ██╗  ███████╗   ████╗   ███████╗
 // ████████╗ ██╔════╝ ██╔═══██╗ ██╔════╝
 // ╚██╔═██╔╝ █████╗   ██║   ██║ █████╗

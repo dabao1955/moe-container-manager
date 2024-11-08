@@ -77,6 +77,9 @@ static int mount_device(const char *_Nonnull source, const char *_Nonnull target
 	int ret = 0;
 	// Get filesystems supported.
 	int fssfd = open("/proc/filesystems", O_RDONLY | O_CLOEXEC);
+	if (fssfd < 0) {
+		return -1;
+	}
 	char buf[4096] = { '\0' };
 	read(fssfd, buf, sizeof(buf));
 	close(fssfd);
@@ -176,7 +179,7 @@ static int mk_mountpoint_dir(const char *_Nonnull target)
 		}
 	} else {
 		free(test);
-		return -1;
+		return 0;
 	}
 	return 0;
 }

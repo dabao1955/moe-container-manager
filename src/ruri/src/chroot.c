@@ -221,20 +221,14 @@ static void drop_caps(const struct CONTAINER *_Nonnull container)
 	// Clear CapInh.
 	// hrdp and datap are two pointers, so we malloc() to apply the memory for it first.
 	cap_user_header_t hrdp = (cap_user_header_t)malloc(sizeof(typeof(*hrdp)));
-	cap_user_data_t datap = (cap_user_data_t)malloc(sizeof(typeof(*datap)));
+	cap_user_data_t datap = (cap_user_data_t)malloc(sizeof(typeof(*datap)) * 10);
 	hrdp->pid = getpid();
 	hrdp->version = _LINUX_CAPABILITY_VERSION_3;
 	capget(hrdp, datap);
 	datap->inheritable = 0;
 	capset(hrdp, datap);
-// free(2) hrdp and datap here might cause ASAN error.
-// I think it's because the kernel will write to the memory directly,
-// but I don't know the behavior of ASAN to allocate memory, maybe after this,
-// ASAN can not recognize the memory is allocated by it.
-#ifndef RURI_DEBUG
 	free(hrdp);
 	free(datap);
-#endif
 }
 // Set envs.
 static void set_envs(const struct CONTAINER *_Nonnull container)
@@ -330,20 +324,20 @@ static int try_pivot_root(const struct CONTAINER *_Nonnull container)
 	 * Try to use pivot_root(2) to change the root directory.
 	 * If pivot_root(2) is not available, return -1.
 	 */
-	log("{base}ns pid: %d", container->ns_pid);
+	log("{base}ns pid: %d\n", container->ns_pid);
 	if (container->ns_pid > 0) {
-		log("{base}Using setns(2) to change root directory.");
+		log("{base}Using setns(2) to change root directory.\n");
 		chdir("/");
 		return 0;
 	}
 	chdir(container->container_dir);
 	if (syscall(SYS_pivot_root, ".", ".") == -1) {
-		log("{base}pivot_root(2) failed, using chroot(2) instead.");
+		log("{base}pivot_root(2) failed, using chroot(2) instead.\n");
 		return -1;
 	}
 	chdir("/");
 	umount2(".", MNT_DETACH);
-	log("{base}pivot_root(2) success.");
+	log("{base}pivot_root(2) success.\n");
 	return 0;
 }
 // Run chroot container.
@@ -365,7 +359,8 @@ void run_chroot_container(struct CONTAINER *_Nonnull container)
 	// container_dir shoud bind-mount before chroot(2),
 	// mount_host_runtime() and store_info() will be called here.
 	char buf[PATH_MAX] = { '\0' };
-	sprintf(buf, "%s/sys/class/input", container->container_dir);
+	// I used to check /sys/class/input, but in WSL1, /sys/class/input is not exist.
+	sprintf(buf, "%s/proc/1", container->container_dir);
 	char *test = realpath(buf, NULL);
 	if (test == NULL) {
 		// Mount mountpoints.

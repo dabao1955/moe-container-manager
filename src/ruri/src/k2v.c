@@ -36,7 +36,7 @@
 		}                                                                                 \
 		if (k2v_stop_at_warning) {                                                        \
 			fprintf(stderr, "\033[31mlibk2v stop_at_warning set, exit now\n\033[0m"); \
-			exit(EXIT_FAILURE);                                                       \
+			exit(114);                                                                \
 		}                                                                                 \
 	}
 // For warning() macro.
@@ -50,7 +50,7 @@ size_t k2v_get_filesize(const char *_Nonnull path)
 	if (fd < 0) {
 		fprintf(stderr, "\033[31mNo such file or directory:%s\n\033[0m", path);
 		if (k2v_stop_at_warning) {
-			exit(1);
+			exit(114);
 		} else {
 			return 0;
 		}
@@ -378,6 +378,8 @@ int key_get_int(const char *_Nonnull key, const char *_Nonnull buf)
 		return 0;
 	}
 	ret = atoi(val);
+	free(tmp);
+	free(val);
 	return ret;
 }
 float key_get_float(const char *_Nonnull key, const char *_Nonnull buf)
@@ -397,6 +399,8 @@ float key_get_float(const char *_Nonnull key, const char *_Nonnull buf)
 		return 0;
 	}
 	ret = (float)atof(val);
+	free(tmp);
+	free(val);
 	return ret;
 }
 bool key_get_bool(const char *_Nonnull key, const char *_Nonnull buf)
