@@ -1,30 +1,21 @@
-#Warning: this Makefile only used on CodeQL
+# Makefile optimized for CodeQL
 O = out
-BIN = $(O)/bin/
-SHARE = $(O)/share/moe-container-manager/
+BIN = $(O)/bin
+SHARE = $(O)/share/moe-container-manager
+BUILD_DIR = src/build
 
-ifeq ("$(wildcard out/)","")
-        $(shell mkdir out/)
-endif
-ifeq ("$(wildcard $(SHARE))","")
-        $(shell mkdir out/share)
-        $(shell mkdir $(SHARE))
-        $(shell mkdir $(SHARE)/proc)
-endif
-ifeq ("$(wildcard $(SHARE)/doc)","")
-        $(shell mkdir out/share/doc)
-        $(shell mkdir out/share/doc/moe-container-manager)
-endif
-ifeq ("$(wildcard $(BIN))","")
-        $(shell mkdir $(BIN))
-endif
+# Define flags
+CMAKE_FLAGS = -DCMAKE_C_COMPILER=$(shell which gcc) -DCMAKE_CXX_COMPILER=$(shell which g++) -GNinja \
 
-ifeq ("$(wildcard src/build)","")
-        $(shell mkdir src/build)
-endif
+.PHONY: all install setup_dirs
 
-all:
-	cd src/build && cmake .. -DCMAKE_C_COMPILER=`which gcc` -DCMAKE_CXX_COMPILER=`which g++` --debug-trycompile --log-context --debug-output --debug-find -DCMAKE_CXX_FLAGS="-v" -DCMAKE_C_FLAGS="-v" -GNinja -DDEBUG_MODE=on && ninja -v -j8
-	#cd src/build && cmake .. -DCMAKE_INSTALL_PREFIX=out/ -DRURI_LIB=on -GNinja -DCMAKE_C_FLAGS="--save-temps -v" -DCMAKE_CXX_FLAGS="--save-temps -v" --debug-trycompile --debug-find --debug-output --log-context --trace -DCMAKE_VERBOSE_MAKEFILE=on --log-level=DEBUG
+# Rule to create necessary directories
+setup_dirs:
+	mkdir -p $(O) $(BIN) $(SHARE)/proc $(SHARE)/doc/moe-container-manager $(BUILD_DIR)
+
+all: setup_dirs
+	cd $(BUILD_DIR) && cmake .. $(CMAKE_FLAGS) && ninja -v -j8
+
 install:
-	cd src/build && ninja install
+	cd $(BUILD_DIR) && ninja install
+
