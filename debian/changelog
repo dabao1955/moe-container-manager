@@ -3,7 +3,7 @@ moe-container-manager (0.0.1rc3) unstable; urgency=low
   * Add more cersion info in interface cli
   * sync module from upstream
 
- -- dabao1955 <dabao1955@163.com>  Thu, 16 Jul 2024 22:39:35 +0800
+ -- dabao1955 <dabao1955@163.com>  Tue, 16 Jul 2024 22:39:35 +0800
 
 moe-container-manager (0.0.1rc2) unstable; urgency=low
 
