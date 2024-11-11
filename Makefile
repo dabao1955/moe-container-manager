@@ -69,7 +69,7 @@ install: out
 	$(Q)printf "$(COLOR)[+] Install.\n"
 	$(Q)install -d $(INSTALL_BIN_DIR) $(INSTALL_SHARE_DIR) $(INSTALL_DOC_DIR)
 	$(Q)install -m 755 $(O)/bin/* $(INSTALL_BIN_DIR)
-	$(Q)cp -r $(O)/share/* $(INSTALL_SHARE_DIR)
+	$(Q)cp -r $(O)/share/* $(INSTALL_SHARE_DIR)/../
 	$(Q)(if [ -d "$(O)/lib" ]; then \
 		install -d $(DESTDIR)/lib; \
 		cp $(O)/lib/* $(DESTDIR)/lib/; \
