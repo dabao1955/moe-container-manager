@@ -4,7 +4,7 @@
 set -e
 
 if ps -ef | grep proot; then
-  killall -9 proot
+    pkill  proot
 fi
 
 if ps -ef | grep chroot; then

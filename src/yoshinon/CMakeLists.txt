@@ -44,7 +44,7 @@ add_custom_target(
 
 add_custom_target(
     yoshinon ALL
-    COMMAND ${GO_COMPILER} build -ldflags ${LDFLAGS} -o yoshinon main.go
+    COMMAND CGO_ENABLED=1 ${GO_COMPILER} build -ldflags ${LDFLAGS} -o yoshinon main.go
     COMMAND mv ${CMAKE_SOURCE_DIR}/yoshinon/yoshinon ${CMAKE_SOURCE_DIR}/../out/bin/
     COMMENT "Built target yoshinon"
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/yoshinon # Set correct path where main.go is located

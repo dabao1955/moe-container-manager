@@ -8,6 +8,6 @@ Homepage: http://github.com/dabao1955/moe-container-manager
 
 Package: moe-container-manager
 Architecture: any
-Depends: p7zip-full, unzip, zip, wget, curl, nano, proot, axel, pv, gawk, gettext, util-linux
+Depends: p7zip-full, unzip, zip, wget, curl, nano, proot, axel, pv, gawk, gettext, libc6-dev
 Description: container manager for proot and chroot, it is not a dependency package.
  This is a container manager for a port of Linux cli environment that cannot run docker and kvm, based on termux-container.
