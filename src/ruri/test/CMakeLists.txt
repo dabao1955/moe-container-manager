@@ -6,7 +6,7 @@ add_executable(ruri_test main.cpp)
 
 enable_testing()
 
-add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME})
+add_test(NAME ${PROJECT_NAME} COMMAND sudo bash test-root.sh)
 
 set(CTEST_OUTPUT_ON_FAILURE ON)
 set_tests_properties(${PROJECT_NAME} PROPERTIES
