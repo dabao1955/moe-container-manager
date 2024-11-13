@@ -1,3 +1,10 @@
+moe-container-manager (0.0.1rc4) unstable; urgency=low
+
+  * Refactor rootfstool with cpp
+  * sync module from upstream
+
+ -- dabao1955 <dabao1955@163.com>  Wed, 13 Nov 2024 11:34:52 +0800
+
 moe-container-manager (0.0.1rc3) unstable; urgency=low
 
   * Add more cersion info in interface cli

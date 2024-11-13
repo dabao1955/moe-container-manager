@@ -432,7 +432,7 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 		// For unknown arguments, yeah I didn't forgot it...
 		else {
 			show_helps();
-			error("{red}Error: unknown option `%s`{clear}\n", argv[index]);
+			error("{red}Error: unknown option `%s`\nNote that only existing directory can be detected as CONTAINER_DIR\n", argv[index]);
 		}
 	}
 	// Build the caplist to drop.
@@ -474,7 +474,7 @@ static void parse_args(int argc, char **_Nonnull argv, struct CONTAINER *_Nonnul
 	}
 }
 // It works on my machine!!!
-void ruri(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	/*
 	 * Pogram starts here!
@@ -485,6 +485,10 @@ void ruri(int argc, char **argv)
 	prctl(PR_SET_NAME, "ruri");
 	// Catch coredump signal.
 	register_signal();
+// Warning for dev/debug build.
+#ifdef RURI_DEBUG
+	cprintf("{red}Warning: this is a dev/debug build, do not use it in production{clear}\n");
+#endif
 	// Info of container to run.
 	struct CONTAINER *container = (struct CONTAINER *)malloc(sizeof(struct CONTAINER));
 	// Parse arguments.
@@ -508,12 +512,7 @@ void ruri(int argc, char **argv)
 		// Common chroot container.
 		run_chroot_container(container);
 	}
-	return;
-}
-
-int main(int argc, char **argv) {
-        ruri(argc, argv);
-        return 0;
+	return 0;
 }
 //  ██╗ ██╗  ███████╗   ████╗   ███████╗
 // ████████╗ ██╔════╝ ██╔═══██╗ ██╔════╝

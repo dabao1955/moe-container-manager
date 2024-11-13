@@ -1,11 +1,14 @@
 # v3.8:
   * Support more platforms, currently supports: arm64, armv7, armhf, riscv64, i386, loong64, s390x, ppc64le and x86_64.
   * Add `-W` option: `--work-dir`.
-  * Change MAX_MOUNTPOINTS AND MAX_ENVS from 128*2 to 512*2
+  * Change MAX_MOUNTPOINTS AND MAX_ENVS from 128*2 to 512*2.
+  * Auto kill all processes in container when umounting container.
   * Fix crash on capget().
   * Fix qemu path when we pre-mount the rootfs from other source.
   * Add autotest.
   * Fix memory issues.
+  * libk2v: Add lenth check for array to avoid overflow.
+  * cprintf: Correct the way to get buffer size, avoid overflow.
   * General bug fixes.
 # v3.7:
   * Ruri can now recognize [COMMAND [ARGS]...] without absolute path.

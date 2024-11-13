@@ -54,6 +54,7 @@
 #include <sys/types.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 #include <time.h>
 #include <signal.h>
 #include <unistd.h>
@@ -105,13 +106,13 @@ struct __attribute__((aligned(128))) CONTAINER {
 	// Capabilities to drop.
 	cap_value_t drop_caplist[CAP_LAST_CAP + 1];
 	// Command for exec(2).
-	char *_Nullable command[MAX_COMMANDS];
+	char *_Nullable command[MAX_COMMANDS + 1];
 	// Extra mountpoints.
-	char *_Nullable extra_mountpoint[MAX_MOUNTPOINTS];
+	char *_Nullable extra_mountpoint[MAX_MOUNTPOINTS + 2];
 	// Extra read-only mountpoints.
-	char *_Nullable extra_ro_mountpoint[MAX_MOUNTPOINTS];
+	char *_Nullable extra_ro_mountpoint[MAX_MOUNTPOINTS + 2];
 	// Environment variables.
-	char *_Nullable env[MAX_ENVS];
+	char *_Nullable env[MAX_ENVS + 2];
 	// Set NO_NEW_PRIV bit.
 	bool no_new_privs;
 	// Enable built-in seccomp profile.
@@ -166,6 +167,7 @@ struct __attribute__((aligned(32))) ID_MAP {
 // Show error msg and exit.
 #define error(...)                                                                                           \
 	{                                                                                                    \
+		cfprintf(stderr, "{red}In %s() in %s line %d:\n", __func__, __FILE__, __LINE__);             \
 		cfprintf(stderr, ##__VA_ARGS__);                                                             \
 		cfprintf(stderr, "{base}%s{clear}\n", "  .^.   .^.");                                        \
 		cfprintf(stderr, "{base}%s{clear}\n", "  /⋀\\_ﾉ_/⋀\\");                                      \
@@ -218,6 +220,7 @@ void read_config(struct CONTAINER *_Nonnull container, const char *_Nonnull path
 void set_limit(const struct CONTAINER *_Nonnull container);
 struct ID_MAP get_idmap(uid_t uid, gid_t gid);
 void container_ps(char *_Nonnull container_dir);
+void kill_container(const char *_Nonnull container_dir);
 //   ██╗ ██╗  ███████╗   ████╗   ███████╗
 //  ████████╗ ██╔════╝ ██╔═══██╗ ██╔════╝
 //  ╚██╔═██╔╝ █████╗   ██║   ██║ █████╗

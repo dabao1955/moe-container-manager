@@ -33,6 +33,6 @@
 #define CONFIG_H
 
 // Version info.
-#cmakedefine RURI_VERSION "@RURI_VERSION@"
+#cmakedefine RURI_VERSION "@VERSION@"
 
 #endif // CONFIG_H
