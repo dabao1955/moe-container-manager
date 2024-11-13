@@ -40,5 +40,5 @@ jobs:
         run: cd src/ruri/test && cmake . && make VERBOSE=1 V=1 -j8
 
       - name: Build
-        run: cd src/ruri/test && ctest
+        run: cd src/ruri/test && ctest --output-on-failure --verbose
 
