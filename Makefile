@@ -143,7 +143,7 @@ update-ruri:
 	$(Q)mv src/ruri/CMakeLists.txt src/ruri/config.h.in src/ruri/debian/rules src/ruri/test src/tmp
 	$(Q)rm -rf src/ruri
 	$(Q)git clone https://github.com/Moe-Hacker/ruri src/ruri
-	$(Q)rm -rf src/ruri/LICENSE src/ruri/.git src/ruri/.github src/ruri/.clang-format src/ruri/.clang-format src/ruri/Makefile src/ruri/configure src/ruri/src/include/version.h src/ruri/test src/ruri/get-ruri.sh src/ruri/test
+	$(Q)rm -rf src/ruri/LICENSE src/ruri/.git src/ruri/.github src/ruri/.clang-format src/ruri/.clang-format src/ruri/Makefile src/ruri/configure src/ruri/src/include/version.h src/ruri/test src/ruri/get-ruri.sh src/ruri/test src/ruri/build
 	$(Q)mv src/tmp/* src/ruri/
 	$(Q)mv src/ruri/rules src/ruri/debian
 	$(Q)mv src/ruri/src/main.c src/ruri/src/ruri.c

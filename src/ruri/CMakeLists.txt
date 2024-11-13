@@ -1,8 +1,8 @@
  cmake_minimum_required(VERSION 3.10)
 
 # set the project name
-project(ruri VERSION 3.7 LANGUAGES C)
-
+project(ruri LANGUAGES C)
+set(VERSION 3.7)
 # add cxx standard
 add_compile_options("-Wno-unused-result")
 add_compile_options("-Wall")
