@@ -15,6 +15,7 @@ int main() {
 
     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
         std::cout << buffer.data();
+        std::cout.flush();
     }
 
     int returnCode = pclose(pipe.release());
