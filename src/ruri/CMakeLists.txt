@@ -2,7 +2,6 @@
 
 # set the project name
 project(ruri LANGUAGES C)
-set(VERSION 3.7)
 # add cxx standard
 add_compile_options("-Wno-unused-result")
 add_compile_options("-Wall")
@@ -14,6 +13,9 @@ if(PROJECT_LICENSE)
 else()
     file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/src/*.c ${CMAKE_SOURCE_DIR}/src/easteregg/*.c)
 endif()
+
+set(VERSION 3.7)
+set(RURI_VERSION ${VERSION})
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"  # 源文件路径
