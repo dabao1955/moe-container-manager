@@ -12,6 +12,15 @@ if (DEBUG_MODE)
      add_compile_options("-DRURI_DEBUG -DRURI_DEV")
 endif()
 
+execute_process(
+    COMMAND git rev-parse --short HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_ID
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+add_definitions(-DRURI_COMMIT_ID="${GIT_COMMIT_ID}")
+
 if(PROJECT_LICENSE)
     file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/ruri/src/*.c ${CMAKE_SOURCE_DIR}/ruri/src/easteregg/*.c)
 else()
