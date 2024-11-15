@@ -8,6 +8,10 @@ add_compile_options("-Wall")
 add_compile_options("-pipe")
 add_compile_options("-D_FORTIFY_SOURCE=3 -enable-trivial-auto-var-init-zero-knowing-it-will-be-removed-from-clang -fstack-protector-all")
 
+if (DEBUG_MODE)
+     add_compile_options("-DRURI_DEBUG -DRURI_DEV")
+endif()
+
 if(PROJECT_LICENSE)
     file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/ruri/src/*.c ${CMAKE_SOURCE_DIR}/ruri/src/easteregg/*.c)
 else()
