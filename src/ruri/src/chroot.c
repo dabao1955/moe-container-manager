@@ -71,7 +71,7 @@ static void check_binary(const struct CONTAINER *_Nonnull container)
 	}
 }
 // Run after chroot(2), called by run_chroot_container().
-static void init_container(void)
+static void init_container(struct CONTAINER *_Nonnull container)
 {
 	/*
 	 * It'll be run after chroot(2), so `/` is the root dir of container now.
@@ -92,19 +92,17 @@ static void init_container(void)
 		// Continue mounting some other directories in /dev.
 		mkdir("/dev/pts", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 		mount("devpts", "/dev/pts", "devpts", 0, "mode=620,ptmxmode=666");
+		char *devshm_options = NULL;
+		if (container->memory == NULL) {
+			devshm_options = strdup("mode=1777");
+		} else {
+			devshm_options = malloc(strlen(container->memory) + strlen("mode=1777") + 114);
+			sprintf(devshm_options, "size=%s,mode=1777", container->memory);
+		}
 		mkdir("/dev/shm", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-		mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, "mode=1777");
-		// Protect some system runtime directories by mounting themselves as read-only.
-		mount("/proc/bus", "/proc/bus", NULL, MS_BIND | MS_REC, NULL);
-		mount("/proc/bus", "/proc/bus", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
-		mount("/proc/fs", "/proc/fs", NULL, MS_BIND | MS_REC, NULL);
-		mount("/proc/fs", "/proc/fs", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
-		mount("/proc/irq", "/proc/irq", NULL, MS_BIND | MS_REC, NULL);
-		mount("/proc/irq", "/proc/irq", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
-		mount("/proc/sys", "/proc/sys", NULL, MS_BIND | MS_REC, NULL);
-		mount("/proc/sys", "/proc/sys", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
-		mount("/proc/sys-trigger", "/proc/sys-trigger", NULL, MS_BIND | MS_REC, NULL);
-		mount("/proc/sys-trigger", "/proc/sys-trigger", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+		mount("tmpfs", "/dev/shm", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, devshm_options);
+		usleep(100000);
+		free(devshm_options);
 		// Mount binfmt_misc.
 		mount("binfmt_misc", "/proc/sys/fs/binfmt_misc", "binfmt_misc", 0, NULL);
 		// Create system runtime files in /dev and then fix permissions.
@@ -133,24 +131,37 @@ static void init_container(void)
 		symlink("/proc/self/fd/1", "/dev/stdout");
 		symlink("/proc/self/fd/2", "/dev/stderr");
 		symlink("/dev/null", "/dev/tty0");
-		// Mask some directories/files that we don't want the container modify it.
-		mount("tmpfs", "/proc/asound", "tmpfs", MS_RDONLY, NULL);
-		mount("tmpfs", "/proc/acpi", "tmpfs", MS_RDONLY, NULL);
-		mount("/dev/null", "/proc/kcore", "", MS_BIND, NULL);
-		mount("/dev/null", "/proc/keys", "", MS_BIND, NULL);
-		mount("/dev/null", "/proc/latency_stats", "", MS_BIND, NULL);
-		mount("/dev/null", "/proc/timer_list", "", MS_BIND, NULL);
-		mount("/dev/null", "/proc/timer_stats", "", MS_BIND, NULL);
-		mount("/dev/null", "/proc/sched_debug", "", MS_BIND, NULL);
-		mount("/dev/null", "/proc/sysrq-trigger", "", MS_BIND, NULL);
-		mount("tmpfs", "/proc/scsi", "tmpfs", MS_RDONLY, NULL);
-		mount("tmpfs", "/sys/firmware", "tmpfs", MS_RDONLY, NULL);
-		mount("tmpfs", "/sys/devices/virtual/powercap", "tmpfs", MS_RDONLY, NULL);
-		mount("tmpfs", "/sys/block", "tmpfs", MS_RDONLY, NULL);
-		mount("tmpfs", "/sys/kernel/debug", "tmpfs", MS_RDONLY, NULL);
-		mount("tmpfs", "/sys/module", "tmpfs", MS_RDONLY, NULL);
-		mount("tmpfs", "/sys/class/net", "tmpfs", MS_RDONLY, NULL);
-		mount("tmpfs", "/sys/fs/cgroup", "tmpfs", MS_RDONLY, NULL);
+		if (!container->unmask_dirs) {
+			// Mask some directories/files that we don't want the container modify it.
+			mount("tmpfs", "/proc/asound", "tmpfs", MS_RDONLY, NULL);
+			mount("tmpfs", "/proc/acpi", "tmpfs", MS_RDONLY, NULL);
+			mount("/dev/null", "/proc/kcore", "", MS_BIND, NULL);
+			mount("/dev/null", "/proc/keys", "", MS_BIND, NULL);
+			mount("/dev/null", "/proc/latency_stats", "", MS_BIND, NULL);
+			mount("/dev/null", "/proc/timer_list", "", MS_BIND, NULL);
+			mount("/dev/null", "/proc/timer_stats", "", MS_BIND, NULL);
+			mount("/dev/null", "/proc/sched_debug", "", MS_BIND, NULL);
+			mount("/dev/null", "/proc/sysrq-trigger", "", MS_BIND, NULL);
+			mount("tmpfs", "/proc/scsi", "tmpfs", MS_RDONLY, NULL);
+			mount("tmpfs", "/sys/firmware", "tmpfs", MS_RDONLY, NULL);
+			mount("tmpfs", "/sys/devices/virtual/powercap", "tmpfs", MS_RDONLY, NULL);
+			mount("tmpfs", "/sys/block", "tmpfs", MS_RDONLY, NULL);
+			mount("tmpfs", "/sys/kernel/debug", "tmpfs", MS_RDONLY, NULL);
+			mount("tmpfs", "/sys/module", "tmpfs", MS_RDONLY, NULL);
+			mount("tmpfs", "/sys/class/net", "tmpfs", MS_RDONLY, NULL);
+			mount("tmpfs", "/sys/fs/cgroup", "tmpfs", MS_RDONLY, NULL);
+			// Protect some system runtime directories by mounting themselves as read-only.
+			mount("/proc/bus", "/proc/bus", NULL, MS_BIND | MS_REC, NULL);
+			mount("/proc/bus", "/proc/bus", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+			mount("/proc/fs", "/proc/fs", NULL, MS_BIND | MS_REC, NULL);
+			mount("/proc/fs", "/proc/fs", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+			mount("/proc/irq", "/proc/irq", NULL, MS_BIND | MS_REC, NULL);
+			mount("/proc/irq", "/proc/irq", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+			mount("/proc/sys", "/proc/sys", NULL, MS_BIND | MS_REC, NULL);
+			mount("/proc/sys", "/proc/sys", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+			mount("/proc/sys-trigger", "/proc/sys-trigger", NULL, MS_BIND | MS_REC, NULL);
+			mount("/proc/sys-trigger", "/proc/sys-trigger", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+		}
 	} else {
 		free(test);
 	}
@@ -187,10 +198,19 @@ static void mount_host_runtime(const struct CONTAINER *_Nonnull container)
 	mkdir(buf, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 	mount("devpts", buf, "devpts", 0, "mode=600,ptmxmode=666");
 	// Mount devshm.
+	char *devshm_options = NULL;
+	if (container->memory == NULL) {
+		devshm_options = strdup("mode=1777");
+	} else {
+		devshm_options = malloc(strlen(container->memory) + strlen("mode=1777") + 114);
+		sprintf(devshm_options, "size=%s,mode=1777", container->memory);
+	}
 	memset(buf, '\0', sizeof(buf));
 	sprintf(buf, "%s/dev/shm", container->container_dir);
 	mkdir(buf, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	mount("tmpfs", buf, "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, "mode=1777");
+	mount("tmpfs", buf, "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, devshm_options);
+	usleep(100000);
+	free(devshm_options);
 }
 // Drop capabilities.
 // Use libcap.
@@ -283,6 +303,20 @@ static void setup_binfmt_misc(const struct CONTAINER *_Nonnull container)
 	// Umount the apifs.
 	umount2("/proc/sys/fs/binfmt_misc", MNT_DETACH | MNT_FORCE);
 }
+static void mount_rootfs(const struct CONTAINER *_Nonnull container)
+{
+	/*
+	 * Mount rootfs of container.
+	 * It will be called before chroot(2).
+	 * Rootfs (/) is the first mountpoint.
+	 */
+	// Mount rootfs.
+	if (container->rootfs_source != NULL) {
+		if (trymount(container->rootfs_source, container->container_dir, 0) != 0) {
+			error("{red}Error: failed to mount rootfs QwQ\n");
+		}
+	}
+}
 // Mount other mountpoints.
 // Run before chroot(2).
 static void mount_mountpoints(const struct CONTAINER *_Nonnull container)
@@ -291,7 +325,7 @@ static void mount_mountpoints(const struct CONTAINER *_Nonnull container)
 	 * Mount extra_mountpoint and extra_ro_mountpoint.
 	 * It will be called before chroot(2).
 	 */
-	if (!container->rootless) {
+	if (!container->rootless && (container->rootfs_source == NULL)) {
 		// '/' should be a mountpoint in container.
 		mount(container->container_dir, container->container_dir, NULL, MS_BIND, NULL);
 	}
@@ -411,6 +445,7 @@ void run_chroot_container(struct CONTAINER *_Nonnull container)
 	char *test = realpath(buf, NULL);
 	if (test == NULL) {
 		// Mount mountpoints.
+		mount_rootfs(container);
 		mount_mountpoints(container);
 		// Copy qemu binary into container.
 		copy_qemu_binary(container);
@@ -418,13 +453,13 @@ void run_chroot_container(struct CONTAINER *_Nonnull container)
 		if (!container->enable_unshare && container->use_rurienv) {
 			store_info(container);
 		}
-		// If `-R` option is set, make / read-only.
-		if (container->ro_root) {
-			mount(container->container_dir, container->container_dir, NULL, MS_BIND | MS_REMOUNT | MS_RDONLY, NULL);
-		}
 		// If `-S` option is set, bind-mount /dev/, /sys/ and /proc/ from host.
 		if (container->mount_host_runtime && !container->just_chroot) {
 			mount_host_runtime(container);
+		}
+		// If `-R` option is set, make / read-only.
+		if (container->ro_root) {
+			mount(container->container_dir, container->container_dir, NULL, MS_BIND | MS_REMOUNT | MS_RDONLY, NULL);
 		}
 	}
 	// If container already mounted, sync the config.
@@ -468,7 +503,7 @@ void run_chroot_container(struct CONTAINER *_Nonnull container)
 	}
 	// Mount/create system runtime dir/files.
 	if (!container->just_chroot) {
-		init_container();
+		init_container(container);
 	}
 	// Fix /etc/mtab.
 	remove("/etc/mtab");
@@ -478,6 +513,8 @@ void run_chroot_container(struct CONTAINER *_Nonnull container)
 	if (container->cross_arch != NULL) {
 		setup_binfmt_misc(container);
 	}
+	// Umount binfmt_misc apifs.
+	umount2("/proc/sys/fs/binfmt_misc", MNT_DETACH | MNT_FORCE);
 	// Set up cgroup limit.
 	set_limit(container);
 	// Set up Seccomp BPF.
@@ -529,6 +566,7 @@ void run_rootless_chroot_container(struct CONTAINER *_Nonnull container)
 	sigaddset(&sigs, SIGTTOU);
 	sigprocmask(SIG_BLOCK, &sigs, 0);
 	// Mount mountpoints.
+	mount_rootfs(container);
 	mount_mountpoints(container);
 	// Copy qemu binary into container.
 	copy_qemu_binary(container);

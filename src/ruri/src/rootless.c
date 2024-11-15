@@ -127,35 +127,47 @@ static void init_rootless_container(struct CONTAINER *_Nonnull container)
 	symlink("/dev/null", "./dev/tty0");
 	mkdir("./dev/pts", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
 	mount("devpts", "./dev/pts", "devpts", 0, "mode=620,ptmxmode=666");
+	char *devshm_options = NULL;
+	if (container->memory == NULL) {
+		devshm_options = strdup("mode=1777");
+	} else {
+		devshm_options = malloc(strlen(container->memory) + strlen("mode=1777") + 114);
+		sprintf(devshm_options, "size=%s,mode=1777", container->memory);
+	}
 	mkdir("./dev/shm", S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP | S_IWGRP);
-	mount("tmpfs", "./dev/shm", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, "mode=1777");
-	mount("./proc/bus", "./proc/bus", NULL, MS_BIND | MS_REC, NULL);
-	mount("./proc/bus", "./proc/bus", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
-	mount("./proc/fs", "./proc/fs", NULL, MS_BIND | MS_REC, NULL);
-	mount("./proc/fs", "./proc/fs", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
-	mount("./proc/irq", "./proc/irq", NULL, MS_BIND | MS_REC, NULL);
-	mount("./proc/irq", "./proc/irq", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
-	mount("./proc/sys", "./proc/sys", NULL, MS_BIND | MS_REC, NULL);
-	mount("./proc/sys", "./proc/sys", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
-	mount("./proc/sys-trigger", "./proc/sys-trigger", NULL, MS_BIND | MS_REC, NULL);
-	mount("./proc/sys-trigger", "./proc/sys-trigger", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
-	mount("tmpfs", "./proc/asound", "tmpfs", MS_RDONLY, NULL);
-	mount("tmpfs", "./proc/acpi", "tmpfs", MS_RDONLY, NULL);
-	mount("/dev/null", "./proc/kcore", "", MS_BIND, NULL);
-	mount("/dev/null", "./proc/keys", "", MS_BIND, NULL);
-	mount("/dev/null", "./proc/latency_stats", "", MS_BIND, NULL);
-	mount("/dev/null", "./proc/timer_list", "", MS_BIND, NULL);
-	mount("/dev/null", "./proc/timer_stats", "", MS_BIND, NULL);
-	mount("/dev/null", "./proc/sched_debug", "", MS_BIND, NULL);
-	mount("/dev/null", "/proc/sysrq-trigger", "", MS_BIND, NULL);
-	mount("tmpfs", "./proc/scsi", "tmpfs", MS_RDONLY, NULL);
-	mount("tmpfs", "./sys/firmware", "tmpfs", MS_RDONLY, NULL);
-	mount("tmpfs", "./sys/devices/virtual/powercap", "tmpfs", MS_RDONLY, NULL);
-	mount("tmpfs", "./sys/block", "tmpfs", MS_RDONLY, NULL);
-	mount("tmpfs", "/sys/kernel/debug", "tmpfs", MS_RDONLY, NULL);
-	mount("tmpfs", "./sys/module", "tmpfs", MS_RDONLY, NULL);
-	mount("tmpfs", "./sys/class/net", "tmpfs", MS_RDONLY, NULL);
-	mount("tmpfs", "./sys/fs/cgroup", "tmpfs", MS_RDONLY, NULL);
+	mount("tmpfs", "./dev/shm", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, devshm_options);
+	usleep(100000);
+	free(devshm_options);
+	if (!container->unmask_dirs) {
+		// Protect some dirs in /proc and /sys.
+		mount("./proc/bus", "./proc/bus", NULL, MS_BIND | MS_REC, NULL);
+		mount("./proc/bus", "./proc/bus", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+		mount("./proc/fs", "./proc/fs", NULL, MS_BIND | MS_REC, NULL);
+		mount("./proc/fs", "./proc/fs", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+		mount("./proc/irq", "./proc/irq", NULL, MS_BIND | MS_REC, NULL);
+		mount("./proc/irq", "./proc/irq", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+		mount("./proc/sys", "./proc/sys", NULL, MS_BIND | MS_REC, NULL);
+		mount("./proc/sys", "./proc/sys", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+		mount("./proc/sys-trigger", "./proc/sys-trigger", NULL, MS_BIND | MS_REC, NULL);
+		mount("./proc/sys-trigger", "./proc/sys-trigger", NULL, MS_BIND | MS_RDONLY | MS_REMOUNT, NULL);
+		mount("tmpfs", "./proc/asound", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "./proc/acpi", "tmpfs", MS_RDONLY, NULL);
+		mount("/dev/null", "./proc/kcore", "", MS_BIND, NULL);
+		mount("/dev/null", "./proc/keys", "", MS_BIND, NULL);
+		mount("/dev/null", "./proc/latency_stats", "", MS_BIND, NULL);
+		mount("/dev/null", "./proc/timer_list", "", MS_BIND, NULL);
+		mount("/dev/null", "./proc/timer_stats", "", MS_BIND, NULL);
+		mount("/dev/null", "./proc/sched_debug", "", MS_BIND, NULL);
+		mount("/dev/null", "/proc/sysrq-trigger", "", MS_BIND, NULL);
+		mount("tmpfs", "./proc/scsi", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "./sys/firmware", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "./sys/devices/virtual/powercap", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "./sys/block", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "/sys/kernel/debug", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "./sys/module", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "./sys/class/net", "tmpfs", MS_RDONLY, NULL);
+		mount("tmpfs", "./sys/fs/cgroup", "tmpfs", MS_RDONLY, NULL);
+	}
 }
 static void set_id_map(uid_t uid, gid_t gid)
 {
