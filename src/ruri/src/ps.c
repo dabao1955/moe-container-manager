@@ -28,6 +28,9 @@
  *
  */
 #include "include/ruri.h"
+/*
+ * This file provides functions to show or kill all processes in the container.
+ */
 static char *getpid_name(pid_t pid)
 {
 	/*
@@ -99,8 +102,8 @@ static void test_and_print_pid(pid_t pid, char *_Nonnull container_dir, bool in_
 	sprintf(path, "%s%d%s", "/proc/", pid, "/root");
 	char buf[PATH_MAX];
 	realpath(path, buf);
-	log("{base}Pid: {cyan}%d\n", pid);
-	log("{base}Root: {cyan}%s\n", buf);
+	ruri_log("{base}Pid: {cyan}%d\n", pid);
+	ruri_log("{base}Root: {cyan}%s\n", buf);
 	if (strcmp(buf, container_dir) == 0) {
 		char *name = getpid_name(pid);
 		char *stat = getpid_stat(pid);
@@ -119,7 +122,7 @@ static void __container_ps(char *_Nonnull container_dir, bool in_pid_ns)
 {
 	/*
 	 * Show the processes in the container.
-	 * This is the core function of container_ps().
+	 * This is the core function of ruri_container_ps().
 	 */
 	DIR *proc_dir = opendir("/proc");
 	struct dirent *file = NULL;
@@ -145,7 +148,7 @@ static void __container_ps(char *_Nonnull container_dir, bool in_pid_ns)
 	}
 	for (int j = 0; j < len; j++) {
 		if (pids[j] != INIT_VALUE) {
-			log("{base}Checking pid: {cyan}%d\n", pids[j]);
+			ruri_log("{base}Checking pid: {cyan}%d\n", pids[j]);
 			test_and_print_pid(pids[j], container_dir, in_pid_ns);
 		} else {
 			break;
@@ -160,7 +163,7 @@ static int join_ns(pid_t ns_pid)
 	 * If failed, return -1.
 	 */
 	if (geteuid() != 0) {
-		error("{red}Error: Please run `ruri -P` with sudo.\n");
+		ruri_error("{red}Error: Please run `ruri -P` with sudo.\n");
 	}
 	char path[PATH_MAX];
 	sprintf(path, "%s%d%s", "/proc/", ns_pid, "/ns/pid");
@@ -170,7 +173,7 @@ static int join_ns(pid_t ns_pid)
 	}
 	setns(fd, 0);
 	close(fd);
-	log("{base}Joined pid namespace\n");
+	ruri_log("{base}Joined pid namespace\n");
 	sprintf(path, "%s%d%s", "/proc/", ns_pid, "/ns/mnt");
 	fd = open(path, O_RDONLY | O_CLOEXEC);
 	if (fd < 0) {
@@ -179,10 +182,10 @@ static int join_ns(pid_t ns_pid)
 	setns(fd, 0);
 	close(fd);
 	chdir("/");
-	log("{base}Joined mount namespace\n");
+	ruri_log("{base}Joined mount namespace\n");
 	return 0;
 }
-void container_ps(char *_Nonnull container_dir)
+void ruri_container_ps(char *_Nonnull container_dir)
 {
 	/*
 	 * Show the processes in the container.
@@ -190,11 +193,11 @@ void container_ps(char *_Nonnull container_dir)
 	 * if this is an unshare container, join the pid and mount namespace, so root is "/" now.
 	 * if pid namespace is not supported, fallback to the behavior with common container.
 	 */
-	log("{base}Container directory: {cyan}%s\n", container_dir);
+	ruri_log("{base}Container directory: {cyan}%s\n", container_dir);
 	if (geteuid() != 0) {
-		warning("{yellow}Warning: Please run `ruri -P` with sudo.\n");
+		ruri_warning("{yellow}Warning: Please run `ruri -P` with sudo.\n");
 	}
-	struct CONTAINER *container = read_info(NULL, container_dir);
+	struct RURI_CONTAINER *container = ruri_read_info(NULL, container_dir);
 	bool in_pid_ns = false;
 	if (container->ns_pid > 0) {
 		// We need to get the info of ns_pid before joining the namespace.
@@ -212,6 +215,7 @@ void container_ps(char *_Nonnull container_dir)
 	}
 	__container_ps(container_dir, in_pid_ns);
 	free(container);
+	exit(EXIT_SUCCESS);
 }
 static bool is_container_process(pid_t pid, const char *_Nonnull container_dir)
 {
@@ -231,13 +235,14 @@ static bool is_container_process(pid_t pid, const char *_Nonnull container_dir)
 	}
 	return false;
 }
-void kill_container(const char *_Nonnull container_dir)
+void ruri_kill_container(const char *_Nonnull container_dir)
 {
 	/*
+	 *
 	 * Check all the processes in /proc,
 	 * If the process is in the container, kill it.
 	 * We check for /proc/pid/root to determine if the process is in the container.
-	 *
+	 * This function is called by ruri_umount_container().
 	 */
 	DIR *proc_dir = opendir("/proc");
 	struct dirent *file = NULL;
@@ -263,9 +268,9 @@ void kill_container(const char *_Nonnull container_dir)
 	}
 	for (int j = 0; j < len; j++) {
 		if (pids[j] != INIT_VALUE) {
-			log("{base}Checking pid: {cyan}%d\n", pids[j]);
+			ruri_log("{base}Checking pid: {cyan}%d\n", pids[j]);
 			if (is_container_process(pids[j], container_dir)) {
-				log("{base}Killing pid: {cyan}%d\n", pids[j]);
+				ruri_log("{base}Killing pid: {cyan}%d\n", pids[j]);
 				kill(pids[j], SIGKILL);
 			}
 		} else {

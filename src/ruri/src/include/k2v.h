@@ -49,7 +49,7 @@
 #define _Nonnull
 #endif
 // Version info.
-#define LIBK2V_MAJOR 1
+#define LIBK2V_MAJOR 2
 #define LIBK2V_MINOR 1
 // Warning.
 extern bool k2v_stop_at_warning;
@@ -93,3 +93,4 @@ size_t k2v_get_filesize(const char *_Nonnull path);
 		__k2v_ret;                                                \
 	})
 char *k2v_add_comment(char *_Nullable buf, char *_Nonnull comment);
+char *k2v_add_newline(char *_Nullable buf);

@@ -30,7 +30,7 @@
 #include "include/nekofeng.h"
 /*
  * This file was the main.c in nekofeng project.
- * Now, it provides the function AwA() as the easteregg of ruri.
+ * Now, it provides the function ruri_AwA() as the easteregg of ruri.
  */
 // The global variables are defined here.
 int x;
@@ -38,13 +38,13 @@ int y;
 atomic_flag lock = ATOMIC_FLAG_INIT;
 atomic_flag lock2 = ATOMIC_FLAG_INIT;
 // The spin lock.
-void spin_lock(atomic_flag *_Nonnull l)
+void nekofeng_spin_lock(atomic_flag *_Nonnull l)
 {
 	while (atomic_flag_test_and_set(l)) {
 	}
 }
 // The spin unlock.
-void spin_unlock(atomic_flag *_Nonnull l)
+void nekofeng_spin_unlock(atomic_flag *_Nonnull l)
 {
 	atomic_flag_clear(l);
 }
@@ -55,6 +55,10 @@ static void init()
 	// Use ioctl(2) to get the window size.
 	struct winsize size;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+	if (size.ws_col < 70 || size.ws_row < 24) {
+		printf("\033[31mThe window size is too small.\n");
+		exit(1);
+	}
 	x = size.ws_col / 2 - X_SIZE / 2;
 	y = size.ws_row / 2 - Y_SIZE / 2;
 }
@@ -62,12 +66,12 @@ static long tids[6] = { -114 };
 static void update_tids(void)
 {
 	long tid = syscall(SYS_gettid);
-	spin_lock(&lock2);
+	nekofeng_spin_lock(&lock2);
 	for (int i = 0; i < 6; i++) {
 		if (tids[i] < 0) {
 			tids[i] = tid;
 			tids[i + 1] = -114;
-			spin_unlock(&lock2);
+			nekofeng_spin_unlock(&lock2);
 			return;
 		}
 	}
@@ -75,36 +79,36 @@ static void update_tids(void)
 void *test0(void *arg)
 {
 	update_tids();
-	face(100000, 7);
+	nekofeng_face(100000, 7);
 	return arg;
 }
 void *test1(void *arg)
 {
 	update_tids();
-	blink_lefteye(200000, 7);
+	nekofeng_blink_lefteye(200000, 7);
 	return arg;
 }
 void *test2(void *arg)
 {
 	update_tids();
-	blink_righteye(200000, 7);
+	nekofeng_blink_righteye(200000, 7);
 	return arg;
 }
 void *test3(void *arg)
 {
 	update_tids();
-	mouth(200000, 7);
+	nekofeng_mouth(200000, 7);
 	return arg;
 }
 void *test4(void *arg)
 {
 	update_tids();
 	for (int i = 0; i < 11; i++) {
-		ahoge(300000, 0);
+		nekofeng_ahoge(300000, 0);
 	}
 	return arg;
 }
-void AwA()
+void ruri_AwA()
 {
 	printf("\033[?25l");
 	init();
@@ -118,9 +122,9 @@ void AwA()
 		      "       Show me the code.\n";
 	layer.x_offset = 3;
 	layer.y_offset = -2;
-	typewrite_layer(&layer, 50000, true);
+	nekofeng_typewrite_layer(&layer, 50000, true);
 	sleep(2);
-	clear_typewrite_layer(&layer, 50000);
+	nekofeng_clear_typewrite_layer(&layer, 50000);
 	pid_t pid = fork();
 	if (pid > 0) {
 		wait(NULL);
@@ -142,7 +146,7 @@ void AwA()
 		}
 	}
 	printf("\033c");
-	layer.layer = "\033[1;38;2;254;228;208m\n"
+	layer.layer = "\033[1;38;2;254;228;208m\n\n"
 		      "●   ●  ●●●  ●●●●●       ●   ●   ●    ●●●  ●●●●● ●●●●  \n"
 		      "●● ●● ●   ● ●           ●   ●  ● ●  ●   ● ●     ●   ● \n"
 		      "● ● ● ●   ● ●●●●  ●●●●● ●●●●● ●●●●● ●     ●●●●  ●●●●● \n"
@@ -150,7 +154,7 @@ void AwA()
 		      "●   ●  ●●●  ●●●●●       ●   ● ●   ●  ●●●  ●●●●● ●   ● \n";
 	layer.x_offset = -10;
 	layer.y_offset = -2;
-	typewrite_layer(&layer, 5000, false);
+	nekofeng_typewrite_layer(&layer, 5000, false);
 	sleep(4);
 	printf("\033c");
 	printf("\n\033[?25h");

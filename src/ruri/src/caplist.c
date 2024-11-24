@@ -28,18 +28,24 @@
  *
  */
 #include "include/ruri.h"
+/*
+ * This file provides functions to manage capability list.
+ * But drop_caps() to set capabilities is in chroot.c, not here.
+ */
 // Add a cap to caplist.
-void add_to_caplist(cap_value_t *_Nonnull list, cap_value_t cap)
+void ruri_add_to_caplist(cap_value_t *_Nonnull list, cap_value_t cap)
 {
 	/*
 	 * If cap is already in list, just do nothing and quit.
-	 * list[] is initialized by INIT_VALUE, and the INIT_VALUE will be ignored when dropping caps.
+	 * list[] is initialized by INIT_VALUE,
+	 * and the INIT_VALUE is the end of the list.
 	 */
-	// Add cap to caplist.
+	// We do not add non-supported capabilities to caplist.
 	if (!CAP_IS_SUPPORTED(cap)) {
 		return;
 	}
-	if (!is_in_caplist(list, cap)) {
+	// Add cap to caplist.
+	if (!ruri_is_in_caplist(list, cap)) {
 		for (int k = 0; true; k++) {
 			if (list[k] == INIT_VALUE) {
 				list[k] = cap;
@@ -50,11 +56,12 @@ void add_to_caplist(cap_value_t *_Nonnull list, cap_value_t cap)
 	}
 }
 // Check if the cap is in the list.
-bool is_in_caplist(const cap_value_t *_Nonnull list, cap_value_t cap)
+bool ruri_is_in_caplist(const cap_value_t *_Nonnull list, cap_value_t cap)
 {
 	/*
 	 * If cap is in list, return true,
 	 * else, return false.
+	 * INIT_VALUE is the end of the list.
 	 */
 	for (int i = 0; true; i++) {
 		if (list[i] == cap) {
@@ -68,7 +75,7 @@ bool is_in_caplist(const cap_value_t *_Nonnull list, cap_value_t cap)
 	return false;
 }
 // Del a cap from caplist.
-void del_from_caplist(cap_value_t *_Nonnull list, cap_value_t cap)
+void ruri_del_from_caplist(cap_value_t *_Nonnull list, cap_value_t cap)
 {
 	/*
 	 * If the cap is not in list, just do nothing and quit.
@@ -88,7 +95,7 @@ void del_from_caplist(cap_value_t *_Nonnull list, cap_value_t cap)
 		}
 	}
 }
-void build_caplist(cap_value_t caplist[], bool privileged, cap_value_t drop_caplist_extra[], cap_value_t keep_caplist_extra[])
+void ruri_build_caplist(cap_value_t caplist[], bool privileged, cap_value_t drop_caplist_extra[], cap_value_t keep_caplist_extra[])
 {
 	/*
 	 * If privileged is true, we setup a full list of all capabilities,
@@ -98,9 +105,13 @@ void build_caplist(cap_value_t caplist[], bool privileged, cap_value_t drop_capl
 	 *
 	 * If privileged is false, we just add drop_caplist_extra[] to the list,
 	 * and del keep_caplist_extra[] from the list.
+	 *
+	 * NOTE: keep_caplist_extra[] will cover drop_caplist_extra[],
+	 * if they have the same capabilities.
 	 */
 	// Based on docker's default capability set.
-	cap_value_t keep_caplist_common[] = { CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_FSETID, CAP_FOWNER, CAP_NET_RAW, CAP_SETGID, CAP_SETUID, CAP_SETFCAP, CAP_SETPCAP, CAP_NET_BIND_SERVICE, CAP_SYS_CHROOT, CAP_KILL, CAP_AUDIT_WRITE, INIT_VALUE };
+	// And I removed some unneeded capabilities.
+	cap_value_t keep_caplist_common[] = { CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_FSETID, CAP_FOWNER, CAP_SETGID, CAP_SETUID, CAP_SETFCAP, CAP_SETPCAP, CAP_NET_BIND_SERVICE, CAP_SYS_CHROOT, CAP_KILL, CAP_AUDIT_WRITE, INIT_VALUE };
 	// Set default caplist to drop.
 	caplist[0] = INIT_VALUE;
 	if (!privileged) {
@@ -114,7 +125,7 @@ void build_caplist(cap_value_t caplist[], bool privileged, cap_value_t drop_capl
 			if (keep_caplist_common[i] == INIT_VALUE) {
 				break;
 			}
-			del_from_caplist(caplist, keep_caplist_common[i]);
+			ruri_del_from_caplist(caplist, keep_caplist_common[i]);
 		}
 	}
 	// Add drop_caplist_extra[] to caplist.
@@ -123,7 +134,7 @@ void build_caplist(cap_value_t caplist[], bool privileged, cap_value_t drop_capl
 			if (drop_caplist_extra[i] == INIT_VALUE) {
 				break;
 			}
-			add_to_caplist(caplist, drop_caplist_extra[i]);
+			ruri_add_to_caplist(caplist, drop_caplist_extra[i]);
 		}
 	}
 	// Del keep_caplist_extra[] from caplist.
@@ -132,7 +143,7 @@ void build_caplist(cap_value_t caplist[], bool privileged, cap_value_t drop_capl
 			if (keep_caplist_extra[i] == INIT_VALUE) {
 				break;
 			}
-			del_from_caplist(caplist, keep_caplist_extra[i]);
+			ruri_del_from_caplist(caplist, keep_caplist_extra[i]);
 		}
 	}
 }

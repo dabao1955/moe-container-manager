@@ -28,46 +28,82 @@
  *
  */
 #include "include/ruri.h"
+/*
+ * This file provides functions to read and store .rurienv file.
+ * ${container_dir}/.rurienv file is a file that stores the runtime info of the container.
+ * It's used when running and umounting container.
+ */
 // Check if the running pid is ruri.
 static bool is_ruri_pid(pid_t pid)
 {
 	/*
-	 * /proc/pid/stat example:
-	 * 24320 (bash) S 24317 24320 7406 34816 24392 4194560 365 262 0 0 0 0 0 0 10 -10 1 0 13729015 4689920 920 18446744073709551615 389493096448 389494178872 549307347392 0 0 0 3211264 3686404 1266761467 1 0 0 17 1 0 0 0 0 0 389494244512 389494276064 390520700928 549307350901 549307350907 549307350907 549307351022 0
-	 * So we just get the process name wrapped by `()`,
-	 * and check if it is `ruri`.
+	 * We check if /proc/pid/ns/mnt is same of /proc/self/ns/mnt.
+	 * If it is, we think the pid is not a ruri process,
+	 * because ruri will unshare the mount namespace.
+	 * If not, we think the pid is a ruri process.
 	 */
-	char stat_path[PATH_MAX] = { '\0' };
-	sprintf(stat_path, "/proc/%d/stat", pid);
-	int fd = open(stat_path, O_RDONLY | O_CLOEXEC);
-	if (fd < 0) {
+	char pid_ns_mnt[PATH_MAX] = { '\0' };
+	sprintf(pid_ns_mnt, "/proc/%d/ns/mnt", pid);
+	char *pid_ns_mnt_realpath = malloc(PATH_MAX);
+	ssize_t len = readlink(pid_ns_mnt, pid_ns_mnt_realpath, PATH_MAX);
+	if (len <= 0) {
+		free(pid_ns_mnt_realpath);
 		return false;
 	}
-	char buf[4096] = { '\0' };
-	char name[1024] = { '\0' };
-	read(fd, buf, sizeof(buf));
-	log("{base}Process stat:{cyan}\n%s", buf);
+	pid_ns_mnt_realpath[len] = '\0';
+	char *self_ns_mnt_realpath = malloc(PATH_MAX);
+	len = readlink("/proc/self/ns/mnt", self_ns_mnt_realpath, PATH_MAX);
+	if (len <= 0) {
+		free(self_ns_mnt_realpath);
+		free(pid_ns_mnt_realpath);
+		return false;
+	}
+	self_ns_mnt_realpath[len] = '\0';
+	if (strcmp(pid_ns_mnt_realpath, self_ns_mnt_realpath) == 0) {
+		free(self_ns_mnt_realpath);
+		free(pid_ns_mnt_realpath);
+		return false;
+	}
+	free(self_ns_mnt_realpath);
+	free(pid_ns_mnt_realpath);
+	return true;
+}
+// Get ns_pid.
+pid_t ruri_get_ns_pid(const char *_Nonnull container_dir)
+{
+	/*
+	 * Read .rurienv,
+	 * and get the ns_pid.
+	 * If the ns_pid is a ruri process,
+	 * return the ns_pid.
+	 * If not, return INIT_VALUE.
+	 * If .rurienv does not exist, return INIT_VALUE.
+	 */
+	char file[PATH_MAX] = { '\0' };
+	sprintf(file, "%s/.rurienv", container_dir);
+	int fd = open(file, O_RDONLY | O_CLOEXEC);
+	// If .rurienv file does not exist.
+	if (fd < 0) {
+		return INIT_VALUE;
+	}
+	struct stat filestat;
+	fstat(fd, &filestat);
+	off_t size = filestat.st_size;
 	close(fd);
-	// Get the process name wrapped by `()`.
-	for (int i = 0; true; i++) {
-		if (buf[i] == '(') {
-			for (int j = 1; true; j++) {
-				if (buf[i + j] == ')') {
-					break;
-				}
-				name[j - 1] = buf[i + j];
-				name[j] = '\0';
-			}
-			break;
-		}
+	// Read .rurienv file.
+	char *buf = k2v_open_file(file, (size_t)size);
+	pid_t ret = k2v_get_key(int, "ns_pid", buf);
+	free(buf);
+	if (ret <= 0) {
+		return INIT_VALUE;
 	}
-	if (strcmp(name, "ruri") == 0) {
-		return true;
+	if (is_ruri_pid(ret)) {
+		return ret;
 	}
-	return false;
+	return INIT_VALUE;
 }
 // Format container info as k2v.
-static char *build_container_info(const struct CONTAINER *_Nonnull container)
+static char *build_container_info(const struct RURI_CONTAINER *_Nonnull container)
 {
 	/*
 	 * Format container runtime info to k2v format,
@@ -111,15 +147,21 @@ static char *build_container_info(const struct CONTAINER *_Nonnull container)
 	// container_id.
 	ret = k2v_add_comment(ret, "Container ID.");
 	ret = k2v_add_config(int, ret, "container_id", container->container_id);
-	// Just chroot.
-	ret = k2v_add_comment(ret, "Just chroot, do not create runtime dirs.");
-	ret = k2v_add_config(bool, ret, "just_chroot", container->just_chroot);
 	// work_dir.
 	ret = k2v_add_comment(ret, "Work directory.");
 	ret = k2v_add_config(char, ret, "work_dir", container->work_dir);
-	// no_warnings
+	// no_warnings.
 	ret = k2v_add_comment(ret, "Do not show warnings.");
 	ret = k2v_add_config(bool, ret, "no_warnings", container->no_warnings);
+	// no_network.
+	ret = k2v_add_comment(ret, "Disable network.");
+	ret = k2v_add_config(bool, ret, "no_network", container->no_network);
+	// rootless
+	ret = k2v_add_comment(ret, "Run rootless container.");
+	ret = k2v_add_config(bool, ret, "rootless", container->rootless);
+	// user.
+	ret = k2v_add_comment(ret, "User to run command in the container.");
+	ret = k2v_add_config(char, ret, "user", container->user);
 	// extra_mountpoint.
 	for (int i = 0; true; i++) {
 		if (container->extra_mountpoint[i] == NULL) {
@@ -147,11 +189,11 @@ static char *build_container_info(const struct CONTAINER *_Nonnull container)
 	}
 	ret = k2v_add_comment(ret, "Environment variable.");
 	ret = k2v_add_config(char_array, ret, "env", container->env, len);
-	log("{base}Container config in /.rurienv:{cyan}\n%s", ret);
+	ruri_log("{base}Container config in /.rurienv:{cyan}\n%s", ret);
 	return ret;
 }
 // Store container info.
-void store_info(const struct CONTAINER *_Nonnull container)
+void ruri_store_info(const struct RURI_CONTAINER *_Nonnull container)
 {
 	/*
 	 * Format the runtime info of container to k2v format.
@@ -205,12 +247,12 @@ void store_info(const struct CONTAINER *_Nonnull container)
 	free(info);
 }
 // Read .rurienv file.
-struct CONTAINER *read_info(struct CONTAINER *_Nullable container, const char *_Nonnull container_dir)
+struct RURI_CONTAINER *ruri_read_info(struct RURI_CONTAINER *_Nullable container, const char *_Nonnull container_dir)
 {
 	/*
 	 * Get runtime info of container.
 	 * And return the container struct back.
-	 * For umount_container() and container_ps(), it will accept a NULL struct,
+	 * For ruri_umount_container() and ruri_container_ps(), it will accept a NULL struct,
 	 * and return a struct with malloced memory.
 	 */
 	char file[PATH_MAX] = { '\0' };
@@ -218,12 +260,14 @@ struct CONTAINER *read_info(struct CONTAINER *_Nullable container, const char *_
 	int fd = open(file, O_RDONLY | O_CLOEXEC);
 	// If .rurienv file does not exist.
 	if (fd < 0) {
-		// Return a malloced struct for umount_container() and container_ps().
+		// Return a malloced struct for ruri_umount_container() and ruri_container_ps().
 		if (container == NULL) {
-			container = (struct CONTAINER *)malloc(sizeof(struct CONTAINER));
+			container = (struct RURI_CONTAINER *)malloc(sizeof(struct RURI_CONTAINER));
+			ruri_init_config(container);
 			container->extra_mountpoint[0] = NULL;
 			container->extra_ro_mountpoint[0] = NULL;
 			container->ns_pid = INIT_VALUE;
+			container->rootless = false;
 		}
 		return container;
 	}
@@ -233,38 +277,40 @@ struct CONTAINER *read_info(struct CONTAINER *_Nullable container, const char *_
 	close(fd);
 	// Read .rurienv file.
 	char *buf = k2v_open_file(file, (size_t)size);
-	log("{base}Container config in /.rurienv:{cyan}\n%s", buf);
+	ruri_log("{base}Container config in /.rurienv:{cyan}\n%s", buf);
 	// We only need to get part of container info when container is NULL.
 	if (container == NULL) {
-		// For umount_container().
-		container = (struct CONTAINER *)malloc(sizeof(struct CONTAINER));
+		// For ruri_umount_container().
+		container = (struct RURI_CONTAINER *)malloc(sizeof(struct RURI_CONTAINER));
+		ruri_init_config(container);
 		int mlen = k2v_get_key(char_array, "extra_mountpoint", buf, container->extra_mountpoint, MAX_MOUNTPOINTS);
 		container->extra_mountpoint[mlen] = NULL;
 		container->extra_mountpoint[mlen + 1] = NULL;
 		mlen = k2v_get_key(char_array, "extra_ro_mountpoint", buf, container->extra_ro_mountpoint, MAX_MOUNTPOINTS);
 		container->extra_ro_mountpoint[mlen] = NULL;
 		container->extra_ro_mountpoint[mlen + 1] = NULL;
-		// For container_ps() and umount_container().
+		// For ruri_container_ps() and ruri_umount_container().
+		// Also for ruri_rootless_mode_detected().
 		if (is_ruri_pid(k2v_get_key(int, "ns_pid", buf))) {
 			container->ns_pid = k2v_get_key(int, "ns_pid", buf);
 		} else {
 			container->ns_pid = INIT_VALUE;
 		}
+		// Get rootless.
+		container->rootless = k2v_get_key(bool, "rootless", buf);
 		close(fd);
 		free(buf);
 		return container;
 	}
-	// Unset cgroup limits because it's already set.
-	container->cpuset = NULL;
-	container->memory = NULL;
 	// Check if ns_pid is a ruri process.
 	// If not, that means the container is not running.
-	if (container->enable_unshare && !is_ruri_pid(k2v_get_key(int, "ns_pid", buf))) {
-		log("{base}pid %d is not a ruri process.\n", k2v_get_key(int, "ns_pid", buf));
+	if ((container->enable_unshare || container->rootless) && !is_ruri_pid(k2v_get_key(int, "ns_pid", buf))) {
+		ruri_log("{base}pid %d is not a ruri process.\n", k2v_get_key(int, "ns_pid", buf));
+		free(buf);
 		// Unset immutable flag of .rurienv.
 		fd = open(file, O_RDONLY | O_CLOEXEC);
 		if (fd < 0 && !container->no_warnings) {
-			warning("{yellow}Open .rurienv failed{clear}\n");
+			ruri_warning("{yellow}Open .rurienv failed{clear}\n");
 		}
 		int attr = 0;
 		ioctl(fd, FS_IOC_GETFLAGS, &attr);
@@ -298,15 +344,21 @@ struct CONTAINER *read_info(struct CONTAINER *_Nullable container, const char *_
 	container->enable_seccomp = k2v_get_key(bool, "enable_seccomp", buf);
 	// Get ns_pid.
 	container->ns_pid = k2v_get_key(int, "ns_pid", buf);
-	log("{base}ns_pid: %d\n", container->ns_pid);
+	ruri_log("{base}ns_pid: %d\n", container->ns_pid);
 	// Get container_id.
 	container->container_id = k2v_get_key(int, "container_id", buf);
-	// Get just_chroot.
-	container->just_chroot = k2v_get_key(bool, "just_chroot", buf);
 	// Get work_dir.
-	container->work_dir = k2v_get_key(char, "work_dir", buf);
+	if (container->work_dir == NULL) {
+		container->work_dir = k2v_get_key(char, "work_dir", buf);
+	}
 	// Get no_warnings.
 	container->no_warnings = k2v_get_key(bool, "no_warnings", buf);
+	// User.
+	if (container->user == NULL) {
+		container->user = k2v_get_key(char, "user", buf);
+	}
+	// Get no_network.
+	container->no_network = k2v_get_key(bool, "no_network", buf);
 	// Get env.
 	int envlen = k2v_get_key(char_array, "env", buf, container->env, MAX_ENVS);
 	container->env[envlen] = NULL;
@@ -324,5 +376,10 @@ struct CONTAINER *read_info(struct CONTAINER *_Nullable container, const char *_
 	free(container->qemu_path);
 	container->qemu_path = NULL;
 	container->cross_arch = NULL;
+	// Unset cgroup limits because it's already set.
+	container->cpuset = NULL;
+	container->memory = NULL;
+	container->cpupercent = INIT_VALUE;
+	free(buf);
 	return container;
 }

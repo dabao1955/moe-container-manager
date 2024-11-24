@@ -9,17 +9,22 @@ ruri [ARGS]... [CONTAINER_DIRECTORY]... [COMMAND [ARGS]...]
 -V, --version-code ..........................: Show version code
 -h, --help ..................................: Show helps
 -H, --show-examples .........................: Show commandline examples
--P, --ps [container_dir] ....................: Show process status of the container
+-P, --ps [container_dir/config] .............: Show process status of the container
 ```
 These four options will show the info.
 ********************************************
 ```
--U, --umount [container_dir] ................: Umount a container
+-U, --umount [container_dir/config] .........: Umount a container
 ```
 When running a container, ruri needs to mount some directories on it.         
 And after running the container, you can use `-U` option to umount a container.          
 This option needs to be run with root(sudo).      
 WARNING: Always do `sudo ruri -U /path/to/container` before you removing the container.      
+***********************************
+```
+-C, --correct-config .................: Correct config.
+```
+Try to correct an incomplete config file.        
 ## Arguments:
 Common ruri container should be run with sudo, but you can also use `-r` option to run rootless container if you want.      
 *****************************************
@@ -44,13 +49,17 @@ ruri -D -o test.conf -k cap_sys_admin -d cap_sys_chroot ./t
 This will save config to test.conf.      
 *****************************************
 ```
--c, --config [config file] ..................: Use config file
+-c, --config [config] [args] [COMMAND [ARGS]]: Use config file
 ```
 You can use `ruri -c config_file` to run a container with config file.      
 For example:      
 ```
 ruri -c test.conf
 ```
+or:      
+```
+ruri -c test.conf -k cap_sys_admin /bin/su root -
+```      
 This will run container using test.conf.
 ***********************************************
 ```      
@@ -65,12 +74,14 @@ For example:
 ruri -q /usr/bin/qemu-x86_64-static -a x86_64 ./test-x86_64
 ```
 But remember that do not use this feature to simulate host architecture.      
+Note: This option need kernel support for binfmt_misc.      
 *******************************************************************
 ```
 -u, --unshare ...............................: Enable unshare feature
 ```
 ruri supports unshare container, but NET and USER namespace is not supported.        
 Note: when PID 1 died in PID NS, the ns will be cleared, so all process in it will die.      
+Note: This option need kernel support for namespaces, it will try to enable supported ns, but if failed, it will only show warnings.     
 *****************************************
 ```
 -n, --no-new-privs ..........................: Set NO_NEW_PRIVS flag
@@ -86,6 +97,7 @@ ruri will create /.rurienv in container to save container config by default, you
 -s, --enable-seccomp ........................: Enable built-in Seccomp profile
 ```
 ruri provides a built-in seccomp profile, but if you really need to use seccomp, you might need to edit src/seccomp.c with your own rules and recompile it.      
+Note: This option need kernel support seccomp.
 ****************************************
 ```
 -p, --privileged ............................: Run privileged container
@@ -97,6 +109,7 @@ This argument will give all capabilities to container, but you can also use `-d`
 ```
 This option should be run with common user, so you can run rootless container with user ns.      
 This option require `uidmap` package and user namespace support.      
+Note: This option need user ns support, and need kernel to allow create user ns with common user.      
 *********************************************
 ```
 -k, --keep [cap] ............................: Keep the specified capability
@@ -148,6 +161,7 @@ for example:
 ```
 ruri -l memory=1M -l cpuset=1 /test
 ```
+Note: This option need kernel support for specified cgroup.      
 **************************************************
 ```
 -w, --no-warnings ...........................: Disable warnings
@@ -174,3 +188,18 @@ default work directory is `/`, you can use this option to change it to other dir
 -A, --unmask-dirs ............................: Unmask dirs in /proc and /sys
 ```
 ruri will protect some files/dirs in /proc and /sys by default, use -A to disable this.      
+********************
+```
+-E, --user ...................................: Set the user to run command in the container.
+```
+You can use this option to switch to a common user before exec(3).       
+*************
+```
+-t, --hostname [hostname] ....................: Set hostname
+```
+Set hostname, only for unshare container.      
+************
+```
+-x, --no-network .............................: Disable network
+```
+Disable network, this option need net ns support and will enable unshare at the same time.      

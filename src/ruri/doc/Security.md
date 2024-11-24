@@ -3,6 +3,9 @@ Here are several ways to enhance the security of ruri container, kindly read thi
 ## Regular:
 ### Run rootless container:
 If your device supports user ns, you can install uidmap and use `-r` option with common user, so that you can avoid using root privileges to run the container.      
+### Run command in container with common user:
+If you can not run rootless container, there's another choice, add a common user in your container and use `-E username` to run command as common user instead root.      
+If you don't need any privileges, it's better to enable no_new_privs at the same time.      
 ### Capabilities:
 Ruri will automatically drop unneeded capabilities, but ruri also provides capability control function, you can read capabilities(7) and use `-d` option to filter out unnecessary capabilities in container.      
 ### Disable .rurienv:
@@ -26,6 +29,8 @@ Ruri supports enable no_new_privs bit by `-n` option, after enabling this, comma
 Ruri supports mounting the rootfs of container as read-only by using `-R` option, this will make all the container read-only.      
 ### Do not create runtime dirs:
 /dev, /proc and /sys will not be mounted if you enable `-j` option.      
+### Disable network:
+You can use `-x` option to create a new net ns and disable network for container.      
 # Other built-in protections:
 ## Devices in /dev.
 For /dev, ruri will only create necessary devices on it,  so that block devices will always be unavailable in container, and as cap_mknod and cap_sys_admin is dropped by default, you can not escape from ruri container by modifying disk partitions.      

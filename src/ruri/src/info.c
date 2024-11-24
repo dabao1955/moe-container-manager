@@ -28,10 +28,14 @@
  *
  */
 #include "include/ruri.h"
-void show_version_info(void)
+/*
+ * This file provides some functions to show help/version info.
+ * As ruri_fetch() is too long but useless, I put it in rurifetch.c.
+ */
+void ruri_show_version_info(void)
 {
 	/*
-	 * Just show version info and license.
+	 * Just show some info.
 	 * Version info is defined in macro RURI_VERSION.
 	 * RURI_COMMIT_ID is defined as -D option of compiler.
 	 */
@@ -49,6 +53,11 @@ void show_version_info(void)
 #if defined(RURI_COMMIT_ID)
 	cprintf("{base}%s%s%s", "ruri commit id ...:  ", RURI_COMMIT_ID, "\n");
 #endif
+	cprintf("{base}%s%s%s", "Architecture .....:  ", RURI_HOST_ARCH, "\n");
+	struct stat st;
+	if (stat("/proc/self/exe", &st) == 0) {
+		cprintf("{base}%s%ldK%s", "Binary size ......:  ", (st.st_size / 1024), "\n");
+	}
 #if defined(LIBCAP_MAJOR) && defined(LIBCAP_MINOR)
 	cprintf("{base}%s%d%s%d%s", "libcap ...........:  ", LIBCAP_MAJOR, ".", LIBCAP_MINOR, "\n");
 #endif
@@ -63,7 +72,7 @@ void show_version_info(void)
 	cprintf("{clear}\n");
 }
 // For `ruri -V`.
-void show_version_code(void)
+void ruri_show_version_code(void)
 {
 	/*
 	 * The version code is not standard now,
@@ -73,7 +82,7 @@ void show_version_code(void)
 	cprintf("%s\n", RURI_VERSION);
 }
 // For `ruri -h`.
-void show_helps(void)
+void ruri_show_helps(void)
 {
 	/*
 	 * Help page of ruri.
@@ -91,13 +100,14 @@ void show_helps(void)
 	cprintf("{base}  -V, --version-code ..........................: Show version code\n");
 	cprintf("{base}  -h, --help ..................................: Show helps\n");
 	cprintf("{base}  -H, --show-examples .........................: Show commandline examples\n");
-	cprintf("{base}  -U, --umount [container_dir] ................: Umount a container\n");
-	cprintf("{base}  -P, --ps [container_dir] ....................: Show process status of the container(*)\n");
+	cprintf("{base}  -U, --umount [container_dir/config] .........: Umount a container\n");
+	cprintf("{base}  -P, --ps [container_dir/config] .............: Show process status of the container(*)\n");
+	cprintf("{base}  -C, --correct-config [config]................: Correct a container config\n");
 	cprintf("\n");
 	cprintf("{base}ARGS:\n");
 	cprintf("{base}  -D, --dump-config ...........................: Dump the config\n");
-	cprintf("{base}  -o, --output [config file] ..................: Set output file of `-D` option\n");
-	cprintf("{base}  -c, --config [config file] ..................: Use config file\n");
+	cprintf("{base}  -o, --output [config] .......................: Set output file of `-D` option\n");
+	cprintf("{base}  -c, --config [config] [args] [COMMAND [ARGS]]: Use config file\n");
 	cprintf("{base}  -a, --arch [arch] ...........................: Simulate architecture via binfmt_misc/QEMU (**)\n");
 	cprintf("{base}  -q, --qemu-path [path] ......................: Specify the path of QEMU\n");
 	cprintf("{base}  -u, --unshare ...............................: Enable unshare feature\n");
@@ -113,26 +123,32 @@ void show_helps(void)
 	cprintf("{base}  -M, --ro-mount [dir/dev/img/file] [target] ..: Mount dir/block-device/image/file as read-only\n");
 	cprintf("{base}  -S, --host-runtime ..........................: Bind-mount /dev/, /sys/ and /proc/ from host\n");
 	cprintf("{base}  -R, --read-only .............................: Mount / as read-only\n");
-	cprintf("{base}  -l, --limit [cpuset=cpu/memory=mem] .........: Set cpuset/memory limit(******)\n");
+	cprintf("{base}  -l, --limit [limit=lin] .....................: Set cpuset/memory limit(******)\n");
 	cprintf("{base}  -w, --no-warnings ...........................: Disable warnings\n");
 	cprintf("{base}  -f, --fork ..................................: fork() before exec the command(*******)\n");
 	cprintf("{base}  -j, --just-chroot ...........................: Just chroot, do not create the runtime dirs\n");
 	cprintf("{base}  -W, --work-dir [dir] ........................: Set the work directory in container\n");
 	cprintf("{base}  -A, --unmask-dirs ...........................: Unmask dirs in /proc and /sys\n");
+	cprintf("{base}  -E, --user [user/uid] .......................: Set the user to run command in the container(*******)\n");
+	cprintf("{base}  -t, --hostname [hostname] ...................: Set the hostname of the container(********)\n");
+	cprintf("{base}  -x, --no-network ............................: Disable network(*********)\n");
 	cprintf("\n");
 	cprintf("{base}Note:\n");
-	cprintf("{base}(*)      : Will not work for unshare container without PID ns support\n");
-	cprintf("{base}(**)     : `-a` option also need `-q` is set\n");
-	cprintf("{base}(***)    : cap can both be value or name (e.j. cap_chown == 0)\n");
-	cprintf("{base}(****)   : Will not work if [COMMAND [ARGS]...] is like `/bin/su -`\n");
-	cprintf("{base}(*****)  : You can use `-m/-M [source] /` to mount other source as root\n");
-	cprintf("{base}(******) : Each `-l` option can only set one of the cpuset/memory limits\n");
-	cprintf("{base}           for example: `ruri -l memory=1M -l cpuset=1 /test`\n");
-	cprintf("{base}(*******): This option is totally useless\n");
+	cprintf("{base}(*)         : Will not work for unshare container without PID ns support\n");
+	cprintf("{base}(**)        : `-a` option also need `-q` is set\n");
+	cprintf("{base}(***)       : cap can both be value or name (e.j. cap_chown == 0)\n");
+	cprintf("{base}(****)      : Will not work if [COMMAND [ARGS]...] is like `/bin/su -`\n");
+	cprintf("{base}(*****)     : You can use `-m/-M [source] /` to mount other source as root\n");
+	cprintf("{base}(******)    : Each `-l` option can only set one of the cpuset/memory/cpupercent limits\n");
+	cprintf("{base}              for example: `ruri -l memory=1M -l cpupercent=60 -l cpuset=1 /test`\n");
+	cprintf("{base}(*******)   : This option is totally useless\n");
+	cprintf("{base}(********)  : If you use username, please make sure it's in /etc/passwd in container\n");
+	cprintf("{base}(*********) : This option is only for unshare container\n");
+	cprintf("{base}(**********): This option need net ns, and will enable unshare feature by default\n");
 	cprintf("{base}{clear}\n");
 }
 // For `ruri -H`.
-void show_examples(void)
+void ruri_show_examples(void)
 {
 	/*
 	 * Command line examples.

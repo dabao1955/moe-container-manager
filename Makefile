@@ -146,5 +146,4 @@ update-ruri:
 	$(Q)rm -rf src/ruri/LICENSE src/ruri/.git src/ruri/.github src/ruri/.clang-format src/ruri/.clang-format src/ruri/Makefile src/ruri/configure src/ruri/src/include/version.h src/ruri/test src/ruri/get-ruri.sh src/ruri/test src/ruri/build
 	$(Q)mv src/tmp/* src/ruri/
 	$(Q)mv src/ruri/rules src/ruri/debian
-	$(Q)mv src/ruri/src/main.c src/ruri/src/ruri.c
 	$(Q)rm -rf src/tmp

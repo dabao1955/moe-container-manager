@@ -1,16 +1,30 @@
 # v3.8:
   * Support more platforms, currently supports: arm64, armv7, armhf, riscv64, i386, loong64, s390x, ppc64le and x86_64.
+  * Improve rootless container support.
   * Add `-W` option: `--work-dir`.
   * Add `-A` option: `--unmask-dirs`.
+  * Add `-E` option: `--user`.
+  * Add `-t` option: `--hostname`.
+  * Add `-F` option: `--ruri-fetch`.
+  * Add `-x` option: `--disable-network`.
+  * Add `-C` option: `--correct-config`
+  * `-c` option can now recognize other args and command to run.
+  * `-U` and `-P` option can now use config file.
+  * Rewrite cgroup support, add cpupercent limit support.
   * Change MAX_MOUNTPOINTS AND MAX_ENVS from 128*2 to 512*2.
   * Auto kill all processes in container when umounting container.
   * We will always mount / as the first mountpoint.
   * Set the size limit of /dev/shm when memory limit is set.
   * Fix crash on capget().
+  * Fix pivot_root does not work.
+  * Fix unshare container when pivot_root failed.
+  * Enable unshare if detected ns_pid is ruri.
+  * Correct ns_pid for unshare container when exec command in container again.
   * Fix qemu path when we pre-mount the rootfs from other source.
   * Add autotest.
   * Fix memory issues.
   * libk2v: Add lenth check for array to avoid overflow.
+  * libk2v: rewrite deserialization part.
   * cprintf: Correct the way to get buffer size, avoid overflow.
   * General bug fixes.
 # v3.7:

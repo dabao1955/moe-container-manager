@@ -28,17 +28,23 @@
  *
  */
 #include "include/ruri.h"
+/*
+ * Since we cannot statically link getpwuid() in glibc,
+ * we need to implement it by ourselves.
+ * This file provides functions to parse /etc/passwd,
+ * and it can also parse /etc/subuid and /etc/subgid.
+ */
 static char *line_get_username(const char *_Nonnull p)
 {
 	/*
 	 * Get username by line.
 	 */
-	char *ret = malloc(128);
+	char *ret = malloc(LOGIN_NAME_MAX * 4);
 	ret[0] = '\0';
 	// /etc/passwd format:
 	// name:password:uid:gid:comment:home directory:login shell
 	// So we only need the string before the first colon.
-	for (int i = 0; p[i] != '\0'; i++) {
+	for (int i = 0; p[i] != '\0' && i < (LOGIN_NAME_MAX * 2); i++) {
 		if (p[i] == ':') {
 			break;
 		}
@@ -63,6 +69,31 @@ static uid_t line_get_uid(const char *_Nonnull p)
 		p = strchr(p, ':') + 1;
 	}
 	// Now, after we skip 2 colons, we can get the uid.
+	// Read the uid until we meet the next colon.
+	for (int i = 0; p[i] != '\0'; i++) {
+		if (p[i] == ':') {
+			return ret;
+		}
+		ret = ret * 10 + (uid_t)(p[i] - '0');
+	}
+	return 0;
+}
+static gid_t line_get_gid(const char *_Nonnull p)
+{
+	/*
+	 * Get gid by line.
+	 */
+	uid_t ret = 0;
+	// /etc/passwd format:
+	// name:password:uid:gid:comment:home directory:login shell
+	// So we need to skip 3 colons.
+	for (int i = 0; i < 3; i++) {
+		if (strchr(p, ':') == NULL) {
+			return 0;
+		}
+		p = strchr(p, ':') + 1;
+	}
+	// Now, after we skip 3 colons, we can get the gid.
 	// Read the uid until we meet the next colon.
 	for (int i = 0; p[i] != '\0'; i++) {
 		if (p[i] == ':') {
@@ -166,7 +197,7 @@ static uid_t line_get_uid_count(const char *_Nonnull p)
 	}
 	return ret;
 }
-static void get_uid_map(char *_Nonnull user, struct ID_MAP *_Nonnull id_map)
+static void get_uid_map(char *_Nonnull user, struct RURI_ID_MAP *_Nonnull id_map)
 {
 	/*
 	 * Get uid_map.
@@ -244,7 +275,7 @@ static gid_t line_get_gid_count(const char *_Nonnull p)
 	}
 	return ret;
 }
-static void get_gid_map(const char *_Nonnull user, struct ID_MAP *_Nonnull id_map)
+static void get_gid_map(const char *_Nonnull user, struct RURI_ID_MAP *_Nonnull id_map)
 {
 	/*
 	 * Get gid_map.
@@ -276,18 +307,18 @@ static void get_gid_map(const char *_Nonnull user, struct ID_MAP *_Nonnull id_ma
 	id_map->gid_count = line_get_gid_count(map);
 	free(buf);
 }
-struct ID_MAP get_idmap(uid_t uid, gid_t gid)
+struct RURI_ID_MAP ruri_get_idmap(uid_t uid, gid_t gid)
 {
 	/*
 	 * Get uid_map and gid_map.
-	 * This function will return a ID_MAP struct for `newuidmap` and `newgidmap`.
+	 * This function will return a RURI_ID_MAP struct for `newuidmap` and `newgidmap`.
 	 * If there is any error, all the id_map will be 0.
 	 */
-	struct ID_MAP ret;
+	struct RURI_ID_MAP ret;
 	ret.uid = uid;
 	ret.gid = gid;
 	char *username = get_username(uid);
-	log("{base}Username: {cyan}%s\n", username);
+	ruri_log("{base}Username: {cyan}%s\n", username);
 	if (username == NULL) {
 		ret.uid_lower = 0;
 		ret.uid_count = 0;
@@ -297,12 +328,121 @@ struct ID_MAP get_idmap(uid_t uid, gid_t gid)
 	}
 	get_uid_map(username, &ret);
 	get_gid_map(username, &ret);
-	log("{base}uid: {cyan}%d\n", ret.uid);
-	log("{base}gid: {cyan}%d\n", ret.gid);
-	log("{base}uid_lower: {cyan}%d\n", ret.uid_lower);
-	log("{base}uid_count: {cyan}%d\n", ret.uid_count);
-	log("{base}gid_lower: {cyan}%d\n", ret.gid_lower);
-	log("{base}gid_count: {cyan}%d\n", ret.gid_count);
+	ruri_log("{base}uid: {cyan}%d\n", ret.uid);
+	ruri_log("{base}gid: {cyan}%d\n", ret.gid);
+	ruri_log("{base}uid_lower: {cyan}%d\n", ret.uid_lower);
+	ruri_log("{base}uid_count: {cyan}%d\n", ret.uid_count);
+	ruri_log("{base}gid_lower: {cyan}%d\n", ret.gid_lower);
+	ruri_log("{base}gid_count: {cyan}%d\n", ret.gid_count);
 	free(username);
 	return ret;
+}
+bool ruri_user_exist(const char *_Nonnull username)
+{
+	/*
+	 * Check if the user exists.
+	 */
+	int fd = open("/etc/passwd", O_RDONLY | O_CLOEXEC);
+	if (fd < 0) {
+		return false;
+	}
+	struct stat filestat;
+	fstat(fd, &filestat);
+	off_t size = filestat.st_size;
+	char *buf = malloc((size_t)size + 1);
+	read(fd, buf, (size_t)size);
+	buf[size] = '\0';
+	close(fd);
+	char *p = buf;
+	char *tmpusername = " ";
+	while (true) {
+		tmpusername = line_get_username(p);
+		if (strcmp(tmpusername, username) == 0) {
+			free(buf);
+			free(tmpusername);
+			return true;
+		}
+		free(tmpusername);
+		p = strchr(p, '\n');
+		if (p == NULL) {
+			break;
+		}
+		p = p + 1;
+	}
+	free(buf);
+	return false;
+}
+uid_t ruri_get_user_uid(const char *_Nonnull username)
+{
+	/*
+	 * Get uid by username.
+	 */
+	int fd = open("/etc/passwd", O_RDONLY | O_CLOEXEC);
+	if (fd < 0) {
+		return 0;
+	}
+	struct stat filestat;
+	fstat(fd, &filestat);
+	off_t size = filestat.st_size;
+	char *buf = malloc((size_t)size + 1);
+	read(fd, buf, (size_t)size);
+	buf[size] = '\0';
+	close(fd);
+	char *p = buf;
+	uid_t tmpuid = 0;
+	char *tmpusername = " ";
+	while (true) {
+		tmpusername = line_get_username(p);
+		tmpuid = line_get_uid(p);
+		if (strcmp(tmpusername, username) == 0) {
+			free(buf);
+			free(tmpusername);
+			return tmpuid;
+		}
+		free(tmpusername);
+		p = strchr(p, '\n');
+		if (p == NULL) {
+			break;
+		}
+		p = p + 1;
+	}
+	free(buf);
+	return 0;
+}
+gid_t ruri_get_user_gid(const char *_Nonnull username)
+{
+	/*
+	 * Get gid by username.
+	 */
+	int fd = open("/etc/passwd", O_RDONLY | O_CLOEXEC);
+	if (fd < 0) {
+		return 0;
+	}
+	struct stat filestat;
+	fstat(fd, &filestat);
+	off_t size = filestat.st_size;
+	char *buf = malloc((size_t)size + 1);
+	read(fd, buf, (size_t)size);
+	buf[size] = '\0';
+	close(fd);
+	char *p = buf;
+	gid_t tmpgid = 0;
+	char *tmpusername = " ";
+	while (true) {
+		tmpusername = line_get_username(p);
+		tmpgid = line_get_gid(p);
+		if (strcmp(tmpusername, username) == 0) {
+			free(buf);
+			free(tmpusername);
+			return tmpgid;
+		}
+		free(tmpusername);
+		p = strchr(p, '\n');
+		if (p == NULL) {
+			break;
+		}
+		p = p + 1;
+	}
+	free(buf);
+	return 0;
 }
